@@ -144,6 +144,7 @@ volatile bool forceRefresh = false;
 volatile bool refreshComplete = true;
 
 DeviceMode currentMode = MODE_RAPID_AVOID;
+bool rawMode = false;  // true = 15-byte raw binary frames from Serial
 
 volatile unsigned long lastBtnPress = 0;
 volatile bool btnPressed = false;
@@ -514,6 +515,7 @@ void printHelp() {
   Serial.println("  mode              查看/切换模式");
   Serial.println("  print             打印当前状态");
   Serial.println("  demo              演示动画");
+  Serial.println("  raw on/off        二进制帧模式 (接Vision管线)");
   Serial.println("  refresh           强制重刷");
 }
 
@@ -526,6 +528,7 @@ void printStatus() {
   Serial.printf("步长: %d\n", refreshStep);
   Serial.printf("时序: A=%d B=%d C=%d D=%d ms\n", phaseA, phaseB, phaseC, phaseD);
   Serial.printf("BLE: %s\n", deviceConnected ? "已连接" : "未连接");
+  Serial.printf("RAW: %s\n", rawMode ? "开启" : "关闭");
   Serial.println("点阵数据:");
   for (int row = 0; row < 5; row++) {
     Serial.print("  ");
@@ -580,6 +583,18 @@ void runDemo() {
 
 void processSerial() {
   if (!Serial.available()) return;
+
+  // ── Raw binary mode: read 15-byte frames directly (Vision pipeline) ──
+  if (rawMode) {
+    if (Serial.available() >= NUM_MODULES) {
+      Serial.readBytes(brailleData, NUM_MODULES);
+      for (int i = 0; i < NUM_MODULES; i++) brailleData[i] &= 0x3F;
+      newDataReady = true;
+    }
+    // Drain any trailing newlines
+    while (Serial.available() && Serial.peek() == '\n') Serial.read();
+    return;
+  }
 
   String line = Serial.readStringUntil('\n');
   line.trim();
@@ -705,6 +720,14 @@ void processSerial() {
     } else {
       Serial.println("格式: timing A B C D");
     }
+  }
+  else if (line == "raw on") {
+    rawMode = true;
+    Serial.println("进入 raw 模式 (15字节二进制帧)");
+  }
+  else if (line == "raw off") {
+    rawMode = false;
+    Serial.println("退出 raw 模式");
   }
   else {
     Serial.printf("未知命令: %s (输入help查看)\n", line.c_str());
