@@ -7,8 +7,8 @@ Supports:
   - Http POST (RPi → Backend → WebSocket → Phone → BLE → ESP32)
   - Network socket (raw TCP, legacy)
 
-Protocol: raw 15-byte frames, one per line/time step.
-No framing overhead — ESP32 BLE callback expects exactly 15 bytes.
+Protocol: raw 90-byte frames (9×10 SMA dot grid), one per time step.
+No framing overhead — ESP32 BLE callback expects exactly 90 bytes.
 """
 
 import time
@@ -22,7 +22,7 @@ class OutputSender:
     """Abstract frame sender."""
 
     def send(self, frame):
-        """Send 15-byte frame (numpy array or bytes)."""
+        """Send 90-byte frame (9×10 SMA dot grid)."""
         raise NotImplementedError
 
     def close(self):
@@ -76,7 +76,7 @@ class FileSender(OutputSender):
 class NetworkSender(OutputSender):
     """Send frames over TCP to the Node.js backend, which relays to phone → BLE.
 
-    The backend can add a route: POST /api/vision/frame { frame: [15 bytes base64] }
+    The backend can add a route: POST /api/vision/frame { frame: [90 bytes base64] }
     Phone polls or WebSocket receives, then writes to BLE FFE1 characteristic.
     """
 

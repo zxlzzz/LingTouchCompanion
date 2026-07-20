@@ -19,25 +19,29 @@ DEPTH_INPUT_SIZE = (518, 518)  # model input resolution
 USE_GPU = False             # True for CUDA, False for CPU (RPi default)
 
 # ── Grid mapping ───────────────────────────────────────
-GRID_COLS = 3               # horizontal: left / center / right
-GRID_ROWS = 5               # vertical: far → near (top → bottom)
-# Matches the ESP32 firmware physical layout:
-#   1  2  3
-#   4  5  6
-#   7  8  9
-#  10 11 12
-#  13 14 15
+# 9 cols × 10 rows = 90 cells = 15 modules × 6 SMA dots per module
+# Each cell maps to one SMA dot (on/off)
+GRID_COLS = 9               # horizontal: 9 SMA dot columns
+GRID_ROWS = 10              # vertical: 10 SMA dot rows (top=farther → bottom=nearer)
 
 # Region of Interest: crop middle portion of depth map
 # (ignore sky at top, feet at bottom)
 ROI_TOP_RATIO = 0.2         # skip top 20% (sky/ceiling)
 ROI_BOTTOM_RATIO = 0.1      # skip bottom 10% (ground)
 
-# ── Obstacle detection thresholds (meters) ────────────
-DANGER_NEAR_M = 0.5         # < 0.5m: all 6 dots raised (urgent stop)
-WARNING_MEDIUM_M = 1.0      # 0.5-1.0m: 4 dots raised (caution)
-ATTENTION_FAR_M = 2.0       # 1.0-2.0m: 2 dots raised (awareness)
-# > 2.0m: no dots (clear path)
+# ── Obstacle detection (dual-condition: percentile + pixel ratio) ──
+# A cell activates only when BOTH:
+#   (a) its P_OBS_PERCENTILE exceeds the ground baseline — the cell "pops out"
+#   (b) at least MIN_CELL_COVERAGE fraction of pixels exceed ground baseline
+# Then only the top MAX_ACTIVATIONS cells (by obstacle margin) are kept.
+CELL_OBS_PERCENTILE = 85    # high percentile within cell (>50 = "most pixels are close")
+MIN_CELL_COVERAGE = 0.30    # at least 30% of cell pixels must be above ground
+MAX_ACTIVATIONS = 45        # cap total activated dots (90 total)
+
+# Absolute fallback thresholds (used when depth IS in real meters, e.g. stereo cam)
+DANGER_NEAR_M = 0.5
+WARNING_MEDIUM_M = 1.0
+ATTENTION_FAR_M = 2.0
 
 # ── Braille dot patterns ───────────────────────────────
 # Each module: 2 cols × 3 rows of SMA dots, bit0~bit5
@@ -70,6 +74,6 @@ EDGE_MIN_CONTOUR_AREA = 1000    # px², paper used 1000 for 640×480
 SERIAL_PORT = "/dev/ttyUSB0"  # or /dev/serial0 for RPi GPIO UART
 SERIAL_BAUDRATE = 115200
 
-# Frame format: 15 bytes, one per braille module (position 0-14)
-# Each byte: bits 0-5 = braille dot pattern, bits 6-7 reserved
-FRAME_LEN = 15
+# Frame format: 90 bytes, one per SMA dot (9 cols × 10 rows)
+# Each byte: 0 or 1 (single dot on/off)
+FRAME_LEN = 90
