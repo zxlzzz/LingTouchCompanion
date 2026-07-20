@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵触·随行 测试台 V3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2129;
+    --border: #30363d;
+    --border-hi: #58a6ff;
+    --text: #c9d1d9;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --orange: #d29922;
+    --cyan: #39d2c0;
+    --purple: #bc8cff;
+    --dot-on: #58e8ff;
+    --dot-off: #21262d;
+    --dot-border: #30363d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 16px;
+    line-height: 1.5;
+  }
+
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── 布局 ── */
+  .header {
+    display: flex; align-items: baseline; gap: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px; margin-bottom: 16px;
+  }
+  .header h1 { font-size: 18px; font-weight: 600; color: var(--accent); }
+  .header .ver { font-size: 12px; color: var(--text-dim); }
+
+  .panels {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .panels { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .panel-title {
+    font-size: 12px; font-weight: 600; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  /* ── 按钮 ── */
+  button {
+    font-family: 'Noto Sans SC', sans-serif;
+    padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px;
+    font-size: 12px; cursor: pointer; color: var(--text);
+    background: var(--surface2); transition: all 0.15s;
+  }
+  button:hover { border-color: var(--accent); background: #1f2937; }
+  button:disabled { opacity: 0.3; cursor: not-allowed; }
+  button:disabled:hover { border-color: var(--border); background: var(--surface2); }
+  .btn-accent { border-color: var(--accent); color: var(--accent); }
+  .btn-green  { border-color: var(--green); color: var(--green); }
+  .btn-red    { border-color: var(--red); color: var(--red); }
+  .btn-orange { border-color: var(--orange); color: var(--orange); }
+  .btn-fill-accent { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn-fill-green  { background: var(--green); color: #000; border-color: var(--green); }
+  .btn-fill-red    { background: var(--red); color: #000; border-color: var(--red); }
+
+  .btn-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .btn-row + .btn-row { margin-top: 6px; }
+
+  /* ── BLE状态栏 ── */
+  .ble-bar {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .ble-indicator {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red); display: inline-block;
+  }
+  .ble-indicator.on { background: var(--green); }
+  .ble-info { font-size: 12px; color: var(--text-dim); }
+  .ble-info span { color: var(--text); }
+
+  /* ── 模式/状态标签 ── */
+  .status-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .tag {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid var(--border);
+  }
+  .tag-mode { border-color: var(--purple); color: var(--purple); }
+  .tag-refresh { border-color: var(--green); color: var(--green); }
+  .tag-bat { border-color: var(--orange); color: var(--orange); }
+
+  /* ── 点阵网格 ── */
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(9, 28px);
+    grid-template-rows: repeat(10, 28px);
+    gap: 2px;
+  }
+  .cell {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--dot-off); border: 1.5px solid var(--dot-border);
+    cursor: pointer; user-select: none; transition: all 0.1s;
+  }
+  .cell:hover { border-color: var(--dot-on); }
+  .cell.on { background: var(--dot-on); border-color: var(--dot-on); box-shadow: 0 0 8px #58e8ff44; }
+
+  /* 模组分隔线 (通过间距) */
+  .cell[data-col="2"], .cell[data-col="5"] { margin-right: 4px; }
+  .cell[data-row="1"], .cell[data-row="3"],
+  .cell[data-row="5"], .cell[data-row="7"] { margin-bottom: 0; }
+  /* 用grid gap做不了不规则间距，改用overlay */
+
+  /* ── Hex预览 ── */
+  .hex-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; background: var(--bg); border-radius: 4px;
+    padding: 8px; border: 1px solid var(--border);
+    word-break: break-all; line-height: 1.8;
+  }
+  .hex-byte { color: var(--cyan); }
+  .hex-byte.zero { color: var(--text-dim); }
+  .hex-label { color: var(--text-dim); font-size: 11px; }
+
+  /* ── 模组面板 ── */
+  #module-panel {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  }
+  .mod-cell {
+    background: var(--bg); border-radius: 4px; padding: 4px 6px;
+    text-align: center; border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.15s; user-select: none;
+  }
+  .mod-cell:hover { border-color: var(--accent); }
+  .mod-cell.active { border-color: var(--dot-on); color: var(--dot-on); }
+
+  /* ── 参数控制 ── */
+  .param-grid {
+    display: grid; grid-template-columns: 80px 1fr 50px; gap: 4px 8px;
+    align-items: center; font-size: 12px;
+  }
+  .param-grid label { color: var(--text-dim); text-align: right; }
+  .param-grid input[type=range] { width: 100%; accent-color: var(--accent); }
+  .param-grid .val { font-family: 'JetBrains Mono', monospace; color: var(--cyan); text-align: right; }
+
+  /* ── 进度条 ── */
+  .progress-wrap {
+    width: 100%; height: 20px; background: var(--bg); border-radius: 3px;
+    margin: 6px 0; cursor: pointer; border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; background: var(--accent); width: 0%;
+    transition: width 0.05s; opacity: 0.6;
+  }
+
+  .frame-info {
+    font-size: 12px; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .frame-info span { color: var(--text); }
+
+  /* ── 帧列表 ── */
+  .frame-list {
+    max-height: 200px; overflow-y: auto; font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid var(--border); border-radius: 4px;
+    background: var(--bg);
+  }
+  .frame-item {
+    padding: 3px 8px; cursor: pointer; display: flex;
+    justify-content: space-between; border-bottom: 1px solid #1c2129;
+  }
+  .frame-item:hover { background: var(--surface2); }
+  .frame-item.current { background: #1a2744; color: var(--accent); }
+  .frame-item .ts { color: var(--text-dim); }
+
+  /* ── 日志 ── */
+  #log {
+    background: var(--bg); border-radius: 4px; padding: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    height: 150px; overflow-y: auto; color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  #log .ok   { color: var(--green); }
+  #log .err  { color: var(--red); }
+  #log .data { color: var(--cyan); }
+  #log .ble  { color: var(--purple); }
+
+  /* ── 分隔 ── */
+  .sep { height: 1px; background: var(--border); margin: 8px 0; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>灵触·随行 测试台</h1>
+  <span class="ver mono">V3.0 · ESP32-S3 · 15模组</span>
+</div>
+
+<!-- ═══════ BLE ═══════ -->
+<div class="panel">
+  <div class="ble-bar">
+    <button class="btn-accent" id="btnConnect" onclick="toggleBLE()">连接 BLE</button>
+    <span class="ble-indicator" id="bleIndicator"></span>
+    <span class="ble-info" id="bleStatus">未连接</span>
+  </div>
+  <div class="status-tags" id="statusTags">
+    <span class="tag tag-mode" id="tagMode">MODE: --</span>
+    <span class="tag tag-refresh" id="tagRefresh" style="display:none">刷新完成</span>
+    <span class="tag tag-bat" id="tagBat" style="display:none">BAT: --%</span>
+  </div>
+</div>
+
+<div class="panels">
+<!-- ═══════ 左列：点阵 + 模组 ═══════ -->
+<div>
+  <!-- 点阵 -->
+  <div class="panel">
+    <div class="panel-title">点阵 10×9 (15模组×6pin)</div>
+    <div id="grid"></div>
+    <div class="sep"></div>
+    <!-- 快捷操作 -->
+    <div class="btn-row">
+      <button onclick="patternAll(0x3F)">全亮</button>
+      <button onclick="patternAll(0x00)">全灭</button>
+      <button onclick="patternChecker()">棋盘格</button>
+      <button onclick="patternCross()">十字</button>
+      <button onclick="patternBorder()">边框</button>
+      <button onclick="patternRandom()">随机</button>
+      <button onclick="patternInvert()">反转</button>
+    </div>
+    <div class="sep"></div>
+    <!-- Hex预览 -->
+    <div class="panel-title">发送预览 (FFE1 · 15字节)</div>
+    <div class="hex-display" id="hexPreview">--</div>
+    <div class="btn-row" style="margin-top:6px">
+      <button class="btn-fill-accent" onclick="sendCurrentGrid()" id="btnSend">发送到设备</button>
+    </div>
+  </div>
+
+  <!-- 模组面板 -->
+  <div class="panel">
+    <div class="panel-title">模组状态 (点击切换全亮/灭)</div>
+    <div id="module-panel"></div>
+  </div>
+</div>
+
+<!-- ═══════ 右列：控制 ═══════ -->
+<div>
+  <!-- 参数 -->
+  <div class="panel">
+    <div class="panel-title">本地参数 (仅影响播放模拟)</div>
+    <div class="param-grid">
+      <label>Phase A</label>
+      <input type="range" min="1" max="100" value="10" oninput="paramChange('phaseA',this.value)">
+      <span class="val" id="vPhaseA">10ms</span>
+
+      <label>Phase B</label>
+      <input type="range" min="1" max="200" value="30" oninput="paramChange('phaseB',this.value)">
+      <span class="val" id="vPhaseB">30ms</span>
+
+      <label>Phase C</label>
+      <input type="range" min="10" max="500" value="300" oninput="paramChange('phaseC',this.value)">
+      <span class="val" id="vPhaseC">300ms</span>
+
+      <label>Phase D</label>
+      <input type="range" min="1" max="100" value="10" oninput="paramChange('phaseD',this.value)">
+      <span class="val" id="vPhaseD">10ms</span>
+
+      <label>Step</label>
+      <input type="range" min="1" max="15" value="12" oninput="paramChange('step',this.value)">
+      <span class="val" id="vStep">12</span>
+
+      <label>Mask</label>
+      <input type="text" value="0x7FFF" id="maskInput"
+        style="font-family:'JetBrains Mono';font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--cyan);padding:2px 6px;width:100%"
+        onchange="paramMask(this.value)">
+      <span class="val" id="vMask">全开</span>
+    </div>
+    <div class="btn-row" style="margin-top:8px">
+      <button onclick="resetParams()">恢复默认</button>
+      <span style="font-size:11px;color:var(--text-dim)">预计单组刷新 ≈ <span class="mono" id="estTime">350</span>ms</span>
+    </div>
+  </div>
+
+  <!-- 文件 + 播放 -->
+  <div class="panel">
+    <div class="panel-title">帧序列</div>
+    <div class="btn-row">
+      <input type="file" id="fileInput" accept=".json,.jsonl"
+        style="font-size:12px;color:var(--text-dim);width:200px">
+      <span class="ble-info" id="fileInfo">未加载</span>
+    </div>
+    <div class="sep"></div>
+    <div class="btn-row">
+      <button class="btn-fill-green" id="btnPlay" onclick="play()" disabled>▶ 播放</button>
+      <button class="btn-red" id="btnPause" onclick="pause()" disabled>⏸ 暂停</button>
+      <button id="btnReset" onclick="reset()" disabled>⏮ 重置</button>
+      <button id="btnPrev" onclick="stepFrame(-1)" disabled>◀</button>
+      <button id="btnNext" onclick="stepFrame(1)" disabled>▶</button>
+    </div>
+    <div class="btn-row">
+      <label style="font-size:12px;color:var(--text-dim)">速度</label>
+      <input type="range" min="0.1" max="5" step="0.1" value="1"
+        style="width:120px;accent-color:var(--accent)"
+        oninput="updateSpeed(this.value)">
+      <span class="mono" style="font-size:12px;color:var(--cyan)" id="speedLabel">1.0x</span>
+      <label style="font-size:12px;color:var(--text-dim);margin-left:12px">
+        <input type="checkbox" id="chkAutoSend" checked> 播放时发送BLE
+      </label>
+    </div>
+    <div class="progress-wrap" onclick="seek(event)">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="frame-info">
+      帧 <span id="frameNum">-</span>/<span id="frameTotal">-</span>
+      · <span id="timeMs">-</span>ms
+      · mode:<span id="modeLabel">-</span>
+      · seq:<span id="seqLabel">-</span>
+    </div>
+    <div class="sep"></div>
+    <!-- 帧列表 -->
+    <div class="frame-list" id="frameList"></div>
+  </div>
+
+  <!-- 帧录制 -->
+  <div class="panel">
+    <div class="panel-title">帧录制 / 编辑</div>
+    <div class="btn-row">
+      <button class="btn-green" onclick="addFrame()">+ 录入当前帧</button>
+      <button onclick="copyFrame()">复制当前帧</button>
+      <button onclick="insertFrame()">在此处插入</button>
+      <button class="btn-red" onclick="deleteFrame()">删除当前帧</button>
+    </div>
+    <div class="btn-row">
+      <button onclick="exportJSON()">导出 JSON</button>
+      <button onclick="useCustomAsSource()">将录制帧设为播放源</button>
+      <span class="mono" style="font-size:12px;color:var(--orange)" id="customCount">0 帧</span>
+    </div>
+    <div class="btn-row">
+      <label style="font-size:12px;color:var(--text-dim)">帧间隔</label>
+      <input type="number" value="500" min="50" max="5000" step="50" id="frameInterval"
+        style="width:70px;font-family:'JetBrains Mono';font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--cyan);padding:2px 6px">
+      <span style="font-size:12px;color:var(--text-dim)">ms</span>
+    </div>
+  </div>
+
+  <!-- 日志 -->
+  <div class="panel">
+    <div class="panel-title">日志 <button style="float:right;padding:1px 8px;font-size:10px" onclick="clearLog()">清空</button></div>
+    <div id="log"></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  状态
+// ═══════════════════════════════════════
+
+let frames = [];
+let customFrames = [];
+let currentFrame = 0;
+let playing = false;
+let playTimer = null;
+let speedMultiplier = 1.0;
+
+// 网格状态 10×9
+let grid = Array.from({length: 10}, () => Array(9).fill(0));
+
+// 本地参数
+let params = {
+  phaseA: 10, phaseB: 30, phaseC: 300, phaseD: 10,
+  step: 12, mask: 0x7FFF
+};
+
+// BLE
+const SERVICE_UUID   = '0000ffe0-0000-1000-8000-00805f9b34fb';
+const CHAR_FFE1_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+const CHAR_FFE3_UUID = '0000ffe3-0000-1000-8000-00805f9b34fb';
+
+let bleDevice = null;
+let bleCharFFE1 = null;   // write
+let bleCharFFE3 = null;   // notify
+let bleConnected = false;
+
+// ═══════════════════════════════════════
+//  网格渲染
+// ═══════════════════════════════════════
+
+const gridEl = document.getElementById('grid');
+for (let r = 0; r < 10; r++) {
+  for (let c = 0; c < 9; c++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.id = `c${r}_${c}`;
+    cell.dataset.row = r;
+    cell.dataset.col = c;
+    cell.addEventListener('click', () => toggleCell(r, c));
+    gridEl.appendChild(cell);
+  }
+}
+
+function toggleCell(r, c) {
+  grid[r][c] = grid[r][c] ? 0 : 1;
+  syncGridUI();
+}
+
+function syncGridUI() {
+  for (let r = 0; r < 10; r++) {
+    for (let c = 0; c < 9; c++) {
+      const cell = document.getElementById(`c${r}_${c}`);
+      cell.className = grid[r][c] ? 'cell on' : 'cell';
+    }
+  }
+  updateHexPreview();
+  updateModulePanel();
+}
+
+// ═══════════════════════════════════════
+//  模组面板
+// ═══════════════════════════════════════
+
+const modPanel = document.getElementById('module-panel');
+for (let m = 0; m < 15; m++) {
+  const div = document.createElement('div');
+  div.className = 'mod-cell';
+  div.id = `mod${m}`;
+  div.textContent = `M${m+1}: 000000`;
+  div.addEventListener('click', () => toggleModule(m));
+  modPanel.appendChild(div);
+}
+
+function toggleModule(m) {
+  const modRow = Math.floor(m / 3);
+  const modCol = m % 3;
+  const r0 = modRow * 2, c0 = modCol * 3;
+
+  // 检查当前是否有任何点亮
+  let anyOn = false;
+  for (let dr = 0; dr < 2; dr++)
+    for (let dc = 0; dc < 3; dc++)
+      if (grid[r0+dr]?.[c0+dc]) anyOn = true;
+
+  const val = anyOn ? 0 : 1;
+  for (let dr = 0; dr < 2; dr++)
+    for (let dc = 0; dc < 3; dc++)
+      if (r0+dr < 10 && c0+dc < 9) grid[r0+dr][c0+dc] = val;
+
+  syncGridUI();
+}
+
+function updateModulePanel() {
+  for (let m = 0; m < 15; m++) {
+    const modRow = Math.floor(m / 3);
+    const modCol = m % 3;
+    const r = modRow * 2, c = modCol * 3;
+    // 按固件bit顺序: bit0=r,c+2  bit1=r,c+1  bit2=r,c  bit3=r+1,c+2  bit4=r+1,c+1  bit5=r+1,c
+    const dots = [
+      grid[r]?.[c+2] || 0,
+      grid[r]?.[c+1] || 0,
+      grid[r]?.[c]   || 0,
+      grid[r+1]?.[c+2] || 0,
+      grid[r+1]?.[c+1] || 0,
+      grid[r+1]?.[c]   || 0,
+    ];
+    const el = document.getElementById(`mod${m}`);
+    const bits = dots.join('');
+    el.textContent = `M${m+1}: ${bits}`;
+    const masked = params.mask & (1 << m);
+    el.className = dots.some(d => d)
+      ? (masked ? 'mod-cell active' : 'mod-cell')
+      : 'mod-cell';
+    if (!masked) el.style.opacity = '0.3'; else el.style.opacity = '1';
+  }
+}
+
+// ═══════════════════════════════════════
+//  Grid ↔ 15字节
+// ═══════════════════════════════════════
+
+function gridToBytes(g) {
+  const data = new Uint8Array(15);
+  for (let m = 0; m < 15; m++) {
+    const modRow = Math.floor(m / 3);
+    const modCol = m % 3;
+    const r = modRow * 2, c = modCol * 3;
+    let b = 0;
+    if (g[r]?.[c+2])   b |= 0x01;
+    if (g[r]?.[c+1])   b |= 0x02;
+    if (g[r]?.[c])     b |= 0x04;
+    if (g[r+1]?.[c+2]) b |= 0x08;
+    if (g[r+1]?.[c+1]) b |= 0x10;
+    if (g[r+1]?.[c])   b |= 0x20;
+    data[m] = b;
+  }
+  return data;
+}
+
+function bytesToGrid(bytes) {
+  const g = Array.from({length: 10}, () => Array(9).fill(0));
+  for (let m = 0; m < 15; m++) {
+    const modRow = Math.floor(m / 3);
+    const modCol = m % 3;
+    const r = modRow * 2, c = modCol * 3;
+    const b = bytes[m] || 0;
+    if (b & 0x01) g[r][c+2]   = 1;
+    if (b & 0x02) g[r][c+1]   = 1;
+    if (b & 0x04) g[r][c]     = 1;
+    if (b & 0x08) g[r+1][c+2] = 1;
+    if (b & 0x10) g[r+1][c+1] = 1;
+    if (b & 0x20) g[r+1][c]   = 1;
+  }
+  return g;
+}
+
+// ═══════════════════════════════════════
+//  Hex预览
+// ═══════════════════════════════════════
+
+function updateHexPreview() {
+  const bytes = gridToBytes(grid);
+  const el = document.getElementById('hexPreview');
+  let html = '';
+  for (let i = 0; i < 15; i++) {
+    const v = bytes[i];
+    const hex = v.toString(16).toUpperCase().padStart(2, '0');
+    const cls = v === 0 ? 'hex-byte zero' : 'hex-byte';
+    html += `<span class="hex-label">M${(i+1).toString().padStart(2,' ')}</span>:<span class="${cls}">${hex}</span> `;
+    if (i % 3 === 2 && i < 14) html += '<br>';
+  }
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════
+//  快捷图案
+// ═══════════════════════════════════════
+
+function patternAll(val) {
+  const v = val ? 1 : 0;
+  for (let r = 0; r < 10; r++)
+    for (let c = 0; c < 9; c++)
+      grid[r][c] = v;
+  syncGridUI();
+}
+
+function patternChecker() {
+  for (let m = 0; m < 15; m++) {
+    const v = (m % 2 === 0) ? 0x3F : 0x00;
+    setModuleValue(m, v);
+  }
+  syncGridUI();
+}
+
+function patternCross() {
+  patternAll(0);
+  // 中间列 (col 3,4,5) 和中间行 (row 4,5)
+  for (let r = 0; r < 10; r++) { grid[r][3] = 1; grid[r][4] = 1; grid[r][5] = 1; }
+  for (let c = 0; c < 9; c++) { grid[4][c] = 1; grid[5][c] = 1; }
+  syncGridUI();
+}
+
+function patternBorder() {
+  patternAll(0);
+  for (let c = 0; c < 9; c++) { grid[0][c] = 1; grid[9][c] = 1; }
+  for (let r = 0; r < 10; r++) { grid[r][0] = 1; grid[r][8] = 1; }
+  syncGridUI();
+}
+
+function patternRandom() {
+  for (let r = 0; r < 10; r++)
+    for (let c = 0; c < 9; c++)
+      grid[r][c] = Math.random() > 0.5 ? 1 : 0;
+  syncGridUI();
+}
+
+function patternInvert() {
+  for (let r = 0; r < 10; r++)
+    for (let c = 0; c < 9; c++)
+      grid[r][c] = grid[r][c] ? 0 : 1;
+  syncGridUI();
+}
+
+function setModuleValue(m, byte) {
+  const modRow = Math.floor(m / 3);
+  const modCol = m % 3;
+  const r = modRow * 2, c = modCol * 3;
+  grid[r][c+2]   = (byte & 0x01) ? 1 : 0;
+  grid[r][c+1]   = (byte & 0x02) ? 1 : 0;
+  grid[r][c]     = (byte & 0x04) ? 1 : 0;
+  grid[r+1][c+2] = (byte & 0x08) ? 1 : 0;
+  grid[r+1][c+1] = (byte & 0x10) ? 1 : 0;
+  grid[r+1][c]   = (byte & 0x20) ? 1 : 0;
+}
+
+// ═══════════════════════════════════════
+//  参数控制
+// ═══════════════════════════════════════
+
+function paramChange(key, val) {
+  params[key] = parseInt(val);
+  document.getElementById('v' + key.charAt(0).toUpperCase() + key.slice(1)).textContent =
+    key === 'step' ? val : val + 'ms';
+  updateEstTime();
+}
+
+function paramMask(val) {
+  try {
+    params.mask = parseInt(val, 16) & 0x7FFF;
+    const cnt = countBits(params.mask);
+    document.getElementById('vMask').textContent = cnt === 15 ? '全开' : `${cnt}/15`;
+    updateModulePanel();
+  } catch(e) {}
+}
+
+function countBits(n) { let c = 0; while (n) { c += n & 1; n >>= 1; } return c; }
+
+function updateEstTime() {
+  const perGroup = params.phaseA + params.phaseB + params.phaseC + params.phaseD;
+  document.getElementById('estTime').textContent = perGroup;
+}
+
+function resetParams() {
+  params = { phaseA: 10, phaseB: 30, phaseC: 300, phaseD: 10, step: 12, mask: 0x7FFF };
+  // 同步slider
+  document.querySelectorAll('.param-grid input[type=range]').forEach((el, i) => {
+    const keys = ['phaseA','phaseB','phaseC','phaseD','step'];
+    if (i < keys.length) {
+      el.value = params[keys[i]];
+      paramChange(keys[i], params[keys[i]]);
+    }
+  });
+  document.getElementById('maskInput').value = '0x7FFF';
+  paramMask('0x7FFF');
+  updateEstTime();
+}
+
+updateEstTime();
+
+// ═══════════════════════════════════════
+//  BLE
+// ═══════════════════════════════════════
+
+async function toggleBLE() {
+  if (bleConnected) {
+    if (bleDevice?.gatt?.connected) bleDevice.gatt.disconnect();
+    bleConnected = false;
+    bleCharFFE1 = null;
+    bleCharFFE3 = null;
+    updateBLEUI();
+    log('BLE 断开', 'data');
+    return;
+  }
+
+  try {
+    log('搜索 LingChu-Tactile ...', 'data');
+    bleDevice = await navigator.bluetooth.requestDevice({
+      filters: [{ name: 'LingChu-Tactile' }],
+      optionalServices: [SERVICE_UUID]
+    });
+
+    bleDevice.addEventListener('gattserverdisconnected', () => {
+      bleConnected = false;
+      bleCharFFE1 = null;
+      bleCharFFE3 = null;
+      updateBLEUI();
+      log('BLE 连接断开', 'err');
+    });
+
+    const server = await bleDevice.gatt.connect();
+    const service = await server.getPrimaryService(SERVICE_UUID);
+
+    // FFE1 - write
+    bleCharFFE1 = await service.getCharacteristic(CHAR_FFE1_UUID);
+
+    // FFE3 - notify
+    try {
+      bleCharFFE3 = await service.getCharacteristic(CHAR_FFE3_UUID);
+      await bleCharFFE3.startNotifications();
+      bleCharFFE3.addEventListener('characteristicvaluechanged', onFFE3Notify);
+      log('FFE3 notify 已订阅', 'ble');
+    } catch (e) {
+      log('FFE3 订阅失败: ' + e.message, 'err');
+    }
+
+    bleConnected = true;
+    updateBLEUI();
+    log('BLE 已连接: ' + bleDevice.name, 'ok');
+  } catch (err) {
+    log('BLE 失败: ' + err.message, 'err');
+  }
+}
+
+function onFFE3Notify(event) {
+  const val = new Uint8Array(event.target.value.buffer);
+  if (val.length < 2) return;
+
+  const evtType = val[0];
+  const evtData = val[1];
+
+  if (evtType === 0x01) {
+    // 刷新完成
+    const tag = document.getElementById('tagRefresh');
+    tag.style.display = 'inline';
+    log('← 刷新完成', 'ble');
+    setTimeout(() => { tag.style.display = 'none'; }, 1500);
+  }
+  else if (evtType === 0x02) {
+    // 模式切换
+    const mode = evtData === 0x01 ? 'RAPID_AVOID' : evtData === 0x02 ? 'LOCAL_ZOOM' : `0x${evtData.toString(16)}`;
+    document.getElementById('tagMode').textContent = `MODE: ${mode}`;
+    log(`← 模式切换: ${mode}`, 'ble');
+  }
+  else if (evtType === 0x03) {
+    // 电量
+    document.getElementById('tagBat').style.display = 'inline';
+    document.getElementById('tagBat').textContent = `BAT: ${evtData}%`;
+    log(`← 电量: ${evtData}%`, 'ble');
+  }
+  else {
+    log(`← 未知事件 type=0x${evtType.toString(16)} data=0x${evtData.toString(16)}`, 'err');
+  }
+}
+
+function updateBLEUI() {
+  document.getElementById('btnConnect').textContent = bleConnected ? '断开 BLE' : '连接 BLE';
+  document.getElementById('btnConnect').className = bleConnected ? 'btn-fill-red' : 'btn-accent';
+  document.getElementById('bleIndicator').className = bleConnected ? 'ble-indicator on' : 'ble-indicator';
+  document.getElementById('bleStatus').textContent = bleConnected ? (bleDevice?.name || '已连接') : '未连接';
+}
+
+// ═══════════════════════════════════════
+//  发送
+// ═══════════════════════════════════════
+
+async function sendBytes(bytes) {
+  if (!bleConnected || !bleCharFFE1) return false;
+  try {
+    await bleCharFFE1.writeValueWithoutResponse(bytes.buffer);
+    return true;
+  } catch (err) {
+    log('发送失败: ' + err.message, 'err');
+    return false;
+  }
+}
+
+async function sendCurrentGrid() {
+  const bytes = gridToBytes(grid);
+  const hex = Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join(' ');
+  if (await sendBytes(bytes)) {
+    log(`→ ${hex}`, 'data');
+  } else if (!bleConnected) {
+    log('BLE 未连接', 'err');
+  }
+}
+
+// ═══════════════════════════════════════
+//  文件加载
+// ═══════════════════════════════════════
+
+document.getElementById('fileInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    try {
+      const arr = JSON.parse(text);
+      frames = Array.isArray(arr) ? arr : [arr];
+    } catch {
+      frames = text.split('\n').map(l => l.trim()).filter(Boolean).map(l => JSON.parse(l));
+    }
+    currentFrame = 0;
+    const dur = ((frames[frames.length-1]?.ts || 0) / 1000).toFixed(1);
+    document.getElementById('fileInfo').textContent = `${file.name} · ${frames.length}帧 · ${dur}s`;
+    document.getElementById('frameTotal').textContent = frames.length;
+    enableControls(true);
+    renderFrame(0);
+    renderFrameList();
+    log(`加载 ${frames.length} 帧, ${dur}s`, 'ok');
+  } catch (err) {
+    log('解析失败: ' + err.message, 'err');
+  }
+});
+
+// ═══════════════════════════════════════
+//  帧渲染 + 播放
+// ═══════════════════════════════════════
+
+function renderFrame(idx) {
+  if (idx < 0 || idx >= frames.length) return;
+  currentFrame = idx;
+  const f = frames[idx];
+
+  if (f.frame) {
+    for (let r = 0; r < 10; r++)
+      for (let c = 0; c < 9; c++)
+        grid[r][c] = (f.frame[r]?.[c]) ? 1 : 0;
+  }
+
+  syncGridUI();
+
+  document.getElementById('frameNum').textContent = idx;
+  document.getElementById('timeMs').textContent = f.ts || 0;
+  document.getElementById('modeLabel').textContent = f.mode || '-';
+  document.getElementById('seqLabel').textContent = f.seq ?? '-';
+
+  const pct = frames.length > 1 ? (idx / (frames.length - 1)) * 100 : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  // 帧列表高亮
+  document.querySelectorAll('.frame-item').forEach((el, i) => {
+    el.className = i === idx ? 'frame-item current' : 'frame-item';
+  });
+}
+
+function renderFrameList() {
+  const el = document.getElementById('frameList');
+  el.innerHTML = '';
+  frames.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = i === currentFrame ? 'frame-item current' : 'frame-item';
+    div.innerHTML = `<span>#${i}</span><span class="ts">${f.ts || 0}ms</span>`;
+    div.addEventListener('click', () => { renderFrame(i); });
+    el.appendChild(div);
+  });
+}
+
+function play() {
+  if (frames.length === 0) return;
+  playing = true;
+  document.getElementById('btnPlay').disabled = true;
+  document.getElementById('btnPause').disabled = false;
+  log(`播放 ${speedMultiplier.toFixed(1)}x`, 'ok');
+  scheduleNext();
+}
+
+function scheduleNext() {
+  if (!playing || currentFrame >= frames.length - 1) {
+    if (currentFrame >= frames.length - 1) {
+      log('播放结束', 'ok');
+      pause();
+    }
+    return;
+  }
+  const rawDelay = (frames[currentFrame+1]?.ts || 0) - (frames[currentFrame]?.ts || 0);
+  const d = Math.max(rawDelay / speedMultiplier, 5);
+
+  playTimer = setTimeout(async () => {
+    currentFrame++;
+    renderFrame(currentFrame);
+    if (document.getElementById('chkAutoSend').checked) {
+      await sendBytes(gridToBytes(grid));
+    }
+    scheduleNext();
+  }, d);
+}
+
+function pause() {
+  playing = false;
+  clearTimeout(playTimer);
+  document.getElementById('btnPlay').disabled = false;
+  document.getElementById('btnPause').disabled = true;
+}
+
+function reset() {
+  pause();
+  currentFrame = 0;
+  if (frames.length > 0) renderFrame(0);
+}
+
+function stepFrame(dir) {
+  const n = currentFrame + dir;
+  if (n >= 0 && n < frames.length) {
+    renderFrame(n);
+    if (document.getElementById('chkAutoSend').checked) sendBytes(gridToBytes(grid));
+  }
+}
+
+function seek(e) {
+  if (frames.length === 0) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  renderFrame(Math.round(pct * (frames.length - 1)));
+}
+
+function updateSpeed(val) {
+  speedMultiplier = parseFloat(val);
+  document.getElementById('speedLabel').textContent = speedMultiplier.toFixed(1) + 'x';
+}
+
+function enableControls(on) {
+  ['btnPlay','btnReset','btnPrev','btnNext'].forEach(id =>
+    document.getElementById(id).disabled = !on);
+}
+
+// ═══════════════════════════════════════
+//  帧录制
+// ═══════════════════════════════════════
+
+function addFrame() {
+  const interval = parseInt(document.getElementById('frameInterval').value) || 500;
+  customFrames.push({
+    seq: customFrames.length,
+    ts: customFrames.length * interval,
+    mode: 'LOCAL_ZOOM',
+    frame: grid.map(r => [...r])
+  });
+  updateCustomCount();
+  log(`录入帧 #${customFrames.length - 1}`, 'ok');
+}
+
+function copyFrame() {
+  if (frames.length === 0 && customFrames.length === 0) return;
+  addFrame(); // 复制当前网格状态
+}
+
+function insertFrame() {
+  if (customFrames.length === 0) { addFrame(); return; }
+  const interval = parseInt(document.getElementById('frameInterval').value) || 500;
+  const insertIdx = Math.min(currentFrame, customFrames.length);
+  customFrames.splice(insertIdx, 0, {
+    seq: 0, ts: 0, mode: 'LOCAL_ZOOM',
+    frame: grid.map(r => [...r])
+  });
+  // 重算seq和ts
+  customFrames.forEach((f, i) => { f.seq = i; f.ts = i * interval; });
+  updateCustomCount();
+  log(`在 #${insertIdx} 处插入帧`, 'ok');
+}
+
+function deleteFrame() {
+  if (customFrames.length === 0) return;
+  const idx = Math.min(currentFrame, customFrames.length - 1);
+  customFrames.splice(idx, 1);
+  const interval = parseInt(document.getElementById('frameInterval').value) || 500;
+  customFrames.forEach((f, i) => { f.seq = i; f.ts = i * interval; });
+  updateCustomCount();
+  log(`删除帧，剩余 ${customFrames.length}`, 'data');
+}
+
+function useCustomAsSource() {
+  if (customFrames.length === 0) { log('无录制帧', 'err'); return; }
+  frames = JSON.parse(JSON.stringify(customFrames));
+  currentFrame = 0;
+  document.getElementById('frameTotal').textContent = frames.length;
+  document.getElementById('fileInfo').textContent = `自定义 · ${frames.length}帧`;
+  enableControls(true);
+  renderFrame(0);
+  renderFrameList();
+  log(`已将 ${frames.length} 帧设为播放源`, 'ok');
+}
+
+function updateCustomCount() {
+  document.getElementById('customCount').textContent = `${customFrames.length} 帧`;
+}
+
+function exportJSON() {
+  if (customFrames.length === 0) { log('无帧可导出', 'err'); return; }
+  const blob = new Blob([JSON.stringify(customFrames, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `lingchu_frames_${Date.now()}.json`;
+  a.click();
+  log(`导出 ${customFrames.length} 帧`, 'ok');
+}
+
+// ═══════════════════════════════════════
+//  日志
+// ═══════════════════════════════════════
+
+function log(msg, cls = '') {
+  const el = document.getElementById('log');
+  const t = new Date().toLocaleTimeString('en', { hour12: false });
+  el.innerHTML += `<div class="${cls}">[${t}] ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function clearLog() { document.getElementById('log').innerHTML = ''; }
+
+// ═══════════════════════════════════════
+//  Init
+// ═══════════════════════════════════════
+
+syncGridUI();
+log('灵触·随行 测试台 V3 就绪');
+log('支持 .json / .jsonl 帧文件，点击网格编辑，连BLE后发送');
+</script>
+
+</body>
+</html>

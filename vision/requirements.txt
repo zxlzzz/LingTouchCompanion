@@ -1,0 +1,25 @@
+# LingTouch Companion - Vision Pipeline Dependencies
+# For Raspberry Pi (arm64) + Python 3.9+
+
+# Core vision
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# Depth Anything V2 (PyTorch)
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.36.0
+Pillow>=10.0.0
+
+# Model loading
+huggingface_hub>=0.20.0
+einops>=0.7.0
+
+# Serial communication (to ESP32)
+pyserial>=3.5
+
+# Optional: BLE direct (alternative to phone relay)
+# bleak>=0.21.0
+
+# Development
+opencv-python-headless>=4.8.0  # headless for servers / RPi without GUI
