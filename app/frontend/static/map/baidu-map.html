@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <title>百度地图</title>
+  <style>
+    html, body, #map {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #f5f6f8;
+    }
+    .loading {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      background: rgba(255,255,255,0.95);
+      padding: 12px 18px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      font-size: 14px;
+      color: #333;
+    }
+    .map-tip {
+      position: fixed;
+      left: 12px;
+      top: 12px;
+      z-index: 999;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      font-size: 13px;
+      color: #1a3a52;
+      max-width: 70%;
+      line-height: 1.5;
+    }
+    .error-box {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10000;
+      background: #fff;
+      padding: 18px 20px;
+      border-radius: 14px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+      width: 80%;
+      max-width: 320px;
+      font-size: 14px;
+      color: #d32f2f;
+      line-height: 1.6;
+      display: none;
+    }
+  </style>
+  <!-- TODO: 迁移到统一配置 -->
+  <script src="https://api.map.baidu.com/api?v=3.0&ak=XkyY4z1bG6iRfPXcGeyuPokCcyNlBiVx"></script>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="loading" class="loading">地图加载中...</div>
+  <div id="tip" class="map-tip">百度地图加载中</div>
+  <div id="errorBox" class="error-box"></div>
+
+  <script>
+    function showError(msg) {
+      var box = document.getElementById('errorBox');
+      box.style.display = 'block';
+      box.innerText = msg;
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    function getQuery() {
+      var params = new URLSearchParams(window.location.search);
+      return {
+        originLat: params.get('originLat'),
+        originLng: params.get('originLng'),
+        destLat: params.get('destLat'),
+        destLng: params.get('destLng'),
+        destName: params.get('destName') || '目的地',
+        polyline: params.get('polyline') || ''
+      };
+    }
+
+    function parsePolyline(polyline) {
+      if (!polyline) return [];
+      try {
+        var arr = JSON.parse(polyline);
+        if (!Array.isArray(arr)) return [];
+        return arr
+          .filter(function(item) {
+            return item && item.lng !== undefined && item.lat !== undefined;
+          })
+          .map(function(item) {
+            return new BMap.Point(item.lng, item.lat);
+          });
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function initMap() {
+      if (typeof BMap === 'undefined') {
+        showError('百度地图 JS API 加载失败，请检查 AK 是否正确或网络是否可用。');
+        return;
+      }
+
+      var q = getQuery();
+
+      var centerLng = q.originLng ? Number(q.originLng) : 116.404;
+      var centerLat = q.originLat ? Number(q.originLat) : 39.915;
+
+      var map = new BMap.Map('map');
+      var centerPoint = new BMap.Point(centerLng, centerLat);
+      map.centerAndZoom(centerPoint, 15);
+      map.enableScrollWheelZoom(true);
+      map.enableDragging(true);
+      map.enableDoubleClickZoom(true);
+      map.addControl(new BMap.NavigationControl());
+
+      // 起点 marker
+      var originIcon = new BMap.Icon(
+        'https://api.map.baidu.com/images/marker_red.png',
+        new BMap.Size(23, 25)
+      );
+      var originMarker = new BMap.Marker(centerPoint, { icon: originIcon });
+      map.addOverlay(originMarker);
+      originMarker.setTitle('当前位置');
+
+      var boundsPoints = [centerPoint];
+      var tipText = '当前位置已显示';
+
+      // 终点 marker + 标签
+      if (q.destLat && q.destLng) {
+        var destPoint = new BMap.Point(Number(q.destLng), Number(q.destLat));
+
+        var destIcon = new BMap.Icon(
+          'https://api.map.baidu.com/images/marker_red_sprite.png',
+          new BMap.Size(23, 25)
+        );
+        var destMarker = new BMap.Marker(destPoint, { icon: destIcon });
+        map.addOverlay(destMarker);
+
+        var label = new BMap.Label(q.destName, {
+          position: destPoint,
+          offset: new BMap.Size(10, -28)
+        });
+        label.setStyle({
+          color: '#d32f2f',
+          fontSize: '12px',
+          border: '1px solid #f5d5d5',
+          borderRadius: '8px',
+          padding: '4px 8px',
+          backgroundColor: '#fff',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+          whiteSpace: 'nowrap'
+        });
+        map.addOverlay(label);
+
+        boundsPoints.push(destPoint);
+        tipText = '已显示当前位置与目的地';
+      }
+
+      // 路线 polyline
+      var routePoints = parsePolyline(q.polyline);
+      if (routePoints.length > 1) {
+        var polyline = new BMap.Polyline(routePoints, {
+          strokeColor: '#2196f3',
+          strokeWeight: 6,
+          strokeOpacity: 0.9
+        });
+        map.addOverlay(polyline);
+        boundsPoints = boundsPoints.concat(routePoints);
+        tipText = '已显示路线、起点与终点';
+      }
+
+      // 自动缩放到合适区域
+      if (boundsPoints.length > 1) {
+        var view = map.getViewport(boundsPoints);
+        map.centerAndZoom(view.center, view.zoom);
+      }
+
+      document.getElementById('tip').innerText = tipText;
+      hideLoading();
+    }
+
+    window.onload = function() {
+      try {
+        initMap();
+      } catch (err) {
+        showError('地图初始化失败：' + (err && err.message ? err.message : String(err)));
+      }
+    };
+  </script>
+</body>
+</html>

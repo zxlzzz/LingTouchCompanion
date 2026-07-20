@@ -1,0 +1,40 @@
+{
+  "pages": [
+    {
+      "path": "pages/home/home",
+      "style": {
+        "navigationBarTitleText": "出行"
+      }
+    },
+    {
+      "path": "pages/navigation/navigation",
+      "style": {
+        "navigationBarTitleText": "导航"
+      }
+    },
+    {
+      "path": "pages/map/map",
+      "style": {
+        "navigationBarTitleText": "真实地图"
+      }
+    },
+    {
+      "path": "pages/device/device",
+      "style": {
+        "navigationBarTitleText": "设备"
+      }
+    },
+    {
+      "path": "pages/diagnostic/diagnostic",
+      "style": {
+        "navigationBarTitleText": "诊断"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "smart_cane_app",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F5F5F5"
+  }
+}

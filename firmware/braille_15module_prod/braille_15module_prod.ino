@@ -1,16 +1,17 @@
 /*
  * 灵触·随行 — ESP32-S3 固件 (15模组正式版)
- * V2.1 — 二次脉冲 + VCCS电流冗余优化
+ * V2.2 — Phase A线圈隔离修复
  *
- * 变更（相对 V2.0）：
- *   - DEFAULT_STEP: 12 → 8（每模组VCCS电流从~83mA提升到~125mA，SMA加热更稳）
- *   - refreshGrouped 新增 risingMask 参数：对含0→1升边的batch做二次A-B脉冲
- *   - driveTask 计算 risingMask 并传入
- *   - 修复打印小typo
+ * 变更（相对 V2.1）：
+ *   - refreshGrouped Phase A：从 memcpy(holdFrame) 改为 memset(0x00)
+ *     确保Phase A期间只有当前batch的SMA通电，VCCS不被其他模组线圈瓜分
+ *     step参数因此真正生效
+ *   - 二次脉冲的第二次Phase A同样修复
  *
  * 设计动机：
- *   解决"个别点首次升起失败、后续帧因数据未变跳过、永远不被补打"的问题。
- *   对升边模组多打一次SMA，已锁定的点重打无害，未升起的点获得第二次机会。
+ *   V2.1中Phase A发的frame = holdFrame（历史线圈全开）+ 当前batch SMA=0x40
+ *   导致VCCS同时给所有已激活模组的线圈续流，step无论设多小电流都不够
+ *   修复后Phase A全清线圈，VCCS电流集中给当前batch的SMA加热
  *
  * 数据流：
  *   手机(uni-app) → BLE FFE1 write 15字节 → ESP32 刷新点阵
@@ -71,14 +72,13 @@
 
 // SMA四相时序（ms）
 #define DEFAULT_PHASE_A   10    // 打开SMA
-#define DEFAULT_PHASE_B   30    // 发送线圈数据
+#define DEFAULT_PHASE_B   80    // 发送线圈数据
 #define DEFAULT_PHASE_C  300    // 关闭SMA，线圈保持
 #define DEFAULT_PHASE_D   10    // 全部断电
 
-// ★V2.1: 默认分组步长 12 → 8 （减小批内并发SMA数，提高单点电流）
 #define DEFAULT_STEP      8
 
-// ★V2.1: 二次脉冲A-B之间的短暂间隔（ms）
+// 二次脉冲A-B之间的短暂间隔（ms）
 #define RETRY_GAP_MS      5
 
 // 按钮去抖时间（ms）
@@ -176,18 +176,19 @@ void initGPIO() {
 }
 
 void sendRaw(uint8_t *frame, size_t len) {
+  digitalWrite(PIN_OE, LOW);
   digitalWrite(PIN_RCLK, LOW);
   hspi->transferBytes(frame, NULL, len);
   digitalWrite(PIN_RCLK, HIGH);
 }
 
 // ═══════════════════════════════════════
-//  四相分组刷新（V2.1: 增加二次脉冲）
+//  四相分组刷新（V2.2: Phase A线圈隔离）
 // ═══════════════════════════════════════
 
 // posData     : 15模组的目标点阵数据
 // changeMask  : 需要刷新的模组位掩码
-// risingMask  : 含0→1升边的模组位掩码（这些模组在batch内做二次A-B脉冲）
+// risingMask  : 含0→1升边的模组位掩码
 void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) {
   uint8_t frame[FRAME_LEN];
   static uint8_t holdFrame[FRAME_LEN] = {0};
@@ -230,23 +231,26 @@ void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) 
 
     int batchEnd = min(i + step, needCount);
 
-    // 判断当前batch是否含升边模组（决定要不要二次脉冲）
+    // 判断当前batch是否含升边模组
     bool batchHasRising = false;
     for (int j = i; j < batchEnd; j++) {
       if (risingMask & (1 << needRefresh[j])) { batchHasRising = true; break; }
     }
 
     // ── 第一轮 A-B ──
-    // Phase A: 打开SMA（本批），其他模组保持线圈
-    memcpy(frame, holdFrame, FRAME_LEN);
+
+    // Phase A: 全部清零，只开当前batch的SMA
+    // ★V2.2修复：memset(0x00)而非memcpy(holdFrame)
+    // 确保VCCS电流不被其他模组线圈瓜分，step真正生效
+    memset(frame, 0x00, FRAME_LEN);
     for (int j = i; j < batchEnd; j++) {
       frame[posToChain[needRefresh[j]]] = 0x40;
     }
     sendRaw(frame, FRAME_LEN);
     vTaskDelay(pdMS_TO_TICKS(phaseA));
 
-    // Phase B: 线圈数据 + SMA保持（本批），其他保持
-    memcpy(frame, holdFrame, FRAME_LEN);
+    // Phase B: 只写当前batch，全清其他
+    memset(frame, 0x00, FRAME_LEN);  // 原来是 memcpy(frame, holdFrame, FRAME_LEN)
     for (int j = i; j < batchEnd; j++) {
       int p = needRefresh[j];
       frame[posToChain[p]] = (posData[p] & 0x3F) | 0x40;
@@ -256,20 +260,20 @@ void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) 
 
     // ── 二次脉冲：仅对含升边的batch ──
     if (batchHasRising) {
-      // 短暂回到holdFrame（关本批SMA，让SMA微回冷）
+      // 短暂回到holdFrame（关本批SMA）
       sendRaw(holdFrame, FRAME_LEN);
       vTaskDelay(pdMS_TO_TICKS(RETRY_GAP_MS));
 
-      // 再来一次 A
-      memcpy(frame, holdFrame, FRAME_LEN);
+      // 再来一次 Phase A（同样全清）
+      memset(frame, 0x00, FRAME_LEN);
       for (int j = i; j < batchEnd; j++) {
         frame[posToChain[needRefresh[j]]] = 0x40;
       }
       sendRaw(frame, FRAME_LEN);
       vTaskDelay(pdMS_TO_TICKS(phaseA));
 
-      // 再来一次 B
-      memcpy(frame, holdFrame, FRAME_LEN);
+      // 再来一次 Phase B
+      memset(frame, 0x00, FRAME_LEN);  // 原来是 memcpy(frame, holdFrame, FRAME_LEN)
       for (int j = i; j < batchEnd; j++) {
         int p = needRefresh[j];
         frame[posToChain[p]] = (posData[p] & 0x3F) | 0x40;
@@ -278,11 +282,11 @@ void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) 
       vTaskDelay(pdMS_TO_TICKS(phaseB));
     }
 
-    // Phase C: 关闭SMA，线圈保持（全部）
+    // Phase C: 关闭SMA，线圈保持（holdFrame）
     sendRaw(holdFrame, FRAME_LEN);
     vTaskDelay(pdMS_TO_TICKS(phaseC));
 
-    // Phase D: 不断电，holdFrame持续供电
+    // Phase D
     vTaskDelay(pdMS_TO_TICKS(phaseD));
   }
 
@@ -483,7 +487,6 @@ void driveTask(void *pvParam) {
 
     if (forceRefresh) {
       forceRefresh = false;
-      // 强制刷全部：所有模组当作升边处理（最大冗余）
       refreshGrouped(brailleData, 0x7FFF, 0x7FFF);
       memcpy(prevData, brailleData, NUM_MODULES);
     }
@@ -493,11 +496,11 @@ void driveTask(void *pvParam) {
 }
 
 // ═══════════════════════════════════════
-//  串口命令（保留调试用）
+//  串口命令
 // ═══════════════════════════════════════
 
 void printHelp() {
-  Serial.println("=== 灵触·随行 15模组驱动 V2.1 ===");
+  Serial.println("=== 灵触·随行 15模组驱动 V2.2 ===");
   Serial.println("命令:");
   Serial.println("  help              显示帮助");
   Serial.println("  test              全部凸起");
@@ -719,7 +722,7 @@ void setup() {
   Serial.println();
   Serial.println("================================");
   Serial.println("  灵触·随行 15模组盲文驱动");
-  Serial.println("  V2.1 — 二次脉冲+电流冗余");
+  Serial.println("  V2.2 — Phase A线圈隔离修复");
   Serial.println("================================");
 
   initGPIO();
@@ -751,7 +754,7 @@ void setup() {
   Serial.println();
   Serial.printf("当前模式: RAPID_AVOID (0x%02X)\n", currentMode);
   Serial.printf("模组掩码: 0x%04X\n", moduleMask);
-  Serial.printf("分组步长: %d (V2.1默认)\n", refreshStep);
+  Serial.printf("分组步长: %d\n", refreshStep);
   Serial.println("按物理按钮或输入 mode 切换模式");
   Serial.println();
 }
