@@ -24,19 +24,27 @@ USE_GPU = False             # True for CUDA, False for CPU (RPi default)
 GRID_COLS = 9               # horizontal: 9 SMA dot columns
 GRID_ROWS = 10              # vertical: 10 SMA dot rows (top=farther → bottom=nearer)
 
-# Region of Interest: crop middle portion of depth map
+# Region of Interest for image-plane pipeline
 # (ignore sky at top, feet at bottom)
-ROI_TOP_RATIO = 0.2         # skip top 20% (sky/ceiling)
-ROI_BOTTOM_RATIO = 0.1      # skip bottom 10% (ground)
+ROI_TOP_RATIO = 0.2
+ROI_BOTTOM_RATIO = 0.1
 
-# ── Obstacle detection (dual-condition: percentile + pixel ratio) ──
-# A cell activates only when BOTH:
-#   (a) its P_OBS_PERCENTILE exceeds the ground baseline — the cell "pops out"
-#   (b) at least MIN_CELL_COVERAGE fraction of pixels exceed ground baseline
-# Then only the top MAX_ACTIVATIONS cells (by obstacle margin) are kept.
-CELL_OBS_PERCENTILE = 85    # high percentile within cell (>50 = "most pixels are close")
-MIN_CELL_COVERAGE = 0.30    # at least 30% of cell pixels must be above ground
-MAX_ACTIVATIONS = 45        # cap total activated dots (90 total)
+# ── XY Ground-plane projection ──────────────────────────
+# Camera
+CAM_HEIGHT_M = 1.20         # camera height above ground (meters)
+CAM_FOV_H_DEG = 65          # horizontal field of view (degrees)
+GROUND_CLEARANCE_M = 0.10   # obstacle = point is above ground + clearance (meters)
+
+# XY grid cell size
+XY_CELL_M = 0.50            # 50cm × 50cm per cell
+XY_Y_NEAR_M = 0.3           # nearest forward distance
+# XY_Y_FAR derived: XY_Y_NEAR + GRID_ROWS × XY_CELL_M
+# X range derived: ±0.5 × GRID_COLS × XY_CELL_M
+
+# ── Obstacle detection ──
+CELL_OBS_PERCENTILE = 85
+MIN_CELL_COVERAGE = 0.30
+MAX_ACTIVATIONS = 22        # cap total activated dots (90 total)
 
 # Absolute fallback thresholds (used when depth IS in real meters, e.g. stereo cam)
 DANGER_NEAR_M = 0.5

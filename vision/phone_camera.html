@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Phone Camera → LingTouch</title>
+<style>
+body{margin:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100dvh;overflow:hidden}
+video{width:100%;max-width:400px;border-radius:8px;position:fixed;top:0;left:50%;transform:translateX(-50%)}
+#status{color:#0f0;font-size:13px;margin-top:8px;position:fixed;bottom:60px;font-family:monospace;z-index:10}
+#count{color:#ff0;font-size:12px;position:fixed;bottom:72px;font-family:monospace;z-index:10}
+button{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:12px 40px;font-size:18px;
+  background:#3fb950;color:#000;border:none;border-radius:8px;z-index:10}
+button.running{background:#da3633}
+</style>
+</head>
+<body>
+<video id="v" autoplay playsinline muted></video>
+<canvas id="c"></canvas>
+<div id="count">已发送: 0</div>
+<div id="status">点击开始</div>
+<button id="btn">开始推流</button>
+<script>
+const status=document.getElementById('status');
+const count=document.getElementById('count');
+const btn=document.getElementById('btn');
+const video=document.getElementById('v');
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+let stream, timer, running=false, sent=0;
+
+const PC_IP=location.hostname;
+const URL=`https://${PC_IP}:8760/frame`;
+
+async function init(){
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{width:640,height:480,facingMode:'environment'}
+    });
+    video.srcObject=stream;
+    await video.play();
+    canvas.width=320;canvas.height=240;
+    status.textContent='已就绪';
+  }catch(e){
+    status.textContent='摄像头失败: '+e.message;
+  }
+}
+
+btn.onclick=()=>{
+  if(running){stop();return}
+  if(!stream){init().then(start)}
+  else start();
+};
+
+function start(){
+  running=true;sent=0;
+  btn.textContent='停止推流';
+  btn.className='running';
+  status.textContent='推流中...';
+  sendLoop();
+}
+
+function stop(){
+  running=false;
+  btn.textContent='开始推流';
+  btn.className='';
+  status.textContent='已停止';
+}
+
+function sendLoop(){
+  if(!running)return;
+  ctx.drawImage(video,0,0,320,240);
+  canvas.toBlob(blob=>{
+    fetch(URL,{method:'POST',body:blob}).then(r=>r.json()).then(d=>{
+      sent++;
+      count.textContent='已发送: '+sent+' 帧';
+      status.textContent='推流中 (深度:'+d.active+'/90)';
+    }).catch(e=>{
+      status.textContent='发送失败: '+e.message;
+    });
+    timer=setTimeout(sendLoop,300);
+  },'image/jpeg',0.5);
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,55 +1,87 @@
 # Vision Pipeline — 灵触·随行 视觉管线
 
-树莓派视觉模块：摄像头采集 → 深度估计/边缘检测 → 3×5 网格映射 → 15 字节盲文帧 → 输出至 ESP32。
+摄像头采集 → 深度估计 → 9×10 SMA 点阵映射 → 90 字节帧 → 输出至 ESP32。
+
+## 实时预览（无需 ESP32）
+
+用电脑摄像头或手机摄像头实时体验深度检测效果。
+
+### 电脑摄像头
+
+```bash
+cd vision
+python live_preview.py
+```
+
+### Android 手机摄像头
+
+手机和电脑连同一个 WiFi：
+
+1. 手机安装 [IP Webcam](https://play.google.com/store/apps/details?id=com.pas.webcam) (免费)
+2. 打开 App → 点 **Start server** → 底部会显示 `http://192.168.x.x:8080`
+3. 电脑运行：
+
+```bash
+cd vision
+python live_preview.py http://192.168.x.x:8080/video
+```
+
+界面三栏：**原始画面 | 深度热力图 | 9×10 SMA 点阵**。
+
+| 按键 | 功能 |
+|------|------|
+| Q | 退出 |
+| S | 切换点阵大小 |
+| R | 切换 ROI 框 |
+
+### 静态图片对比
+
+```bash
+cd vision
+python generate_comparison.py
+# 输出 → 浏览器打开 vision/data/compare/index.html
+```
 
 ## 两种模式
 
-| 模式 | 算法 | 依赖 | 硬件要求 | 参考 |
-|------|------|------|----------|------|
-| **depth** | Depth Anything V2 单目深度估计 | PyTorch + transformers | RPi 5 (8GB) 或 GPU | 项目设计目标 |
-| **edge** (默认) | Canny 边缘 + 轮廓检测 + 网格投影 | OpenCV only | RPi Zero 2 即可 | CHI '25 "Seeing with the Hands" |
+| 模式 | 算法 | 依赖 | 硬件要求 |
+|------|------|------|----------|
+| **depth** | Depth Anything V2 单目深度估计 | PyTorch + transformers | RPi 5 (8GB) 或 GPU |
+| **edge** | Canny 边缘 + 轮廓 + 网格投影 | OpenCV only | RPi Zero 2 即可 |
 
-### Depth 模式
+### Depth 模式管线
 
-输入 RGB → Depth Anything V2 推理 → 深度图 (米) → 每个网格单元取 min depth → 根据距离阈值编码 braille dot pattern：
-
-| 距离 | 盲文点阵 | 含义 |
-|------|---------|------|
-| < 0.5m | 0x3F (全部6点) | 紧急避障 |
-| 0.5–1.0m | 0x2F (4点) | 警告注意 |
-| 1.0–2.0m | 0x09 (2点) | 轻度感知 |
-| > 2.0m | 0x00 (无) | 路径畅通 |
-
-### Edge 模式 (论文方法)
-
-RGB → 灰度 → 二值化(阈值90) → 高斯模糊(5×5) → Canny 边缘 → 轮廓过滤(>1000px²) → 多边形近似 → 3×5 网格投影 → 每个网格开/关 → 根据行位置编码盲文点阵。
-
-完全复现 Teng et al., CHI '25, Section 4.2, Figure 3(d) 的视觉管线。
+```
+Depth Anything V2 → 深度值取反(高=近) → 裁切ROI(去天空/地面)
+→ 每行P25基线 → 每格P85障碍得分 → 底部惩罚(抑制地面)
+→ 双阈值二值化(Q78强/Q65弱+邻域) → 上限30 → 小连通区过滤
+→ 9×10 SMA点阵(90字节)
+```
 
 ## 环境配置
 
 ```bash
-# 基础依赖（edge 模式）
-pip install opencv-python numpy pyserial
+# 基础依赖
+pip install opencv-python numpy scipy
 
-# 深度估计依赖（depth 模式，额外安装）
-pip install torch torchvision transformers Pillow huggingface_hub einops
+# 深度估计依赖（depth 模式）
+pip install torch torchvision transformers Pillow huggingface_hub
 ```
 
 ## 使用方法
 
 ```bash
-# Edge 模式 — USB 摄像头 → 串口输出
-python main.py --mode edge --camera 0 --output serial --serial-port /dev/ttyUSB0
+# Depth 模式 — USB 摄像头 → 串口输出
+python main.py --mode depth --camera 0 --output serial --serial-port /dev/ttyUSB0
 
-# Depth 模式 — USB 摄像头 → 文件记录
+# Depth 模式 — 文件记录（无 ESP32 时测试）
 python main.py --mode depth --camera 0 --output file
 
-# 单张图片测试（验证管线）
-python main.py --mode edge --image test.jpg
+# Edge 模式 — Canny 边缘 + 轮廓
+python main.py --mode edge --camera 0 --output file
 
 # 开启可视化 debug 窗口
-python main.py --mode edge --camera 0 --debug
+python main.py --mode depth --camera 0 --debug
 ```
 
 ## 数据流
@@ -58,48 +90,51 @@ python main.py --mode edge --camera 0 --debug
   ┌──────────┐      ┌──────────────┐      ┌───────────┐      ┌──────────┐
   │  Camera   │─────▶│  Processor   │─────▶│  Mapper   │─────▶│  Sender  │
   │ USB/RPi   │      │ depth / edge │      │ depth→grid│      │ serial/  │
-  │ 640×480   │      │              │      │ 15 bytes  │      │ file/net │
+  │ 640×480   │      │              │      │ 90 bytes  │      │ file/net │
   └──────────┘      └──────────────┘      └───────────┘      └──────────┘
 ```
 
 ## 输出帧格式
 
-15 字节，对应 15 个盲文模块（3列×5行），与 ESP32 固件 `braille_15module_prod.ino` 的 `FRAME_LEN=15` 对齐。
+90 字节，对应 90 个 SMA 点（9列×10行），行优先，自顶向下。
+
+每字节：0 = 清除，1 = 激活（障碍物）。
 
 ```
-Byte  0: 模块 1  (top-left)     Byte  1: 模块 2  (top-center)   Byte  2: 模块 3  (top-right)
-Byte  3: 模块 4                 Byte  4: 模块 5                 Byte  5: 模块 6
-Byte  6: 模块 7                 Byte  7: 模块 8                 Byte  8: 模块 9
-Byte  9: 模块 10                Byte 10: 模块 11                Byte 11: 模块 12
-Byte 12: 模块 13                Byte 13: 模块 14                Byte 14: 模块 15 (bottom-right)
+Col:  0  1  2  3  4  5  6  7  8
+Row 0 (远):  byte  0 ... byte  8
+Row 1:       byte  9 ... byte 17
+...
+Row 9 (近):  byte 81 ... byte 89
 ```
 
-每字节：bit0–bit5 = 6 个 SMA 盲文点，bit6–bit7 保留。
+## 参数说明
+
+| 参数 | 值 | 说明 |
+|------|-----|------|
+| `GRID_COLS × GRID_ROWS` | 9×10 | 90个SMA点 |
+| `OBSTACLE_MARGIN` | 0.60 | 障碍需比背景近这么多（视差单位） |
+| `CELL_OBS_PERCENTILE` | 85 | 单元格内取P85作为"近像素"代表 |
+| `BOTTOM_PENALTY` | 0.55 | 底部行线性惩罚强度 |
+| `MAX_ACTIVATIONS` | 30 | 最多激活30/90个点 |
+| 双阈值 | Q78 / Q65 | 强响应直接保留，弱响应需有强邻域 |
+| `MIN_CLUSTER_SIZE` | 3 | 小于3个点的连通区被过滤 |
 
 ## 文件结构
 
 ```
 vision/
+├── live_preview.py      # 实时预览（电脑/手机摄像头）
+├── generate_comparison.py # 静态图片对比生成
 ├── main.py              # 主入口，CLI + 实时循环
-├── camera.py            # USB 摄像头 / 文件源抽象
 ├── depth_estimator.py   # Depth Anything V2 + 简易启发式降级
-├── edge_detector.py     # Canny 边缘 + 轮廓 + 网格投影（论文方法）
-├── grid_mapper.py       # 深度图/边缘 → 3×5 网格 → 15 字节盲文帧
+├── edge_detector.py     # Canny 边缘 + 轮廓 + 网格投影
+├── grid_mapper.py       # 深度图 → 9×10 网格 → 90 字节帧
 ├── output_sender.py     # 串口 / 文件 / 网络发送器
 ├── config.py            # 所有阈值、尺寸、模式配置
 ├── requirements.txt     # Python 依赖
-└── data/                # 测试图片数据
+└── data/                # 测试图片 + 对比输出
 ```
-
-## 与论文的对应关系
-
-| 论文 (CHI '25) | 本项目 |
-|----------------|--------|
-| 5×6 电触觉电极 (30个) | 3×5 SMA 盲文模块 (15个, 各6点) |
-| 腕部摄像头，手背触觉 | 白杖摄像头，手部触觉 |
-| Canny 边缘 → 二值开/关 | Edge 模式支持 + Depth Anything V2 |
-| 场景理解导航 | 避障 + 导航双模式 |
-| Electro-tactile 脉冲 | SMA 四相驱动时序 |
 
 ## License
 
