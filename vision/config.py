@@ -29,6 +29,10 @@ GRID_ROWS = 10              # vertical: 10 SMA dot rows (top=farther → bottom=
 ROI_TOP_RATIO = 0.2
 ROI_BOTTOM_RATIO = 0.1
 
+# 设备贴身佩戴、摄像头朝外时，触点面朝向使用者，
+# 和摄像头拍到的画面左右相反，需要镜像一次抵消。
+MIRROR_HORIZONTAL = True
+
 # ── XY Ground-plane projection ──────────────────────────
 # Camera
 CAM_HEIGHT_M = 1.20         # camera height above ground (meters)

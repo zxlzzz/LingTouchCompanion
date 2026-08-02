@@ -18,6 +18,10 @@ venv/
 vision/data/*.jpg
 vision_output.bin
 
+# Auto-generated local dev HTTPS cert (phone_server.py ensure_cert())
+vision/cert.pem
+vision/key.pem
+
 # IDE
 .idea/
 .vscode/

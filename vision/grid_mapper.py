@@ -24,6 +24,7 @@ from config import (
     MAX_ACTIVATIONS,
     ROI_TOP_RATIO,
     ROI_BOTTOM_RATIO,
+    MIRROR_HORIZONTAL,
 )
 MIN_CLUSTER_SIZE = 3
 
@@ -125,7 +126,10 @@ def depth_map_to_dot_frame(
         grid[:] = False
         grid[keep[:, 0], keep[:, 1]] = True
 
-    # ── 5. Flatten + small-cluster removal ──
+    # ── 5. 镜像（摄像头画面 → 触点朝向使用者）+ 展平 + 小连通区过滤 ──
+    if MIRROR_HORIZONTAL:
+        grid = grid[:, ::-1]
+
     frame = np.zeros(FRAME_LEN, dtype=np.uint8)
     for r in range(rows):
         for c in range(cols):

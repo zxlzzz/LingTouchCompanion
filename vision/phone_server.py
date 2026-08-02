@@ -25,8 +25,12 @@ sys.path.insert(0, os.path.dirname(__file__))
 from depth_estimator import DepthEstimator
 from grid_mapper import depth_map_to_dot_frame
 from config import GRID_COLS, GRID_ROWS, FRAME_LEN
+from scan_link import ScanLink
+
+WINDOW_NAME = "LingTouch Preview | Original . Heatmap . 9x10 Grid"
 
 latest_frame = None
+latest_braille = None          # 最近一次 90 点栅格，供 [SCAN] 取用
 frame_lock = threading.Lock()
 running = True
 fps_smooth = 0
@@ -57,8 +61,13 @@ def render_dot_grid(frame_flat, cell_size=24):
     return img
 
 
+def get_latest_braille():
+    with frame_lock:
+        return None if latest_braille is None else latest_braille.copy()
+
+
 def process_loop():
-    global latest_frame, running, fps_smooth, last_active
+    global latest_frame, latest_braille, running, fps_smooth, last_active
 
     print("Loading Depth Anything V2...")
     estimator = DepthEstimator(model_size="small", use_gpu=False)
@@ -80,6 +89,8 @@ def process_loop():
         depth_map = estimator.estimate(frame)
         braille = depth_map_to_dot_frame(depth_map)
         last_active = int(braille.sum())
+        with frame_lock:
+            latest_braille = braille
 
         heatmap = depth_to_heatmap(depth_map)
         dot_img = render_dot_grid(braille)
@@ -104,10 +115,13 @@ def process_loop():
             s = 900 / panel.shape[0]
             panel = cv2.resize(panel, None, fx=s, fy=s)
 
-        cv2.imshow("LingTouch Preview | Original . Heatmap . 9x10 Grid", panel)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        cv2.imshow(WINDOW_NAME, panel)
+        k = cv2.waitKey(1) & 0xFF
+        if k == ord('q') or cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1:
             running = False
             break
+        if k == ord(' ') and link is not None:
+            link.send_now()          # 无按键时用空格手动触发一次下发
 
     cv2.destroyAllWindows()
 
@@ -207,9 +221,21 @@ def ensure_cert():
     return str(cert_file), str(key_file)
 
 
+link = None
+
 if __name__ == '__main__':
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--ble-device', default='LingChu-Tactile', help='BLE 设备名')
+    ap.add_argument('--no-ble', action='store_true', help='只看预览，不连设备')
+    args = ap.parse_args()
+
     ip = get_ip()
     cert, key = ensure_cert()
+
+    if not args.no_ble:
+        link = ScanLink(get_latest_braille, device_name=args.ble_device)
+        link.start()
 
     # Start processing thread
     t = threading.Thread(target=process_loop, daemon=True)
@@ -237,3 +263,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         running = False
         httpd.shutdown()
+    finally:
+        if link is not None:
+            link.stop()

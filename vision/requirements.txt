@@ -4,6 +4,7 @@
 # Core vision
 opencv-python>=4.8.0
 numpy>=1.24.0
+scipy>=1.10.0
 
 # Depth Anything V2 (PyTorch)
 torch>=2.0.0
@@ -15,11 +16,15 @@ Pillow>=10.0.0
 huggingface_hub>=0.20.0
 einops>=0.7.0
 
-# Serial communication (to ESP32)
+# BLE communication (to ESP32, scan_link.py)
+bleak>=0.21.0
+
+# Serial communication (bench_test.py / SerialSender only)
 pyserial>=3.5
 
-# Optional: BLE direct (alternative to phone relay)
-# bleak>=0.21.0
+# HTTPS self-signed cert (phone_server.py)
+cryptography>=41.0.0
 
-# Development
-opencv-python-headless>=4.8.0  # headless for servers / RPi without GUI
+# 无桌面环境 (RPi headless, 没有 cv2.imshow 窗口) 时，用这行替换上面的 opencv-python
+# 两者会互相覆盖，不要同时安装
+# opencv-python-headless>=4.8.0
