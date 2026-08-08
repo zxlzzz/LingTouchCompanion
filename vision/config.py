@@ -46,9 +46,20 @@ XY_Y_NEAR_M = 0.3           # nearest forward distance
 # X range derived: ±0.5 × GRID_COLS × XY_CELL_M
 
 # ── Obstacle detection ──
+# 曾经把这个从 85 降到 75 想压反光噪声，但代价太大：细长障碍物（比如实测用
+# 的长条气球）本来就只占格子宽度一小部分，P75 要求 25% 的像素偏近，反而先
+# 把这类物体自己的信号滤没了（扫参数验证：10px 宽气球在 P75 完全测不到，
+# P85 才能稳定测到 4/90 点；同时 P85 下反光噪声场景仍然是 0/90，没有倒退）。
+# 真正压反光噪声靠的是 grid_mapper.py 里更大的 OBSTACLE_MARGIN / 更高的
+# 双阈值 Q85-Q72 / OBS_FLOOR，这几个不依赖"物体占格子多少比例"，所以放心
+# 把这个改回 85。
 CELL_OBS_PERCENTILE = 85
 MIN_CELL_COVERAGE = 0.30
-MAX_ACTIVATIONS = 22        # cap total activated dots (90 total)
+# 22 太多：同时凸起这么多点画面/触感都乱。配合 grid_mapper.py 里新加的
+# 行跨度压缩（MAX_CLUSTER_ROW_SPAN），单个长条物体现在最多也就占几个格，
+# 22 的上限基本用不到；调到 12 是给"椅子+气球同时出现"这种多目标场景留
+# 余量，正常单目标场景实际激活数会远低于这个上限。
+MAX_ACTIVATIONS = 12        # cap total activated dots (90 total)
 
 # Absolute fallback thresholds (used when depth IS in real meters, e.g. stereo cam)
 DANGER_NEAR_M = 0.5

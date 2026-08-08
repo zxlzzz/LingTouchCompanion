@@ -82,7 +82,7 @@ def process_image(img_path, estimator):
 
     depth_map = estimator.estimate(frame)
     xy_frame = depth_map_to_xy_frame(depth_map)
-    im_frame = depth_map_to_dot_frame(depth_map)
+    im_frame = depth_map_to_dot_frame(depth_map, frame_bgr=frame)
 
     original_b64 = encode_img(frame)
     heatmap_bgr = depth_to_heatmap(depth_map)

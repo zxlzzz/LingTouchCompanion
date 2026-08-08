@@ -52,7 +52,7 @@ def main(camera_source=0):
       3. Run: python live_preview.py http://<phone-ip>:8080/video
     """
     print("Loading Depth Anything V2 model...")
-    estimator = DepthEstimator(model_size="small", use_gpu=False)
+    estimator = DepthEstimator(model_size="base", use_gpu=True)
     estimator.load()
 
     cap = cv2.VideoCapture(camera_source)
@@ -81,7 +81,7 @@ def main(camera_source=0):
             frame = cv2.resize(frame, (640, int(640 * h / w)))
 
         depth_map = estimator.estimate(frame)
-        braille = depth_map_to_dot_frame(depth_map)
+        braille = depth_map_to_dot_frame(depth_map, frame_bgr=frame)
         active = int(braille.sum())
 
         # Build display

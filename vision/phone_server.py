@@ -16,6 +16,7 @@ import time
 import sys
 import os
 import ssl
+import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 from pathlib import Path
@@ -23,14 +24,18 @@ from io import BytesIO
 
 sys.path.insert(0, os.path.dirname(__file__))
 from depth_estimator import DepthEstimator
-from grid_mapper import depth_map_to_xy_frame
-from config import GRID_COLS, GRID_ROWS, FRAME_LEN
+from grid_mapper import depth_map_to_dot_frame, mirror_frame_horizontal, compute_obstacle_scores
+from config import GRID_COLS, GRID_ROWS, FRAME_LEN, MIRROR_HORIZONTAL
 from scan_link import ScanLink
+from export_sample import scores_to_heatmap
+from color_detector import color_mask
 
 WINDOW_NAME = "LingTouch Preview | Original . Heatmap . 9x10 Grid"
 
 latest_frame = None
 latest_braille = None          # 最近一次 90 点栅格，供 [SCAN] 取用
+latest_braille_ts = 0.0
+BRAILLE_MAX_AGE_S = 1.5        # 超龄帧不下发，防止相机断流后按键拿到旧画面
 frame_lock = threading.Lock()
 running = True
 fps_smooth = 0
@@ -61,16 +66,51 @@ def render_dot_grid(frame_flat, cell_size=24):
     return img
 
 
+EXPORT_DIR = Path(__file__).parent / "data" / "exports"
+
+
+def export_current(frame, depth_map, braille):
+    """按 E 键时把这一帧的中间结果落盘，复用 export_sample.py 同一套可视化，
+    专治"看热力图/点阵看不出为什么"——scores_heat.jpg 里有每格的具体分数。"""
+    out_dir = EXPORT_DIR / f"live_{time.strftime('%Y%m%d_%H%M%S')}"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    scores, baseline = compute_obstacle_scores(depth_map)
+
+    cv2.imwrite(str(out_dir / "original.jpg"), frame)
+    np.save(out_dir / "depth_raw.npy", depth_map)
+    cv2.imwrite(str(out_dir / "depth_heat.jpg"), depth_to_heatmap(depth_map))
+    np.save(out_dir / "scores.npy", scores)
+    cv2.imwrite(str(out_dir / "scores_heat.jpg"), scores_to_heatmap(scores))
+    cv2.imwrite(str(out_dir / "grid.jpg"), render_dot_grid(braille))
+    cv2.imwrite(str(out_dir / "color_mask.jpg"), (color_mask(frame).astype(np.uint8) * 255))
+    meta = {
+        "active_dots": int(braille.sum()),
+        "total_dots": FRAME_LEN,
+        "row_baseline_p25": [round(float(x), 4) for x in baseline],
+        "score_min": round(float(scores.min()), 4),
+        "score_max": round(float(scores.max()), 4),
+    }
+    with open(out_dir / "meta.json", "w", encoding="utf-8") as f:
+        json.dump(meta, f, ensure_ascii=False, indent=2)
+    print(f"[export] 已导出到 {out_dir}")
+    return out_dir
+
+
 def get_latest_braille():
     with frame_lock:
-        return None if latest_braille is None else latest_braille.copy()
+        if latest_braille is None:
+            return None
+        if time.time() - latest_braille_ts > BRAILLE_MAX_AGE_S:
+            return None
+        return latest_braille.copy()
 
 
 def process_loop():
-    global latest_frame, latest_braille, running, fps_smooth, last_active
+    global latest_frame, latest_braille, latest_braille_ts, running, fps_smooth, last_active
 
     print("Loading Depth Anything V2...")
-    estimator = DepthEstimator(model_size="small", use_gpu=False)
+    estimator = DepthEstimator(model_size="base", use_gpu=True)
     estimator.load()
     print("Model ready.")
 
@@ -87,10 +127,12 @@ def process_loop():
             frame = cv2.resize(frame, (640, int(640 * h / w)))
 
         depth_map = estimator.estimate(frame)
-        braille = depth_map_to_xy_frame(depth_map)
+        braille = depth_map_to_dot_frame(depth_map, frame_bgr=frame)  # 摄像头视角，给预览用
         last_active = int(braille.sum())
         with frame_lock:
-            latest_braille = braille
+            # 发给设备的那份才镜像；预览面板要和原画面/热力图方向一致
+            latest_braille = mirror_frame_horizontal(braille) if MIRROR_HORIZONTAL else braille
+            latest_braille_ts = time.time()
 
         heatmap = depth_to_heatmap(depth_map)
         dot_img = render_dot_grid(braille)
@@ -122,6 +164,8 @@ def process_loop():
             break
         if k == ord(' ') and link is not None:
             link.send_now()          # 无按键时用空格手动触发一次下发
+        if k == ord('e'):
+            export_current(frame, depth_map, braille)  # 导出这一帧的原图/深度/逐格分数
 
     cv2.destroyAllWindows()
 
@@ -136,6 +180,8 @@ class FrameHandler(BaseHTTPRequestHandler):
             if html_path.exists():
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/html; charset=utf-8')
+                self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate')
+                self.send_header('Pragma', 'no-cache')
                 self.end_headers()
                 self.wfile.write(html_path.read_bytes())
             else:
@@ -256,6 +302,7 @@ if __name__ == '__main__':
     print("║                                        ║")
     print("║   浏览器会提示不安全，点击 高级→继续访问   ║")
     print("║   手机和电脑同一 WiFi | 按 Q 退出        ║")
+    print("║   按 E 导出当前帧（原图/深度/逐格分数）    ║")
     print("╚════════════════════════════════════════╝")
 
     try:

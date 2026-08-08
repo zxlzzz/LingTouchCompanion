@@ -86,7 +86,15 @@ class ScanLink:
         elif self.verbose:
             print(f"[scan_link] < notify type=0x{evt_type:02X} data=0x{evt_data:02X}")
 
+    SCAN_MIN_INTERVAL = 2.5  # 固件中断路径有 prevData 失步 bug，去抖规避连击
+
     def _on_scan(self):
+        import time as _t
+        now = _t.time()
+        if now - getattr(self, "_last_scan_ts", 0.0) < self.SCAN_MIN_INTERVAL:
+            print("[scan_link] 按键过密，忽略本次")
+            return
+        self._last_scan_ts = now
         self.scan_count += 1
         frame = self.frame_source()
         if frame is None:

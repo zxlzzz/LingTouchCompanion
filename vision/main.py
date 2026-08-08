@@ -43,6 +43,7 @@ from grid_mapper import (
     edge_cells_to_braille_frame,
     apply_rapid_avoid_mode,
     apply_local_zoom_mode,
+    mirror_frame_horizontal,
     visualize_frame,
 )
 from output_sender import create_sender
@@ -50,6 +51,7 @@ from config import (
     FRAME_LEN,
     RAPID_AVOID_STEP_MS,
     LOCAL_ZOOM_STEP_MS,
+    MIRROR_HORIZONTAL,
 )
 
 # Global flag for graceful shutdown
@@ -94,8 +96,8 @@ def run_depth_pipeline(camera, sender, mode="rapid_avoid", debug=False):
         # Depth estimation
         depth_map = estimator.estimate(frame_bgr)
 
-        # Depth → braille frame
-        braille = depth_map_to_braille_frame(depth_map)
+        # Depth → braille frame (摄像头视角)
+        braille = depth_map_to_braille_frame(depth_map, frame_bgr=frame_bgr)
 
         # Apply mode-specific processing
         if mode == "rapid_avoid":
@@ -103,11 +105,11 @@ def run_depth_pipeline(camera, sender, mode="rapid_avoid", debug=False):
         elif mode == "local_zoom":
             braille = apply_local_zoom_mode(braille, depth_map)
 
-        # Send
+        # Send — 镜像只在打包发给设备这一步做，触点朝向使用者
         if sender:
-            sender.send(braille)
+            sender.send(mirror_frame_horizontal(braille) if MIRROR_HORIZONTAL else braille)
 
-        # Debug display
+        # Debug display — 保持摄像头视角，方便和实际画面对照
         if debug:
             print(f"\r[Vision] Frame @ {ts:.1f}  ", end="")
             print(visualize_frame(braille))
@@ -139,12 +141,12 @@ def run_edge_pipeline(camera, sender, mode="rapid_avoid", debug=False):
         else:
             activated = pipe.process(frame_bgr)
 
-        # Edge cells → braille frame
+        # Edge cells → braille frame (摄像头视角)
         braille = edge_cells_to_braille_frame(activated)
 
-        # Send
+        # Send — 镜像只在打包发给设备这一步做，触点朝向使用者
         if sender:
-            sender.send(braille)
+            sender.send(mirror_frame_horizontal(braille) if MIRROR_HORIZONTAL else braille)
 
         # Debug display
         if debug:
@@ -181,7 +183,7 @@ def run_single_test(image_path, use_depth=False):
             print("[Vision] Falling back to SimpleDepthEstimator.")
             estimator = SimpleDepthEstimator()
         depth_map = estimator.estimate(frame)
-        braille = depth_map_to_braille_frame(depth_map)
+        braille = depth_map_to_braille_frame(depth_map, frame_bgr=frame)
     else:
         pipe = EdgePipeline()
         activated = pipe.process(frame)

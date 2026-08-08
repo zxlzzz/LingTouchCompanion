@@ -16,6 +16,7 @@ venv/
 
 # Vision artifacts
 vision/data/*.jpg
+vision/data/exports/
 vision_output.bin
 
 # Auto-generated local dev HTTPS cert (phone_server.py ensure_cert())
