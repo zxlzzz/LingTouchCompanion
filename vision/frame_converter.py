@@ -23,13 +23,14 @@ GRID_ROWS = 10
 NUM_MODULES = 15
 
 # (bit, dr, dc) —— 单一真源，正反变换共用
+# 板体180°反装版本：每个 (bit, dr, dc) 相对 prod 取 (bit, 1-dr, 2-dc)
 _BIT_MAP = [
-    (0, 0, 2),
-    (1, 0, 1),
-    (2, 0, 0),
-    (3, 1, 2),
-    (4, 1, 1),
-    (5, 1, 0),
+    (0, 1, 0),
+    (1, 1, 1),
+    (2, 1, 2),
+    (3, 0, 0),
+    (4, 0, 1),
+    (5, 0, 2),
 ]
 
 
@@ -105,14 +106,15 @@ def _self_test():
         d = grid_to_bytes(f)
         assert sum(bin(x).count("1") for x in d) == 1, f"点{i}映射丢失或重复"
 
-    # 与 sth2.html 手工核对的样例：栅格左上角单点 -> M1 bit2 = 0x04
+    # 180°反装后 bit 位与 prod / sth2.html 不再一致（sth2.html 未同步更新，
+    # 实验阶段不用它测试）。栅格左上角单点 -> M1 bit3 = 0x08
     f = np.zeros((GRID_ROWS, GRID_COLS), dtype=np.uint8)
     f[0, 0] = 1
-    assert grid_to_bytes(f)[0] == 0x04
-    # 栅格右下角单点 -> M15 bit3 = 0x08
+    assert grid_to_bytes(f)[0] == 0x08
+    # 栅格右下角单点 -> M15 bit2 = 0x04
     f = np.zeros((GRID_ROWS, GRID_COLS), dtype=np.uint8)
     f[9, 8] = 1
-    assert grid_to_bytes(f)[14] == 0x08
+    assert grid_to_bytes(f)[14] == 0x04
     print("frame_converter 自检通过")
 
 

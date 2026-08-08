@@ -23,7 +23,7 @@ from io import BytesIO
 
 sys.path.insert(0, os.path.dirname(__file__))
 from depth_estimator import DepthEstimator
-from grid_mapper import depth_map_to_dot_frame
+from grid_mapper import depth_map_to_xy_frame
 from config import GRID_COLS, GRID_ROWS, FRAME_LEN
 from scan_link import ScanLink
 
@@ -87,7 +87,7 @@ def process_loop():
             frame = cv2.resize(frame, (640, int(640 * h / w)))
 
         depth_map = estimator.estimate(frame)
-        braille = depth_map_to_dot_frame(depth_map)
+        braille = depth_map_to_xy_frame(depth_map)
         last_active = int(braille.sum())
         with frame_lock:
             latest_braille = braille

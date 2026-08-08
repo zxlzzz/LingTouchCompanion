@@ -304,11 +304,14 @@ def depth_map_to_xy_frame(depth_map):
         for c in range(GRID_COLS):
             if grid[r, c]:
                 frame[r * GRID_COLS + c] = 1
+    frame = _filter_small_clusters(frame, GRID_COLS, GRID_ROWS)
     return frame
 
 
 def _filter_small_clusters(frame, cols=GRID_COLS, rows=GRID_ROWS):
-    """Remove clusters smaller than MIN_CLUSTER_SIZE. 4-connected."""
+    """Remove clusters smaller than MIN_CLUSTER_SIZE (4-connected), then
+    dilate survivors so every activated region is at least 2x2 — a single
+    isolated dot is barely perceptible under a fingertip."""
     active = frame.reshape(rows, cols)
     if active.sum() == 0:
         return frame
@@ -318,17 +321,16 @@ def _filter_small_clusters(frame, cols=GRID_COLS, rows=GRID_ROWS):
                           [0, 1, 0]], dtype=np.uint8)
     labeled, n_features = ndimage.label(active, structure=structure)
 
-    if n_features <= 1:
-        return frame
+    if n_features > 1:
+        for label_id in range(1, n_features + 1):
+            mask = (labeled == label_id)
+            if mask.sum() < MIN_CLUSTER_SIZE:
+                active[mask] = 0
 
-    for label_id in range(1, n_features + 1):
-        mask = (labeled == label_id)
-        if mask.sum() < MIN_CLUSTER_SIZE:
-            for r in range(rows):
-                for c in range(cols):
-                    if mask[r, c]:
-                        frame[r * cols + c] = 0
-    return frame
+    if active.sum() > 0:
+        active = cv2.dilate(active.astype(np.uint8), np.ones((2, 2), np.uint8), iterations=1)
+
+    return active.reshape(-1).astype(np.uint8)
 
 
 # ═══════════════════════════════════════════════════════════
