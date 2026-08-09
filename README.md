@@ -10,6 +10,7 @@
 | 后端服务 | `app/backend/smart_cane_server/` | Node.js，百度地图路径规划、AI 助手接口 |
 | 视觉管线 | `vision/` | Python，运行于树莓派，深度估计 + 障碍物检测 |
 | 固件 | `firmware/` | Arduino，ESP32-S3 驱动 15 模块盲文点阵 |
+| 俯视栅格离线验证 | `topdown_pipeline.py` / `validate_distance.py` / `check_balloon_depth.py` | Python，metric 深度→点云→地面拟合→俯视栅格，标定与测试集验证见 [TOPDOWN_VALIDATION.md](TOPDOWN_VALIDATION.md) |
 
 ## 硬件概要
 
@@ -27,7 +28,12 @@
 ```
 LingTouch-Companion/
 ├── README.md
+├── TOPDOWN_VALIDATION.md             # 俯视栅格标定/验证记录
 ├── .gitignore
+├── topdown_pipeline.py               # metric深度→点云→地面拟合→俯视栅格
+├── validate_distance.py              # 批量测试集: 估距 vs 真实距离
+├── check_balloon_depth.py            # 深度图直接采样验证(气球等贴地细长物体)
+├── pics/                             # 标定/测试集照片(gitignore, 不进repo)
 ├── app/
 │   ├── backend/smart_cane_server/   # Node.js 后端
 │   └── frontend/smart_cane/         # uni-app 前端

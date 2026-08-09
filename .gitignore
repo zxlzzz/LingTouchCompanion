@@ -19,9 +19,25 @@ vision/data/*.jpg
 vision/data/exports/
 vision_output.bin
 
+# Depth Anything V2 (official repo clone + model weights, not project source)
+Depth-Anything-V2/
+*.pth
+*.safetensors
+
+# 俯视栅格标定/测试集照片 + 中间产物(深度npy、四联图), 不进repo
+pics/
+*_topdown.png
+*_raw_depth_meter.npy
+
 # Auto-generated local dev HTTPS cert (phone_server.py ensure_cert())
 vision/cert.pem
 vision/key.pem
+
+# visionss artifacts (镜像上面 vision/ 的规则, 两条路径完全独立见 tasks.md)
+visionss/data/exports/
+visionss/cert.pem
+visionss/key.pem
+visionss/*_raw_depth_meter.npy
 
 # IDE
 .idea/
@@ -36,3 +52,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+
+*.jpg

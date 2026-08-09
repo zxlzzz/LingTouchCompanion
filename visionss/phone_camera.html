@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Phone Camera → LingTouch (visionss)</title>
+<style>
+body{margin:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100dvh;overflow:hidden}
+video{width:100%;max-width:400px;border-radius:8px;position:fixed;top:0;left:50%;transform:translateX(-50%)}
+#status{color:#0f0;font-size:13px;margin-top:8px;position:fixed;bottom:76px;font-family:monospace;z-index:10;text-align:center;width:100%}
+#status.warn{color:#ff0}
+#status.err{color:#f55}
+#count{color:#ff0;font-size:12px;position:fixed;bottom:88px;font-family:monospace;z-index:10}
+.btnrow{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10}
+button{padding:12px 32px;font-size:16px;background:#3fb950;color:#000;border:none;border-radius:8px}
+button.running{background:#da3633}
+#reconnBtn{background:#555;color:#fff;padding:12px 20px}
+</style>
+</head>
+<body>
+<video id="v" autoplay playsinline muted></video>
+<canvas id="c" style="display:none"></canvas>
+<div id="count">已拍摄: 0</div>
+<div id="status">点击开始</div>
+<div class="btnrow">
+  <button id="btn" type="button">开始预览</button>
+  <button id="reconnBtn" type="button">重连摄像头</button>
+</div>
+<script>
+/*
+ * visionss 版拍照页 —— 和 vision/phone_camera.html 的关键区别:
+ *
+ * vision/ 版是给旧的相对深度管线用的, 分辨率不敏感, 所以用 640x480 摄像头
+ * ->压缩到320x240->每300ms连续POST这种"持续推流"设计, 换取实时预览流畅度。
+ *
+ * visionss/ 这条新管线(topdown_pipeline)要求 metric 深度, fx=3260 的标定
+ * 是在 3072px 宽的原生照片上做的——分辨率必须对得上标定值, 不做任何运行时
+ * 缩放换算(缩放要连 fx 一起等比例缩, 多一个出错的地方, 没必要)。而且新架构
+ * 下深度推理只在按键那一刻按需跑一次, 不需要每300ms传一帧占带宽。
+ *
+ * 所以改成"轮询式按需拍照": 页面只负责让 <video> 保持取流(本地渲染,不
+ * 耗带宽), 每 POLL_INTERVAL_MS 问一次电脑"有没有新的拍照请求"(/poll,
+ * 只返回一个很小的 JSON, 不含图像), 请求号变化就立刻从 <video> 抓一帧
+ * 原生分辨率(3072x4096, 不是画到小 canvas 上) JPEG(质量0.9) POST 给
+ * /frame。一次扫描才传一次大图, 局域网内 2-3MB 的图不到一秒能传完。
+ */
+const statusEl=document.getElementById('status');
+const count=document.getElementById('count');
+const btn=document.getElementById('btn');
+const reconnBtn=document.getElementById('reconnBtn');
+const video=document.getElementById('v');
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+let stream, running=false, sent=0, pollTimer=null;
+let lastGen=-1;
+let reconnecting=false;
+
+const PC_ORIGIN=`https://${location.hostname}:8760`;
+const POLL_URL=`${PC_ORIGIN}/poll`;
+const FRAME_URL=`${PC_ORIGIN}/frame`;
+const POLL_INTERVAL_MS=200;
+
+function setStatus(text, level){
+  statusEl.textContent=text;
+  statusEl.className=level||'';
+}
+
+function streamIsLive(){
+  const track=stream && stream.getVideoTracks()[0];
+  return !!(track && track.readyState==='live');
+}
+
+function bindTrackWatch(){
+  const track=stream.getVideoTracks()[0];
+  track.addEventListener('ended', ()=>{
+    if(reconnecting)return;
+    setStatus('摄像头连接断开，自动重连中...', 'warn');
+    reconnect();
+  });
+}
+
+async function acquireStream(){
+  if(stream){
+    stream.getTracks().forEach(t=>t.stop());
+  }
+  // width/height 用 ideal 3072x4096——和标定照片(Mate 50 Pro 主摄竖拍 3072x4096)
+  // 对齐, fx=3260 才能直接用, 不用换算。设备实际给到的分辨率可能因摄像头/浏览器
+  // 限制而有出入, 电脑端 phone_server.py 会在收到的帧宽度明显偏离3072时打印
+  // 警告(不会自动帮你缩放 fx, 出了这个警告说明标定对不上, 需要人工处理)。
+  stream=await navigator.mediaDevices.getUserMedia({
+    video:{width:{ideal:3072}, height:{ideal:4096}, facingMode:'environment'}
+  });
+  video.srcObject=stream;
+  await video.play();
+  bindTrackWatch();
+}
+
+async function init(){
+  try{
+    await acquireStream();
+    setStatus('已就绪，等待电脑端触发拍照');
+  }catch(e){
+    setStatus('摄像头失败: '+e.message, 'err');
+  }
+}
+
+async function reconnect(){
+  if(reconnecting)return;
+  reconnecting=true;
+  const wasRunning=running;
+  running=false;
+  clearTimeout(pollTimer);
+  for(let attempt=1;attempt<=3;attempt++){
+    try{
+      await acquireStream();
+      setStatus('摄像头已重连');
+      reconnecting=false;
+      if(wasRunning)start();
+      return;
+    }catch(e){
+      setStatus(`重连失败(${attempt}/3): ${e.message}`, 'err');
+      await new Promise(r=>setTimeout(r, 1000*attempt));
+    }
+  }
+  reconnecting=false;
+  setStatus('自动重连多次失败，请检查摄像头是否被其他 App 占用，或点"重连摄像头"手动重试', 'err');
+}
+
+btn.onclick=()=>{
+  if(running){stop();return}
+  if(!streamIsLive()){init().then(()=>{if(streamIsLive())start()})}
+  else start();
+};
+
+reconnBtn.onclick=()=>{reconnect();};
+
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible' && !streamIsLive() && !reconnecting && running){
+    setStatus('检测到摄像头已断开，自动重连中...', 'warn');
+    reconnect();
+  }
+});
+
+function start(){
+  running=true;
+  btn.textContent='停止预览';
+  btn.className='running';
+  setStatus('预览中，等待电脑端触发拍照');
+  pollLoop();
+}
+
+function stop(){
+  running=false;
+  clearTimeout(pollTimer);
+  btn.textContent='开始预览';
+  btn.className='';
+  setStatus('已停止');
+}
+
+function pollLoop(){
+  if(!running)return;
+  fetch(POLL_URL).then(r=>r.json()).then(d=>{
+    if(d.gen !== lastGen){
+      lastGen=d.gen;
+      captureAndSend(d.gen);
+    }
+  }).catch(e=>{
+    setStatus('轮询失败: '+e.message, 'warn');
+  }).finally(()=>{
+    pollTimer=setTimeout(pollLoop, POLL_INTERVAL_MS);
+  });
+}
+
+function captureAndSend(gen){
+  if(!streamIsLive()){
+    setStatus('电脑端请求拍照，但摄像头未就绪', 'warn');
+    return;
+  }
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  ctx.drawImage(video,0,0,canvas.width,canvas.height);
+  setStatus(`拍照中 (${canvas.width}x${canvas.height}) ...`);
+  canvas.toBlob(blob=>{
+    fetch(`${FRAME_URL}?gen=${gen}`,{method:'POST',body:blob}).then(r=>r.json()).then(d=>{
+      sent++;
+      count.textContent='已拍摄: '+sent+' 张';
+      setStatus(`已发送 (${canvas.width}x${canvas.height}, ${(blob.size/1024).toFixed(0)}KB)`);
+    }).catch(e=>{
+      setStatus('发送失败: '+e.message, 'warn');
+    });
+  },'image/jpeg',0.9);
+}
+
+init();
+</script>
+</body>
+</html>
