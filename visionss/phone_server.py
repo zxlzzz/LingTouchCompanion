@@ -50,7 +50,9 @@ from scan_link import ScanLink
 
 # ── 标定参数(与 TOPDOWN_VALIDATION.md / 根目录 CLAUDE.md 一致) ──────────
 FX = 3260.0             # 门宽复测标定值, 在 3072px 宽原生照片上量出来的
-FX_BASE_WIDTH = 3072    # fx 对应的图像宽度——手机拍照分辨率必须匹配这个值, 不做运行时缩放
+FX_BASE_WIDTH = 3072    # fx 对应的图像宽度(Mate 50 Pro 主摄竖拍 3072x4096)
+FX_BASE_AR = 3072 / 4096  # 标定时的长宽比。宽度可以等比例换算 fx, 长宽比变了就不能(见 resolve_fx)
+CAPTURE_ROTATE = cv2.ROTATE_90_CLOCKWISE  # 横版帧转竖版的方向, 见 to_portrait()
 CAPTURE_TIMEOUT_S = 6.0  # 请求拍照后最多等这么久(手机对焦+编码+上传), 超时判定这次扫描失败
 # ──────────────────────────────────────────────────────────────────────
 
@@ -76,6 +78,49 @@ def _request_capture():
         my_gen = capture_gen
         pending_event.clear()
     return my_gen
+
+
+def to_portrait(frame):
+    """把手机传来的帧统一转成竖版(短边在宽)。
+
+    Android 上 getUserMedia 基本不理会竖版的 width/height 约束, 无论怎么写都给
+    传感器原生的横版流(video 元素只是显示时转了一下, videoWidth/videoHeight 仍是
+    横版), 所以帧到了这里往往是 4096x3072 而不是 3072x4096。管线依赖"相机系 y 向下
+    ≈ 重力方向"来拟合地面(ransac_ground 里有 n[1] 的方向判据), 横版帧的重力方向在
+    x 轴上, 地面根本拟合不出来 —— 必须先转正。
+
+    转的是同一块传感器读出, 不是裁切, 所以视场角和像素间距都不变, fx 数值不受旋转
+    影响(fx=fy, 各向同性), 只是"哪条边算宽"变了。
+    CAPTURE_ROTATE 的方向对不对, 看一眼 data/exports/*/original.jpg 就知道:
+    转正之后地面应该在画面下方。方向反了就把它改成 cv2.ROTATE_90_COUNTERCLOCKWISE。
+    """
+    h, w = frame.shape[:2]
+    if w > h:
+        return cv2.rotate(frame, CAPTURE_ROTATE)
+    return frame
+
+
+def resolve_fx(w, h):
+    """按实际收到的照片尺寸换算 fx。对不上就返回 None(本次扫描作废), 不猜。
+
+    手机浏览器的 getUserMedia 经常把 ideal:3072 降级到 1920 甚至 1280, 而且是静默的。
+    只要长宽比还是标定时的 3:4(同一块传感器区域, 只是输出分辨率变了), fx 就严格按
+    像素宽等比例缩放, 这是精确的, 不是近似。
+    但如果长宽比也变了(比如变成 9:16), 说明传感器被裁切过, 水平视场角跟着变了,
+    等比例缩 fx 就是错的——这种情况必须在该分辨率下重新标一次门宽, 所以这里直接
+    拒绝, 而不是给一个看起来合理、实际系统性偏掉的距离。
+    """
+    ar = w / h
+    if abs(ar - FX_BASE_AR) > 0.03:
+        print(f"[capture] 拒绝: 照片长宽比 {ar:.3f} 与标定时的 {FX_BASE_AR:.3f} 不符 "
+              f"({w}x{h})。传感器裁切变了, fx 不能等比例换算, 需要在这个分辨率下重新"
+              f"标定(拍已知宽度的门/柜, fx = 像素宽 × 距离 / 实际宽度)")
+        return None
+    fx_eff = FX * w / FX_BASE_WIDTH
+    if abs(w - FX_BASE_WIDTH) > 50:
+        print(f"[capture] 注意: 照片宽 {w}px ≠ 标定宽 {FX_BASE_WIDTH}px, "
+              f"长宽比一致, fx 已等比例换算 {FX:.0f} -> {fx_eff:.0f}")
+    return fx_eff
 
 
 def depth_to_heatmap(depth_map):
@@ -139,17 +184,19 @@ def capture_and_infer():
                   f"(检查手机是否已打开 phone_camera.html 并点了'开始预览', 是否同一WiFi)")
             return None
 
+        frame = to_portrait(frame)
         h, w = frame.shape[:2]
-        if abs(w - FX_BASE_WIDTH) > 200:
-            print(f"[capture] 警告: 收到照片宽={w}px, 和标定宽度{FX_BASE_WIDTH}px 偏差较大, "
-                  f"fx={FX} 可能不准——这里不会自动按比例缩放 fx, 出现这条警告说明手机实际拍照"
-                  f"分辨率跟标定值对不上, 需要人工检查(通常是 getUserMedia 的 ideal 分辨率被"
-                  f"设备/浏览器降级了)")
+        fx_eff = resolve_fx(w, h)
+        if fx_eff is None:
+            return None
 
         t2 = time.time()
         depth = runner.infer(frame)
         t3 = time.time()
-        grid = depth_to_grid(depth, fx=FX, cam_h_true=CAM_H_TRUE)
+        grid = depth_to_grid(depth, fx=fx_eff, cam_h_true=CAM_H_TRUE)
+        if grid is None:
+            print("[capture] 本帧地面拟合失败, 不下发(重新按一次)")
+            return None
         grid = mirror_grid_horizontal(grid)
         t4 = time.time()
 
@@ -309,7 +356,14 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--ble-device', default='LingChu-Tactile', help='BLE 设备名')
     ap.add_argument('--no-ble', action='store_true', help='只测拍照->栅格全流程，不连设备')
+    ap.add_argument('--fx', type=float, default=None,
+                     help='覆盖标定焦距(px, 对应转正后的竖版宽度)。浏览器取到的流视场角'
+                          '未必等于相机 App 拍照的视场角, 一旦发现对不上, 用浏览器实拍的'
+                          'original.jpg 重新量门宽标一次, 从这里传进来, 不要改源码常量')
     args = ap.parse_args()
+    if args.fx:
+        FX = args.fx
+        print(f"[phone_server] fx 覆盖为 {FX:.0f}px (按转正后的竖版宽度 {FX_BASE_WIDTH}px 计)")
 
     ip = get_ip()
     cert, key = ensure_cert()

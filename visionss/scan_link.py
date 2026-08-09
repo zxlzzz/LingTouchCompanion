@@ -86,7 +86,12 @@ class ScanLink:
         evt_type = data[0]
         evt_data = data[1] if len(data) > 1 else 0
         if evt_type == EVT_SCAN_REQUEST:
-            self._on_scan()
+            # 必须扔到工作线程: visionss 的 frame_source 是 capture_and_infer(),
+            # 要阻塞 1-7 秒(等手机上传原生分辨率照片 + GPU 推理)。这个回调跑在
+            # bleak 的 asyncio 线程里, 直接调用会把事件循环冻住那么久——通知收不到、
+            # _write 的 create_task 排不上、还可能被底层判定断连。
+            # (vision/ 版可以直接调, 是因为那边 frame_source 只读缓存, 瞬间返回。)
+            threading.Thread(target=self._on_scan, daemon=True).start()
         elif self.verbose:
             print(f"[scan_link] < notify type=0x{evt_type:02X} data=0x{evt_data:02X}")
 

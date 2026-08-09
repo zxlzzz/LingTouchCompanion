@@ -5,12 +5,11 @@ frame_converter — 10x9 俯视栅格 <-> 15字节模组帧
 (两条路径完全解耦, 改这份不会有任何机会碰坏 vision/, 见仓库根目录 tasks.md)。
 和 vision/ 版的关键差异:
 
-1. 行的远近含义反过来了。vision/ 版(image-plane 管线, grid_mapper.py)是
-   row0=画面顶部=远, row9=画面底部=近。visionss/ 版(topdown_pipeline.py 的
-   depth_to_grid())是 row0=最近(0.5m), row9=最远(5m) —— 两条路径的栅格生成
-   方式完全不同(俯视真实坐标 vs 图像平面), 这是各自独立做出的设计选择, 不是谁
-   错了。ascii_preview() 的行首标签已按这份的约定改过, 不要direct照抄 vision/
-   版的输出去对答案。
+1. 行的远近含义和 vision/ 版保持一致: row0=远, row9=近。
+   (2026-08-09 修正: 曾经改成 row0=近, 但 _BIT_MAP 没跟着改, 结果近场落到了
+   M1/M2/M3——那三个模组分别坏了 2/3/5 个点, 而 PCB 180°反装的全部目的就是让
+   坏点最少的 M13-M15 当近场行。现已改回, 由 topdown_pipeline.depth_to_grid()
+   在出口翻行来适配, frame_converter 这份保持和硬件验证过的 vision/ 版一致。)
 2. MODULE_ROT180 从"隐式写死在 _BIT_MAP 里"改成显式开关。vision/ 版的
    _BIT_MAP 已经是"180°反装"之后的版本(docstring 里写了"相对 prod 取
    (bit, 1-dr, 2-dc)"这个变换, 但没有把两个版本都留下来, 也没有开关)。这份
@@ -113,16 +112,12 @@ def mirror_grid_horizontal(grid):
 
 
 def ascii_preview(frame):
-    """把90点或15字节渲染成字符画，行首标注远近。
-
-    row0=最近，row9=最远(topdown_pipeline.depth_to_grid 的约定，和 vision/
-    版的图像平面约定方向相反，见文件头注释)。
-    """
+    """把90点或15字节渲染成字符画，行首标注远近。row0=远，row9=近(与 vision/ 版一致)。"""
     a = np.asarray(frame)
     g = bytes_to_grid(a) if a.size == NUM_MODULES else a.reshape(GRID_ROWS, GRID_COLS)
     lines = []
     for r in range(GRID_ROWS):
-        tag = "近" if r == 0 else ("远" if r == GRID_ROWS - 1 else "  ")
+        tag = "远" if r == 0 else ("近" if r == GRID_ROWS - 1 else "  ")
         cells = " ".join("●" if v else "·" for v in g[r])
         lines.append(f"{tag} {cells}")
         if r % 2 == 1 and r != GRID_ROWS - 1:

@@ -34,15 +34,19 @@ button.running{background:#da3633}
  * ->压缩到320x240->每300ms连续POST这种"持续推流"设计, 换取实时预览流畅度。
  *
  * visionss/ 这条新管线(topdown_pipeline)要求 metric 深度, fx=3260 的标定
- * 是在 3072px 宽的原生照片上做的——分辨率必须对得上标定值, 不做任何运行时
- * 缩放换算(缩放要连 fx 一起等比例缩, 多一个出错的地方, 没必要)。而且新架构
- * 下深度推理只在按键那一刻按需跑一次, 不需要每300ms传一帧占带宽。
+ * 是在 3072px 宽的竖版原图上做的, 分辨率/长宽比必须对得上标定值。但实测发现
+ * Android 上 getUserMedia 基本不理会竖版的 width/height 约束(写 3072x4096 也
+ * 照样给传感器原生的横版流, screen.orientation.lock('portrait') 也没用,
+ * <video> 元素只是显示时转了一下, videoWidth/videoHeight 仍然是横的)——与其
+ * 跟它较劲, 不如直接按横版要 4096x3072(同一块 4:3 传感器读出, 视场角一样),
+ * 电脑端 phone_server.py 的 to_portrait() 收到后再转正。
  *
+ * 而且新架构下深度推理只在按键那一刻按需跑一次, 不需要每300ms传一帧占带宽,
  * 所以改成"轮询式按需拍照": 页面只负责让 <video> 保持取流(本地渲染,不
  * 耗带宽), 每 POLL_INTERVAL_MS 问一次电脑"有没有新的拍照请求"(/poll,
  * 只返回一个很小的 JSON, 不含图像), 请求号变化就立刻从 <video> 抓一帧
- * 原生分辨率(3072x4096, 不是画到小 canvas 上) JPEG(质量0.9) POST 给
- * /frame。一次扫描才传一次大图, 局域网内 2-3MB 的图不到一秒能传完。
+ * 原生分辨率 JPEG(质量0.9) POST 给 /frame。一次扫描才传一次大图, 局域网内
+ * 2-3MB 的图不到一秒能传完。
  */
 const statusEl=document.getElementById('status');
 const count=document.getElementById('count');
@@ -83,22 +87,25 @@ async function acquireStream(){
   if(stream){
     stream.getTracks().forEach(t=>t.stop());
   }
-  // width/height 用 ideal 3072x4096——和标定照片(Mate 50 Pro 主摄竖拍 3072x4096)
-  // 对齐, fx=3260 才能直接用, 不用换算。设备实际给到的分辨率可能因摄像头/浏览器
-  // 限制而有出入, 电脑端 phone_server.py 会在收到的帧宽度明显偏离3072时打印
-  // 警告(不会自动帮你缩放 fx, 出了这个警告说明标定对不上, 需要人工处理)。
+  // 直接要横版 4096x3072(4:3), 不再跟 Android 要竖版——visionss/phone_server.py
+  // 的 to_portrait() 会转正。aspectRatio 显式钉成 4/3: 有些机型默认给 16:9,
+  // 那是把传感器裁掉一截, 视场角变了, fx=3260 就不能直接用了(电脑端 resolve_fx
+  // 会在长宽比不符时直接拒绝这一帧并提示重新标定, 不会瞎换算)。
   stream=await navigator.mediaDevices.getUserMedia({
-    video:{width:{ideal:3072}, height:{ideal:4096}, facingMode:'environment'}
+    video:{width:{ideal:4096}, height:{ideal:3072}, aspectRatio:{ideal:4/3},
+           facingMode:{ideal:'environment'}}
   });
   video.srcObject=stream;
   await video.play();
+  const t=stream.getVideoTracks()[0].getSettings();
+  setStatus(`摄像头 ${t.width}x${t.height} (长宽比${(t.width/t.height).toFixed(2)}, 需要1.33)`,
+            Math.abs(t.width/t.height-4/3)>0.03?'warn':'');
   bindTrackWatch();
 }
 
 async function init(){
   try{
     await acquireStream();
-    setStatus('已就绪，等待电脑端触发拍照');
   }catch(e){
     setStatus('摄像头失败: '+e.message, 'err');
   }

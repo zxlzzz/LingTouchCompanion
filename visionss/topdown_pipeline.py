@@ -52,9 +52,17 @@ REFIT_LOW, REFIT_HIGH = -0.15, 0.05
 REFIT_ROUNDS  = 3          # 迭代剔除+精修的轮数(不含 RANSAC 后的第一次精修)
 GROUND_IMG_FRAC = 0.25     # 取画面底部这一比例的点做地面候选(45%时椅子距离越近占比越大, 容易把椅子拟合进地面)
 GROUND_D_MAX  = 6.0        # 地面候选最远距离(m)
-# 占据判定: 每格点数阈值 = OCC_K / z²(近处像素多), 下限 OCC_MIN
-OCC_K   = 400.0
-OCC_MIN = 8
+# 占据判定: 阈值 = 该格"完全被障碍物填满时应有的点数" × OCC_FILL_FRAC。
+# 为什么不用绝对点数(旧的 OCC_K/z²): 绝对阈值同时耦合了图像分辨率和 stride——
+# 手机实际拍到 1080 宽而不是标定的 3072 宽时, 每格点数掉到 12%, 绝对阈值不变
+# 就会让整个栅格全空, 而且"全空"在这套系统里恰好等于"前方通畅", 是最危险的
+# 静默失败方向。按比例算的话 expected ∝ W × fy ∝ W², 分辨率变化自动抵消。
+OCC_FILL_FRAC = 0.05   # 该格预期可见面积被占到这个比例才算有障碍
+OCC_MIN       = 8      # 绝对下限, 防止极远处 expected 太小导致噪点过关
+# 单帧最多点亮多少格: 按点数降序保留前 K 个。任务是"找最显著的障碍 + 椅子",
+# 不是重建房间; 没有这个上限时, 5m 房间里正对的那面墙(高度 0.1-1.8m 全部落在
+# 保留区间内, 距离又正好压在 D_MAX 边界上)会把最远一两行整行点亮。
+MAX_ACTIVE_CELLS = 10
 CAM_H_TRUE = 1.40          # 胸挂实测相机高度(m) —— 尺度锚定基准, 见 TOPDOWN_VALIDATION.md
 # ────────────────────────────────────────────────
 
@@ -180,19 +188,44 @@ def ground_frame(n, pts):
     return fwd, right
 
 
+def occupancy(counts, W, fy, stride):
+    """每格点数 -> 占据 bool 栅格。阈值按"该格填满时的预期点数×OCC_FILL_FRAC"算,
+    再对全图施加 MAX_ACTIVE_CELLS 上限(按点数降序保留)。返回 (grid, thresh)。"""
+    row_z = D_MIN + (np.arange(N_ROWS) + 0.5) * (D_MAX - D_MIN) / N_ROWS
+    # 该格填满时的像素面积: 宽 ≈ W/N_COLS(每列占的画面宽度),
+    # 高 ≈ 高度保留区间在该距离上张开的像素数 (H_MAX-H_MIN)*fy/z
+    expected = (W / N_COLS) * ((H_MAX - H_MIN) * fy / row_z) / (stride ** 2)
+    thresh = np.maximum(expected * OCC_FILL_FRAC, OCC_MIN).astype(int)
+    grid = counts >= thresh[:, None]
+
+    if grid.sum() > MAX_ACTIVE_CELLS:
+        flat = np.where(grid.ravel(), counts.ravel(), -1)
+        keep = np.argsort(flat)[::-1][:MAX_ACTIVE_CELLS]
+        capped = np.zeros(grid.size, dtype=bool)
+        capped[keep] = True
+        grid = capped.reshape(grid.shape)
+    return grid, thresh
+
+
 def depth_to_grid(depth, fx, fy=None, cam_h_true=CAM_H_TRUE, stride=STRIDE):
     """metric 深度图 -> 10x9 俯视占据栅格(bool)。供 visionss/phone_server.py 按键回调直接调用。
 
     与 validate_distance.py 的 analyze() 同一套两遍流程:
       1. 原始深度先拟合一次地面, 拿 cam_h_raw 算 scale = cam_h_true / cam_h_raw
       2. 深度整体乘 scale 后重新 backproject + 拟合地面(此时 cam_h 应回到 cam_h_true 附近)
-      3. 高度过滤 + 前向/方位分箱 + OCC_K/z² 占据阈值(与 main() 的 CLI 路径完全一致)
+      3. 高度过滤 + 前向/方位分箱 + occupancy() 占据判定(与 main() 的 CLI 路径共用)
 
-    返回: (10,9) bool ndarray。row 0 = 最近(D_MIN=0.5m), row 9 = 最远(D_MAX=5.0m);
+    返回: (10,9) bool ndarray。**row 0 = 最远(D_MAX=5.0m), row 9 = 最近(D_MIN=0.5m)**
+          —— 和 vision/frame_converter.py 的约定一致(row0=远), 这样 grid_to_bytes
+          可以原样复用那份已经在硬件上验证过的映射, 近场落在 M13-M15(坏点最少的
+          一行, 这是 PCB 180°反装的全部目的)。俯视栅格内部是按"row0=最近"算的,
+          在函数出口统一翻一次行, 不要在别处再翻第二次。
           col 0..8 = 方位角, 左到右(画面左→右, 未做设备穿戴镜像 —— 镜像交给
           frame_converter.mirror_grid_horizontal, 只在打包发给硬件前调用一次)。
-    深度不合法(候选点不足/找不到地面)时返回全 False 栅格, 不抛异常——按键回调场景下
-    宁可这次不下发/下发空栅格, 也不要让服务端因为一帧糟糕的深度图直接崩掉。
+
+    深度不合法(地面候选点不足/找不到地面)时返回 **None**, 不是全 False 栅格。
+    全 False 在这套设备上恰好等于"前方通畅", 是最危险的误导方向; 调用方拿到 None
+    应该选择不下发并提示重扫, 而不是把一帧废深度图当成空场送到使用者手上。
     """
     depth = np.asarray(depth, dtype=np.float32)
     H, W = depth.shape
@@ -206,8 +239,9 @@ def depth_to_grid(depth, fx, fy=None, cam_h_true=CAM_H_TRUE, stride=STRIDE):
         scale = cam_h_true / cam_h_raw
         pts, vs = backproject(depth * scale, fx, fy, cx, cy, stride)
         n, d, _, _, _ = ransac_ground(pts, vs, H, rng)
-    except RuntimeError:
-        return np.zeros((N_ROWS, N_COLS), dtype=bool)
+    except RuntimeError as e:
+        print(f"[topdown] 地面拟合失败, 本帧作废(不下发): {e}")
+        return None
 
     h_pts = matvec(pts, n) + d
     fwd, right = ground_frame(n, pts)
@@ -225,9 +259,8 @@ def depth_to_grid(depth, fx, fy=None, cam_h_true=CAM_H_TRUE, stride=STRIDE):
     counts = np.zeros((N_ROWS, N_COLS), dtype=int)
     np.add.at(counts, (rows, cols), 1)
 
-    row_z = D_MIN + (np.arange(N_ROWS) + 0.5) * (D_MAX - D_MIN) / N_ROWS
-    thresh = np.maximum(OCC_K / row_z ** 2, OCC_MIN).astype(int)
-    return counts >= thresh[:, None]
+    grid, _ = occupancy(counts, W, fy, stride)
+    return grid[::-1].copy()   # 内部 row0=最近 -> 出口 row0=最远(见 docstring)
 
 
 def main():
@@ -285,8 +318,7 @@ def main():
     np.add.at(counts, (rows, cols), 1)
 
     row_z = D_MIN + (np.arange(N_ROWS) + 0.5) * (D_MAX - D_MIN) / N_ROWS
-    thresh = np.maximum(OCC_K / row_z**2, OCC_MIN).astype(int)
-    grid = counts >= thresh[:, None]
+    grid, thresh = occupancy(counts, W, fy, STRIDE)  # CLI 这条路保持 row0=最近显示
 
     print("\n[每格点数] (行0=最近0.5m, 行9=最远5m; 列0=最左)  |阈值")
     for r in range(N_ROWS - 1, -1, -1):
