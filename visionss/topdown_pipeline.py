@@ -40,7 +40,7 @@ from PIL import Image
 # ── 可调参数 ─────────────────────────────────────
 STRIDE        = 8          # 像素下采样步长(3072x4096 → ~19万点)
 H_MIN, H_MAX  = 0.10, 1.80 # 离地高度保留区间(m): 剔地板/天花板
-D_MIN, D_MAX  = 0.5, 5.0   # 前向距离区间(m) → 10行
+D_MIN, D_MAX  = 1.0, 5.0   # 前向距离区间(m) → 10行
 N_ROWS, N_COLS = 10, 9
 HFOV_FALLBACK = 67.0       # 无标定时的视场角估计(deg)
 # RANSAC
@@ -57,7 +57,10 @@ GROUND_D_MAX  = 6.0        # 地面候选最远距离(m)
 # 手机实际拍到 1080 宽而不是标定的 3072 宽时, 每格点数掉到 12%, 绝对阈值不变
 # 就会让整个栅格全空, 而且"全空"在这套系统里恰好等于"前方通畅", 是最危险的
 # 静默失败方向。按比例算的话 expected ∝ W × fy ∝ W², 分辨率变化自动抵消。
-OCC_FILL_FRAC = 0.05   # 该格预期可见面积被占到这个比例才算有障碍
+OCC_FILL_FRAC = 0.035  # 该格预期可见面积被占到这个比例才算有障碍(0.05→0.035, 2026-08-09
+                        # 用 chair_3m 实测数据调的: 椅子2.8m那格497点在0.05下阈值527没过线,
+                        # 调到0.035阈值降到~369, 497/416两格都过线且有13-30%余量; 同一张图里
+                        # 噪声格最高才96-192, 离369还远, 不会跟着被误触发)
 OCC_MIN       = 8      # 绝对下限, 防止极远处 expected 太小导致噪点过关
 # 单帧最多点亮多少格: 按点数降序保留前 K 个。任务是"找最显著的障碍 + 椅子",
 # 不是重建房间; 没有这个上限时, 5m 房间里正对的那面墙(高度 0.1-1.8m 全部落在
@@ -190,20 +193,30 @@ def ground_frame(n, pts):
 
 def occupancy(counts, W, fy, stride):
     """每格点数 -> 占据 bool 栅格。阈值按"该格填满时的预期点数×OCC_FILL_FRAC"算,
-    再对全图施加 MAX_ACTIVE_CELLS 上限(按点数降序保留)。返回 (grid, thresh)。"""
+    每列只保留过线格子里最近的2个(2026-08-09改, 原来是全图按点数降序取
+    MAX_ACTIVE_CELLS个, 但远处大平面/墙跨列多、阈值又低, 会把近处紧凑物体的
+    名额挤掉; 现在按列各自判定, 不同列不互相竞争名额)。返回 (grid, thresh)。"""
     row_z = D_MIN + (np.arange(N_ROWS) + 0.5) * (D_MAX - D_MIN) / N_ROWS
     # 该格填满时的像素面积: 宽 ≈ W/N_COLS(每列占的画面宽度),
     # 高 ≈ 高度保留区间在该距离上张开的像素数 (H_MAX-H_MIN)*fy/z
     expected = (W / N_COLS) * ((H_MAX - H_MIN) * fy / row_z) / (stride ** 2)
     thresh = np.maximum(expected * OCC_FILL_FRAC, OCC_MIN).astype(int)
-    grid = counts >= thresh[:, None]
+    passed = counts >= thresh[:, None]
+    grid = np.zeros_like(passed)
+    for c in range(N_COLS):
+        rr = np.nonzero(passed[:, c])[0]
+        for r in rr[:2]:            # 每列保留最近的两个通过格
+            grid[r, c] = True       # 此处 row0=最近
 
-    if grid.sum() > MAX_ACTIVE_CELLS:
-        flat = np.where(grid.ravel(), counts.ravel(), -1)
-        keep = np.argsort(flat)[::-1][:MAX_ACTIVE_CELLS]
-        capped = np.zeros(grid.size, dtype=bool)
-        capped[keep] = True
-        grid = capped.reshape(grid.shape)
+    # 每个命中格同行左右各扩1列(3格宽, 越界截断)。椅子这类紧凑物体过线后往往只有
+    # 1-2个孤立点, 触感上跟"一根针"没区别, 找不到; 膨胀成一小块(3-6点)更好摸。
+    # 宽障碍物(墙/大平面)本来就跨多列, 膨胀只是边缘各宽一格, 不影响形状特征。
+    # 代价是方位分辨率变粗(±5.6°), 对"找到一把椅子"这个任务无所谓。
+    g2 = grid.copy()
+    g2[:, :-1] |= grid[:, 1:]
+    g2[:, 1:] |= grid[:, :-1]
+    grid = g2
+
     return grid, thresh
 
 

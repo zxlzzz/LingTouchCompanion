@@ -1,0 +1,14 @@
+{
+  "active_dots": 33,
+  "total_dots": 90,
+  "fx": 3260.0,
+  "cam_h_true": 1.4,
+  "cam_h_raw": 2.188,
+  "scale": 0.64,
+  "cam_h_anchored": 1.394,
+  "pitch_deg": 24.4,
+  "inlier_frac": 0.851,
+  "d_min": 1.0,
+  "d_max": 5.0,
+  "source": "test1.jpg (cluttered office, blue epoxy floor, cardboard target ~2.5m)"
+}

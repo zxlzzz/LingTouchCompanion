@@ -1,0 +1,11 @@
+{
+  "active_dots": 15,
+  "total_dots": 90,
+  "fx": 3260.0,
+  "cam_h_true": 1.4,
+  "d_min": 1.0,
+  "d_max": 5.0,
+  "occ_fill_frac": 0.035,
+  "dilate": "left-right 1col",
+  "source": "pics/ascii/chair_3m.jpg (黑布地面, 标称3m)"
+}
