@@ -1,8 +1,11 @@
 <template>
 	<view class="container">
-		<!-- 地图层 -->
+		<!-- 危险播报横幅 -->
+		<HazardBanner />
+
+		<!-- 地图层（百度地图 JS API） -->
 		<view class="map-layer">
-			<view id="amapContainer" class="amap-box"></view>
+			<view id="baiduContainer" class="map-box"></view>
 		</view>
 
 		<!-- 顶部搜索条 -->
@@ -69,7 +72,7 @@
 				<view class="title-row">
 					<text class="destination-title">{{ routeData.destination }}</text>
 					<view class="ai-tag">
-						<text class="ai-tag-text">AI 推荐路线</text>
+						<text class="ai-tag-text">步行路线</text>
 					</view>
 				</view>
 
@@ -130,24 +133,24 @@
 import { ref, computed, nextTick, onBeforeUnmount } from 'vue'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { searchPlace, getWalkRoute, reverseGeocode } from '@/api/map.js'
+import { speakText } from '@/utils/tts.js'
+import { BAIDU_JS_AK } from '@/config/baidu.js'
+import { wgs84ToBd09, gcj02ToBd09 } from '@/utils/coord.js'
 import { getAssistantSelectedPlaceKey } from '@/utils/globalAssistant.js'
+import HazardBanner from '@/components/hazard-banner.vue'
 
 // ======================== 配置 ========================
-// 高德 JS API Key（与 REST API 的 Key 不同，需要单独申请 JS API 类型）
-// 如果你只申请了 Web服务 Key，需要再申请一个 "Web端(JS API)" Key
-const AMAP_JS_KEY = 'd40d91da8f4450f8c9677f3b439c1ff1'         // ← 替换
-const AMAP_JS_SECURITY = 'f501d8e9609333da4084a7aafb011071'  // ← 替换（高德安全密钥）
+// 百度 JS API Key 统一在 config/baidu.js 配置；REST 接口走后端代理
+const DEFAULT_LOCATION = wgs84ToBd09(39.9042, 116.4074)
 
-const DEFAULT_LOCATION = {
-	lat: 39.9042,
-	lng: 116.4074
-}
+const DEVIATION_THRESHOLD = 30 // 偏离路线判定距离（米）
+const TURN_ADVANCE_DISTANCE = 40 // 转向距离预告阈值（米）
+const REPLAN_COOLDOWN = 30000 // 自动重规划冷却（毫秒）
 
 const searchKeyword = ref('')
 const routeReady = ref(false)
 const locationText = ref('地图加载中...')
 const currentCity = ref('')
-const voiceBroadcastEnabled = ref(true)
 
 const placeList = ref([])
 const showPlaceList = ref(false)
@@ -182,18 +185,28 @@ const currentStepRemainText = computed(() => `${Math.max(0, Math.round(currentSt
 
 let mapInstance = null
 let currentMarker = null
+let currentMarkerLabel = null
 let destinationMarker = null
 let destinationLabel = null
 let routePolyline = null
 let activeStepPolyline = null
 let locationTimer = null
 let lastSpokenStepIndex = -1
+let lastAdvanceSpokenIndex = -1
+let arrivedSpoken = false
+let deviationCount = 0
+let lastReplanAt = 0
 let pendingAssistantPlace = null
 
-// ======================== 工具函数（与原版相同） ========================
+// ======================== 工具函数 ========================
 
 const sanitizeInstruction = (text = '') => {
-	return String(text).replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim()
+	return String(text)
+		.replace(/<[^>]+>/g, '')
+		.replace(/&nbsp;/g, ' ')
+		.replace(/[,，]/g, '，')
+		.replace(/\s+/g, ' ')
+		.trim()
 }
 
 const formatDistance = (distance = 0) => {
@@ -202,16 +215,17 @@ const formatDistance = (distance = 0) => {
 	return `${Math.round(n)} 米`
 }
 
+// 百度步行路线转向类型：左前方转弯 / 右转弯 / 直行 / 到达终点 等
 const getTurnText = (instruction = '') => {
 	const text = sanitizeInstruction(instruction)
-	if (text.includes('左转')) return '左转'
-	if (text.includes('右转')) return '右转'
-	if (text.includes('向左前方')) return '左前方'
-	if (text.includes('向右前方')) return '右前方'
-	if (text.includes('向左后方')) return '左后方'
-	if (text.includes('向右后方')) return '右后方'
+	if (text.includes('左前方转弯')) return '左前方转弯'
+	if (text.includes('右前方转弯')) return '右前方转弯'
+	if (text.includes('左后方转弯')) return '左后方转弯'
+	if (text.includes('右后方转弯')) return '右后方转弯'
+	if (text.includes('左转弯')) return '左转'
+	if (text.includes('右转弯')) return '右转'
+	if (text.includes('到达终点') || text.includes('到达')) return '到达目的地'
 	if (text.includes('直行')) return '继续前进'
-	if (text.includes('到达')) return '到达目的地'
 	return '继续前进'
 }
 
@@ -226,6 +240,7 @@ const haversineDistance = (lat1, lng1, lat2, lng2) => {
 	return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+// 百度 path 格式："lng,lat;lng,lat;..." → [{lat, lng}]
 const parsePathStringToPoints = (path = '') => {
 	if (!path || typeof path !== 'string') return []
 	return path
@@ -284,68 +299,60 @@ const normalizeRouteSteps = (route) => {
 			distance,
 			distanceText: formatDistance(distance),
 			duration: Number(step.duration || 0),
-			turnText: getTurnText(instruction),
+			turnText: step.turn_type || getTurnText(instruction),
 			points: cleanPoints,
 			endPoint
 		}
 	})
 }
 
-// ======================== 高德地图 JS API 加载 ========================
+// ======================== 百度地图 JS API 加载 ========================
 
-const loadAmapScript = () => {
+const loadBaiduScript = () => {
 	return new Promise((resolve, reject) => {
-		if (window.AMap) {
-			resolve(window.AMap)
+		if (window.BMap) {
+			resolve(window.BMap)
 			return
 		}
 
-		// 设置安全密钥
-		window._AMapSecurityConfig = {
-			securityJsCode: AMAP_JS_SECURITY
-		}
+		// v3.0 支持全局回调方式加载
+		window.__baiduMapInitCallback = () => resolve(window.BMap)
 
 		const script = document.createElement('script')
-		script.src = `https://webapi.amap.com/maps?v=2.0&key=${AMAP_JS_KEY}`
-		script.onload = () => {
-			if (window.AMap) {
-				resolve(window.AMap)
-			} else {
-				reject(new Error('高德地图 JS API 加载失败'))
-			}
+		script.src = `https://api.map.baidu.com/api?v=3.0&ak=${BAIDU_JS_AK}&callback=__baiduMapInitCallback`
+		script.onerror = () => {
+			delete window.__baiduMapInitCallback
+			reject(new Error('百度地图脚本加载失败'))
 		}
-		script.onerror = () => reject(new Error('高德地图脚本加载失败'))
 		document.head.appendChild(script)
 	})
 }
 
-// ======================== 地图操作（百度→高德） ========================
+// ======================== 地图操作（百度 JS API） ========================
 
 const initMap = async () => {
 	// #ifdef H5
 	await nextTick()
 
-	const mapDom = document.getElementById('amapContainer')
+	const mapDom = document.getElementById('baiduContainer')
 	if (!mapDom) {
 		locationText.value = '地图容器不存在'
 		return
 	}
 
 	try {
-		await loadAmapScript()
+		await loadBaiduScript()
 	} catch (err) {
-		locationText.value = '高德地图加载失败'
+		locationText.value = '百度地图加载失败'
 		console.error(err)
 		return
 	}
 
 	if (mapInstance) return
 
-	mapInstance = new window.AMap.Map('amapContainer', {
-		zoom: 16,
-		center: [currentLocation.value.lng, currentLocation.value.lat],
-		resizeEnable: true
-	})
+	mapInstance = new window.BMap.Map('baiduContainer')
+	mapInstance.centerAndZoom(new window.BMap.Point(currentLocation.value.lng, currentLocation.value.lat), 16)
+	mapInstance.enableScrollWheelZoom(true)
 
 	drawCurrentMarker(currentLocation.value.lng, currentLocation.value.lat, true)
 	locationText.value = `当前位置：${currentLocation.value.lat.toFixed(5)}, ${currentLocation.value.lng.toFixed(5)}`
@@ -356,39 +363,47 @@ const clearRouteOverlays = () => {
 	if (!mapInstance) return
 
 	if (routePolyline) {
-		mapInstance.remove(routePolyline)
+		mapInstance.removeOverlay(routePolyline)
 		routePolyline = null
 	}
 	if (activeStepPolyline) {
-		mapInstance.remove(activeStepPolyline)
+		mapInstance.removeOverlay(activeStepPolyline)
 		activeStepPolyline = null
 	}
 	if (destinationMarker) {
-		mapInstance.remove(destinationMarker)
+		mapInstance.removeOverlay(destinationMarker)
 		destinationMarker = null
 	}
 	if (destinationLabel) {
-		mapInstance.remove(destinationLabel)
+		mapInstance.removeOverlay(destinationLabel)
 		destinationLabel = null
 	}
 }
 
 const drawCurrentMarker = (lng, lat, centerMap = false) => {
-	if (!mapInstance || !window.AMap) return
+	if (!mapInstance || !window.BMap) return
 
-	const position = new window.AMap.LngLat(Number(lng), Number(lat))
+	const position = new window.BMap.Point(Number(lng), Number(lat))
 
 	if (currentMarker) {
 		currentMarker.setPosition(position)
+		if (currentMarkerLabel) currentMarkerLabel.setPosition(position)
 	} else {
-		currentMarker = new window.AMap.Marker({
+		currentMarker = new window.BMap.Marker(position)
+		mapInstance.addOverlay(currentMarker)
+
+		currentMarkerLabel = new window.BMap.Label('我', {
 			position,
-			map: mapInstance,
-			icon: new window.AMap.Icon({
-				size: new window.AMap.Size(25, 34),
-				imageSize: new window.AMap.Size(25, 34)
-			})
+			offset: new window.BMap.Size(-6, -34)
 		})
+		currentMarkerLabel.setStyle({
+			color: '#1565c0',
+			fontSize: '12px',
+			fontWeight: '600',
+			border: 'none',
+			background: 'transparent'
+		})
+		mapInstance.addOverlay(currentMarkerLabel)
 	}
 
 	if (centerMap) {
@@ -397,81 +412,102 @@ const drawCurrentMarker = (lng, lat, centerMap = false) => {
 }
 
 const drawDestinationMarker = (lng, lat, name) => {
-	if (!mapInstance || !window.AMap) return
+	if (!mapInstance || !window.BMap) return
 
-	const position = new window.AMap.LngLat(Number(lng), Number(lat))
+	const position = new window.BMap.Point(Number(lng), Number(lat))
 
 	if (destinationMarker) {
-		mapInstance.remove(destinationMarker)
+		mapInstance.removeOverlay(destinationMarker)
 	}
 	if (destinationLabel) {
-		mapInstance.remove(destinationLabel)
+		mapInstance.removeOverlay(destinationLabel)
 	}
 
-	destinationMarker = new window.AMap.Marker({
-		position,
-		map: mapInstance
-	})
+	destinationMarker = new window.BMap.Marker(position)
+	mapInstance.addOverlay(destinationMarker)
 
-	destinationLabel = new window.AMap.Text({
-		text: name || '目的地',
+	destinationLabel = new window.BMap.Label(name || '目的地', {
 		position,
-		offset: new window.AMap.Pixel(12, -24),
-		style: {
-			color: '#d32f2f',
-			fontSize: '12px',
-			border: '1px solid #f5d5d5',
-			borderRadius: '8px',
-			padding: '4px 8px',
-			backgroundColor: '#fff',
-			boxShadow: '0 2px 10px rgba(0,0,0,0.08)'
-		},
-		map: mapInstance
+		offset: new window.BMap.Size(12, -24)
 	})
+	destinationLabel.setStyle({
+		color: '#d32f2f',
+		fontSize: '12px',
+		border: '1px solid #f5d5d5',
+		borderRadius: '8px',
+		padding: '4px 8px',
+		backgroundColor: '#fff',
+		boxShadow: '0 2px 10px rgba(0,0,0,0.08)'
+	})
+	mapInstance.addOverlay(destinationLabel)
 }
 
 const drawWholeRouteOnMap = (points) => {
-	if (!mapInstance || !window.AMap || !Array.isArray(points) || points.length < 2) return
+	if (!mapInstance || !window.BMap || !Array.isArray(points) || points.length < 2) return
 
 	if (routePolyline) {
-		mapInstance.remove(routePolyline)
+		mapInstance.removeOverlay(routePolyline)
 	}
 
-	const path = points.map((p) => new window.AMap.LngLat(Number(p.lng), Number(p.lat)))
+	const path = points.map((p) => new window.BMap.Point(Number(p.lng), Number(p.lat)))
 
-	routePolyline = new window.AMap.Polyline({
-		path,
+	routePolyline = new window.BMap.Polyline(path, {
 		strokeColor: '#90caf9',
 		strokeWeight: 6,
-		strokeOpacity: 0.88,
-		map: mapInstance
+		strokeOpacity: 0.88
 	})
+	mapInstance.addOverlay(routePolyline)
 }
 
 const drawActiveStepOnMap = (points) => {
-	if (!mapInstance || !window.AMap || !Array.isArray(points) || points.length < 2) return
+	if (!mapInstance || !window.BMap || !Array.isArray(points) || points.length < 2) return
 
 	if (activeStepPolyline) {
-		mapInstance.remove(activeStepPolyline)
+		mapInstance.removeOverlay(activeStepPolyline)
 	}
 
-	const path = points.map((p) => new window.AMap.LngLat(Number(p.lng), Number(p.lat)))
+	const path = points.map((p) => new window.BMap.Point(Number(p.lng), Number(p.lat)))
 
-	activeStepPolyline = new window.AMap.Polyline({
-		path,
+	activeStepPolyline = new window.BMap.Polyline(path, {
 		strokeColor: '#1976d2',
 		strokeWeight: 8,
-		strokeOpacity: 1,
-		map: mapInstance
+		strokeOpacity: 1
 	})
+	mapInstance.addOverlay(activeStepPolyline)
 }
 
 const updateMapFollow = () => {
 	if (!mapInstance) return
-	mapInstance.setCenter([currentLocation.value.lng, currentLocation.value.lat])
+	mapInstance.panTo(new window.BMap.Point(currentLocation.value.lng, currentLocation.value.lat))
 }
 
-// ======================== 定位（保持原逻辑） ========================
+// ======================== 定位（BMap 优先，浏览器/uni 兜底，统一转 BD09） ========================
+
+const getBMapLocation = () => {
+	return new Promise((resolve, reject) => {
+		// #ifdef H5
+		if (!window.BMap || !window.BMap.Geolocation) {
+			reject(new Error('BMap.Geolocation 不可用'))
+			return
+		}
+		const geo = new window.BMap.Geolocation()
+		geo.getCurrentPosition(
+			(result) => {
+				if (result && result.point) {
+					// BMap 定位直接返回 BD09
+					resolve({ lat: result.point.lat, lng: result.point.lng })
+				} else {
+					reject(new Error(result?.message || 'BMap 定位失败'))
+				}
+			},
+			{ enableHighAccuracy: true }
+		)
+		// #endif
+		// #ifndef H5
+		reject(new Error('非 H5 环境跳过 BMap 定位'))
+		// #endif
+	})
+}
 
 const getBrowserLocation = () => {
 	return new Promise((resolve, reject) => {
@@ -512,35 +548,54 @@ const getUniLocation = () => {
 const getCurrentLocation = async (showToast = true, centerMap = true) => {
 	locationText.value = '正在获取当前位置...'
 
+	// 1. BMap 定位（BD09，与地图坐标系一致）
+	try {
+		const bmapPos = await getBMapLocation()
+		currentLocation.value = bmapPos
+		locationText.value = `当前位置：${bmapPos.lat.toFixed(5)}, ${bmapPos.lng.toFixed(5)}`
+
+		if (mapInstance) drawCurrentMarker(bmapPos.lng, bmapPos.lat, centerMap)
+		if (showToast) uni.showToast({ title: '定位成功', icon: 'none' })
+		return bmapPos
+	} catch (bmapErr) {
+		console.warn('BMap 定位失败：', bmapErr)
+	}
+
+	// 2. 浏览器定位（WGS84 → BD09）
 	try {
 		const browserPos = await getBrowserLocation()
-		currentLocation.value = browserPos
-		locationText.value = `当前位置：${browserPos.lat.toFixed(5)}, ${browserPos.lng.toFixed(5)}`
+		const bd09 = wgs84ToBd09(browserPos.lat, browserPos.lng)
+		currentLocation.value = bd09
+		locationText.value = `当前位置：${bd09.lat.toFixed(5)}, ${bd09.lng.toFixed(5)}`
 
-		if (mapInstance) drawCurrentMarker(browserPos.lng, browserPos.lat, centerMap)
+		if (mapInstance) drawCurrentMarker(bd09.lng, bd09.lat, centerMap)
 		if (showToast) uni.showToast({ title: '定位成功', icon: 'none' })
-		return browserPos
+		return bd09
 	} catch (browserErr) {
 		console.warn('浏览器定位失败：', browserErr)
-
-		try {
-			const uniPos = await getUniLocation()
-			currentLocation.value = uniPos
-			locationText.value = `当前位置：${uniPos.lat.toFixed(5)}, ${uniPos.lng.toFixed(5)}`
-
-			if (mapInstance) drawCurrentMarker(uniPos.lng, uniPos.lat, centerMap)
-			if (showToast) uni.showToast({ title: '定位成功', icon: 'none' })
-			return uniPos
-		} catch (uniErr) {
-			console.warn('uni 定位失败：', uniErr)
-			currentLocation.value = { ...DEFAULT_LOCATION }
-			locationText.value = '获取位置失败，当前使用默认位置'
-
-			if (mapInstance) drawCurrentMarker(currentLocation.value.lng, currentLocation.value.lat, centerMap)
-			if (showToast) uni.showToast({ title: '定位失败，使用默认位置', icon: 'none' })
-			return currentLocation.value
-		}
 	}
+
+	// 3. uni 定位（GCJ02 → BD09）
+	try {
+		const uniPos = await getUniLocation()
+		const bd09 = gcj02ToBd09(uniPos.lat, uniPos.lng)
+		currentLocation.value = bd09
+		locationText.value = `当前位置：${bd09.lat.toFixed(5)}, ${bd09.lng.toFixed(5)}`
+
+		if (mapInstance) drawCurrentMarker(bd09.lng, bd09.lat, centerMap)
+		if (showToast) uni.showToast({ title: '定位成功', icon: 'none' })
+		return bd09
+	} catch (uniErr) {
+		console.warn('uni 定位失败：', uniErr)
+	}
+
+	// 4. 兜底：默认位置
+	currentLocation.value = { ...DEFAULT_LOCATION }
+	locationText.value = '获取位置失败，当前使用默认位置'
+
+	if (mapInstance) drawCurrentMarker(currentLocation.value.lng, currentLocation.value.lat, centerMap)
+	if (showToast) uni.showToast({ title: '定位失败，使用默认位置', icon: 'none' })
+	return currentLocation.value
 }
 
 const updateCurrentCity = async () => {
@@ -556,30 +611,7 @@ const updateCurrentCity = async () => {
 	}
 }
 
-// ======================== 语音 & 导航追踪（保持原逻辑） ========================
-
-const speakText = (text) => {
-	const content = sanitizeInstruction(text)
-	if (!content || !voiceBroadcastEnabled.value) return
-
-	// #ifdef H5
-	try {
-		if (window.speechSynthesis) {
-			window.speechSynthesis.cancel()
-			const utter = new SpeechSynthesisUtterance(content)
-			utter.lang = 'zh-CN'
-			window.speechSynthesis.speak(utter)
-			return
-		}
-	} catch (err) {
-		console.warn('浏览器语音播报失败：', err)
-	}
-	// #endif
-
-	uni.showToast({ title: content, icon: 'none', duration: 2000 })
-}
-
-// ======================== 语音识别 ========================
+// ======================== 语音识别（页面内指令，保持原逻辑） ========================
 
 const voiceListening = ref(false)
 const voiceFeedback = ref('')
@@ -727,6 +759,8 @@ const handleManualVoice = () => {
 	// #endif
 }
 
+// ======================== 导航追踪（含增强：转向预告 / 到达提醒 / 偏离检测） ========================
+
 const updateCurrentStepByLocation = () => {
 	if (!routeReady.value || !routeSteps.value.length) return
 
@@ -757,6 +791,20 @@ const updateCurrentStepByLocation = () => {
 		speakText(currentStep.value.instruction)
 	}
 
+	// 转向距离预告：接近当前段终点且下一段有转向时，提前播报一次
+	const nextStepInfo = nextStep.value
+	if (
+		nextStepInfo &&
+		nextStepInfo.turnText !== '继续前进' &&
+		nextStepInfo.turnText !== '到达目的地'
+	) {
+		const remain = Math.max(0, Math.round(currentStepRemain.value))
+		if (remain <= TURN_ADVANCE_DISTANCE && remain > 0 && lastAdvanceSpokenIndex !== currentStepIndex.value) {
+			lastAdvanceSpokenIndex = currentStepIndex.value
+			speakText(`前方${remain}米，${nextStepInfo.turnText}`)
+		}
+	}
+
 	if (bestDistance <= 18 && currentStepIndex.value < routeSteps.value.length - 1) {
 		currentStepIndex.value += 1
 		currentStepRemain.value = routeSteps.value[currentStepIndex.value]?.distance || 0
@@ -769,8 +817,60 @@ const updateCurrentStepByLocation = () => {
 		}
 	}
 
+	// 到达提醒：最后一段且距终点很近时，播报一次并停止追踪
 	if (currentStepIndex.value >= routeSteps.value.length - 1 && bestDistance <= 15) {
 		locationText.value = '已接近目的地'
+		if (!arrivedSpoken) {
+			arrivedSpoken = true
+			speakText(`已到达${routeData.value.destination}附近，导航结束`)
+			stopNavigationWatcher()
+		}
+	}
+}
+
+// 偏离路线检测：当前位置距规划路线（采样点）超过阈值且持续两轮，提示并自动重规划
+const checkDeviation = () => {
+	if (!routeReady.value || !routeData.value.polylinePoints.length) return
+
+	const lat = currentLocation.value.lat
+	const lng = currentLocation.value.lng
+	const pts = routeData.value.polylinePoints
+	const sampleStep = Math.max(1, Math.floor(pts.length / 100))
+
+	let minD = Number.POSITIVE_INFINITY
+	for (let i = 0; i < pts.length; i += sampleStep) {
+		const d = haversineDistance(lat, lng, pts[i].lat, pts[i].lng)
+		if (d < minD) minD = d
+	}
+
+	if (minD > DEVIATION_THRESHOLD) {
+		deviationCount += 1
+		if (deviationCount >= 2 && Date.now() - lastReplanAt > REPLAN_COOLDOWN) {
+			deviationCount = 0
+			lastReplanAt = Date.now()
+			speakText('您已偏离路线，正在重新为您规划路线')
+			replanRoute()
+		}
+	} else {
+		deviationCount = 0
+	}
+}
+
+const replanRoute = async () => {
+	const dest = selectedDestination.value
+	if (!dest.lat || !dest.lng) return
+
+	try {
+		const origin = `${currentLocation.value.lat},${currentLocation.value.lng}`
+		const destination = `${dest.lat},${dest.lng}`
+		const routeRes = await getWalkRoute(origin, destination)
+		const route = routeRes?.data?.result?.routes?.[0]
+		if (!route) return
+
+		applyRoute(route)
+	} catch (err) {
+		console.error('重新规划路线失败：', err)
+		speakText('重新规划路线失败')
 	}
 }
 
@@ -781,6 +881,7 @@ const startNavigationWatcher = () => {
 		try {
 			await getCurrentLocation(false, true)
 			updateCurrentStepByLocation()
+			checkDeviation()
 			updateMapFollow()
 		} catch (err) {
 			console.warn('导航定位更新失败：', err)
@@ -805,12 +906,53 @@ const resetRouteState = () => {
 	currentStepIndex.value = 0
 	currentStepRemain.value = 0
 	lastSpokenStepIndex = -1
+	lastAdvanceSpokenIndex = -1
+	arrivedSpoken = false
+	deviationCount = 0
 	selectedDestination.value = { lat: '', lng: '' }
 	clearRouteOverlays()
 	stopNavigationWatcher()
 }
 
-// ======================== 搜索 & 路线规划（接口兼容，逻辑不变） ========================
+// ======================== 路线渲染（搜索选中与自动重规划共用） ========================
+
+const applyRoute = (route) => {
+	const minutes = Math.max(1, Math.ceil((route.duration || 0) / 60))
+	const polylinePoints = parseWholeRoutePoints(route)
+	const steps = normalizeRouteSteps(route)
+
+	routeData.value.walking = `步行 ${minutes} 分钟`
+	routeData.value.distance = Number(route.distance || 0)
+	routeData.value.duration = Number(route.duration || 0)
+	routeData.value.description = `全程约 ${formatDistance(route.distance || 0)} · 推荐更平稳步行路线`
+	routeData.value.polylinePoints =
+		polylinePoints.length > 1
+			? polylinePoints
+			: [
+				{ lat: currentLocation.value.lat, lng: currentLocation.value.lng },
+				{ lat: selectedDestination.value.lat, lng: selectedDestination.value.lng }
+			]
+
+	routeSteps.value = steps
+	currentStepIndex.value = 0
+	currentStepRemain.value = steps[0]?.distance || 0
+	lastSpokenStepIndex = -1
+	lastAdvanceSpokenIndex = -1
+	arrivedSpoken = false
+	deviationCount = 0
+	routeReady.value = true
+
+	drawCurrentMarker(currentLocation.value.lng, currentLocation.value.lat, true)
+	drawDestinationMarker(selectedDestination.value.lng, selectedDestination.value.lat, routeData.value.destination)
+	drawWholeRouteOnMap(routeData.value.polylinePoints)
+
+	if (steps[0]?.points?.length > 1) drawActiveStepOnMap(steps[0].points)
+
+	updateCurrentStepByLocation()
+	startNavigationWatcher()
+}
+
+// ======================== 搜索 & 路线规划 ========================
 
 const handleSearch = async (autoPickFirst = false) => {
 	try {
@@ -879,36 +1021,7 @@ const handleSelectPlace = async (place) => {
 			return
 		}
 
-		const minutes = Math.max(1, Math.ceil((route.duration || 0) / 60))
-		const polylinePoints = parseWholeRoutePoints(route)
-		const steps = normalizeRouteSteps(route)
-
-		routeData.value.walking = `步行 ${minutes} 分钟`
-		routeData.value.distance = Number(route.distance || 0)
-		routeData.value.duration = Number(route.duration || 0)
-		routeData.value.description = `全程约 ${formatDistance(route.distance || 0)} · 推荐更平稳步行路线`
-		routeData.value.polylinePoints =
-			polylinePoints.length > 1
-				? polylinePoints
-				: [
-					{ lat: currentLocation.value.lat, lng: currentLocation.value.lng },
-					{ lat: place.location.lat, lng: place.location.lng }
-				]
-
-		routeSteps.value = steps
-		currentStepIndex.value = 0
-		currentStepRemain.value = steps[0]?.distance || 0
-		lastSpokenStepIndex = -1
-		routeReady.value = true
-
-		drawCurrentMarker(currentLocation.value.lng, currentLocation.value.lat, true)
-		drawDestinationMarker(place.location.lng, place.location.lat, place.name)
-		drawWholeRouteOnMap(routeData.value.polylinePoints)
-
-		if (steps[0]?.points?.length > 1) drawActiveStepOnMap(steps[0].points)
-
-		updateCurrentStepByLocation()
-		startNavigationWatcher()
+		applyRoute(route)
 
 		uni.showToast({ title: '路线已更新', icon: 'none' })
 	} catch (err) {
@@ -949,11 +1062,6 @@ onLoad((options) => {
 		searchKeyword.value = decodeURIComponent(options.keyword)
 	}
 
-	const localVoiceSwitch = uni.getStorageSync('voiceBroadcastEnabled')
-	if (typeof localVoiceSwitch === 'boolean') {
-		voiceBroadcastEnabled.value = localVoiceSwitch
-	}
-
 	if (options && options.assistantPlace) {
 		try {
 			const key = getAssistantSelectedPlaceKey()
@@ -986,7 +1094,7 @@ onReady(async () => {
 		}
 	} catch (err) {
 		console.error('地图初始化失败：', err)
-		locationText.value = '地图初始化失败，请检查高德地图配置'
+		locationText.value = '地图初始化失败，请检查百度地图配置'
 	}
 	// #endif
 	// #ifndef H5
@@ -1003,6 +1111,7 @@ onBeforeUnmount(() => {
 	}
 	mapInstance = null
 	currentMarker = null
+	currentMarkerLabel = null
 	destinationMarker = null
 	destinationLabel = null
 	routePolyline = null
@@ -1031,7 +1140,7 @@ onBeforeUnmount(() => {
 	background: #e9eef3;
 }
 
-.amap-box {
+.map-box {
 	width: 100%;
 	height: 100%;
 }
