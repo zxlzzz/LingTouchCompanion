@@ -1,5 +1,8 @@
 <template>
 	<view class="container">
+		<!-- 危险播报横幅 -->
+		<HazardBanner />
+
 		<!-- 顶部标题 -->
 		<view class="header">
 			<text class="title">准备出发</text>
@@ -11,7 +14,7 @@
 			<view class="device-top">
 				<view class="device-left">
 					<view class="device-icon-wrap">
-						<text class="icon device-icon">🦯</text>
+						<text class="device-icon">🦯</text>
 					</view>
 					<view class="device-info">
 						<text class="device-title">设备已连接</text>
@@ -56,6 +59,17 @@
 			</view>
 		</view>
 
+		<!-- 危险播报演示开关 -->
+		<view class="section">
+			<view class="hazard-demo-card">
+				<view class="hazard-demo-left">
+					<text class="hazard-demo-title">⚠️ 危险播报演示</text>
+					<text class="hazard-demo-desc">模拟摄像头识别，随机播报「前方有车辆」「左前方有水坑」等危险提示</text>
+				</view>
+				<switch :checked="hazardDemoEnabled" @change="onHazardDemoChange" color="#e53935" />
+			</view>
+		</view>
+
 		<!-- 最近目的地 -->
 		<view class="section">
 			<text class="section-title">最近目的地</text>
@@ -63,7 +77,7 @@
 			<view class="grid">
 				<view class="grid-item" @click="goNavigationPage('学校')">
 					<view class="grid-left">
-						<text class="icon">🏫</text>
+						<text class="grid-icon">🏫</text>
 						<text class="grid-text">学校</text>
 					</view>
 					<text class="grid-arrow">›</text>
@@ -71,7 +85,7 @@
 
 				<view class="grid-item" @click="goNavigationPage('地铁站')">
 					<view class="grid-left">
-						<text class="icon">🚇</text>
+						<text class="grid-icon">🚇</text>
 						<text class="grid-text">地铁站</text>
 					</view>
 					<text class="grid-arrow">›</text>
@@ -79,7 +93,7 @@
 
 				<view class="grid-item" @click="goNavigationPage('超市')">
 					<view class="grid-left">
-						<text class="icon">🛒</text>
+						<text class="grid-icon">🛒</text>
 						<text class="grid-text">超市</text>
 					</view>
 					<text class="grid-arrow">›</text>
@@ -87,7 +101,7 @@
 
 				<view class="grid-item" @click="goNavigationPage('医院')">
 					<view class="grid-left">
-						<text class="icon">🏥</text>
+						<text class="grid-icon">🏥</text>
 						<text class="grid-text">医院</text>
 					</view>
 					<text class="grid-arrow">›</text>
@@ -102,7 +116,7 @@
 			<view class="grid">
 				<view class="grid-item" @click="goNavigationPage('回家')">
 					<view class="grid-left">
-						<text class="icon">🏠</text>
+						<text class="grid-icon">🏠</text>
 						<text class="grid-text">回家</text>
 					</view>
 					<text class="grid-arrow">›</text>
@@ -110,7 +124,7 @@
 
 				<view class="grid-item" @click="goNavigationPage('最近卫生间')">
 					<view class="grid-left">
-						<text class="icon">🚻</text>
+						<text class="grid-icon">🚻</text>
 						<text class="grid-text">最近卫生间</text>
 					</view>
 					<text class="grid-arrow">›</text>
@@ -118,7 +132,7 @@
 
 				<view class="grid-item" @click="goNavigationPage('公交站')">
 					<view class="grid-left">
-						<text class="icon">🚌</text>
+						<text class="grid-icon">🚌</text>
 						<text class="grid-text">公交站</text>
 					</view>
 					<text class="grid-arrow">›</text>
@@ -126,7 +140,7 @@
 
 				<view class="grid-item" @click="goNavigationPage('服务台')">
 					<view class="grid-left">
-						<text class="icon">🔔</text>
+						<text class="grid-icon">🛎️</text>
 						<text class="grid-text">服务台</text>
 					</view>
 					<text class="grid-arrow">›</text>
@@ -137,12 +151,12 @@
 		<!-- 底部 tabbar -->
 		<view class="tabbar">
 			<view class="tab-item active">
-				<text class="tab-icon active-icon">🚶</text>
+				<text class="tab-icon active-icon">🏠</text>
 				<text class="tab-label active-label">出行</text>
 			</view>
 
 			<view class="tab-item" @click="switchTab('navigation')">
-				<text class="tab-icon">🧭</text>
+				<text class="tab-icon">🗺️</text>
 				<text class="tab-label">导航</text>
 			</view>
 
@@ -162,11 +176,14 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { startGlobalAssistant, stopGlobalAssistant } from '@/utils/globalAssistant.js'
+import { isDemoEnabled, setDemoEnabled } from '@/utils/hazardMockSource.js'
+import HazardBanner from '@/components/hazard-banner.vue'
 
 const currentMode = ref('map')
 const batteryLevel = ref(78)
 const weatherTemp = ref(24)
 const currentTime = ref('12:45')
+const hazardDemoEnabled = ref(isDemoEnabled())
 
 let timer = null
 
@@ -192,6 +209,17 @@ const goNavigationPage = (keyword = '') => {
 		: '/pages/navigation/navigation'
 
 	uni.reLaunch({ url })
+}
+
+const onHazardDemoChange = (event) => {
+	const enabled = Boolean(event.detail?.value)
+	hazardDemoEnabled.value = enabled
+	setDemoEnabled(enabled)
+
+	uni.showToast({
+		title: enabled ? '危险播报演示已开启' : '危险播报演示已关闭',
+		icon: 'none'
+	})
 }
 
 const switchTab = (type) => {
@@ -228,29 +256,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 通用图标样式 */
-.icon {
-  font-size: 32rpx;
-  color: #409EFF;
-  margin-right: 12rpx;
-  vertical-align: middle;
-}
-
-/* 设备卡片图标单独调整 */
-.device-icon {
-  font-size: 40rpx;
-  color: #409EFF;
-}
-
-/* 底部导航图标 */
-.tab-icon {
-  font-size: 34rpx;
-  color: #9aa8b5;
-}
-.active-icon {
-  color: #409EFF;
-}
-
 .container {
 	min-height: 100vh;
 	background: linear-gradient(180deg, #f7fbff 0%, #f3f6fa 100%);
@@ -317,6 +322,10 @@ onUnmounted(() => {
 	justify-content: center;
 	margin-right: 18rpx;
 	flex-shrink: 0;
+}
+
+.device-icon {
+	font-size: 42rpx;
 }
 
 .device-info {
@@ -429,6 +438,38 @@ onUnmounted(() => {
 	line-height: 1.7;
 }
 
+.hazard-demo-card {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20rpx;
+	padding: 24rpx 24rpx;
+	background: #fff6f5;
+	border-radius: 24rpx;
+	border: 1rpx solid #fbdcd8;
+}
+
+.hazard-demo-left {
+	flex: 1;
+	min-width: 0;
+}
+
+.hazard-demo-title {
+	display: block;
+	font-size: 28rpx;
+	font-weight: 700;
+	color: #c62828;
+}
+
+.hazard-demo-desc {
+	display: block;
+	margin-top: 8rpx;
+	font-size: 22rpx;
+	color: #b0716c;
+	line-height: 1.6;
+}
+
 .section {
 	margin-top: 34rpx;
 }
@@ -470,6 +511,12 @@ onUnmounted(() => {
 	min-width: 0;
 }
 
+.grid-icon {
+	font-size: 34rpx;
+	margin-right: 14rpx;
+	flex-shrink: 0;
+}
+
 .grid-text {
 	font-size: 30rpx;
 	font-weight: 600;
@@ -507,12 +554,18 @@ onUnmounted(() => {
 	justify-content: center;
 }
 
+.tab-icon {
+	font-size: 34rpx;
+	color: #9aa8b5;
+}
+
 .tab-label {
 	margin-top: 6rpx;
 	font-size: 22rpx;
 	color: #9aa8b5;
 }
 
+.active-icon,
 .active-label {
 	color: #2196f3;
 	font-weight: 700;
