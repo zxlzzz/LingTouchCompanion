@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>灵触·随行 手机控制</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #c9d1d9; --dim: #8b949e; --accent: #58a6ff;
+    --green: #3fb950; --red: #f85149; --cyan: #39d2c0;
+    --dot-on: #58e8ff; --dot-off: #21262d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    background: var(--bg); color: var(--text);
+    padding: 12px; -webkit-user-select: none; user-select: none;
+    touch-action: manipulation;
+  }
+  h1 { font-size: 16px; color: var(--accent); margin-bottom: 2px; }
+  .ver { font-size: 11px; color: var(--dim); }
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px; margin-top: 10px;
+  }
+  .panel-title {
+    font-size: 11px; color: var(--dim); text-transform: uppercase;
+    letter-spacing: 0.4px; margin-bottom: 6px;
+  }
+  button {
+    font-family: inherit; padding: 8px 14px; border: 1px solid var(--border);
+    border-radius: 6px; font-size: 13px; cursor: pointer; color: var(--text);
+    background: var(--surface); transition: all 0.1s; touch-action: manipulation;
+  }
+  button:active { opacity: 0.7; }
+  .btn-accent { border-color: var(--accent); color: var(--accent); }
+  .btn-green { border-color: var(--green); color: var(--green); }
+  .btn-red { border-color: var(--red); color: var(--red); }
+  .btn-fill { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn-row + .btn-row { margin-top: 6px; }
+
+  /* BLE bar */
+  .ble-bar { display: flex; align-items: center; gap: 10px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+  .dot.on { background: var(--green); }
+  .ble-text { font-size: 12px; color: var(--dim); }
+
+  /* Grid */
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 2px;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+  .cell {
+    aspect-ratio: 1; border-radius: 50%;
+    background: var(--dot-off); border: 1.5px solid var(--border);
+    cursor: pointer;
+  }
+  .cell.on { background: var(--dot-on); border-color: var(--dot-on); box-shadow: 0 0 6px #58e8ff33; }
+  /* module separators via margin */
+  .cell[data-col="2"], .cell[data-col="5"] { margin-right: 3px; }
+
+  /* Hex */
+  .hex {
+    font-family: 'Courier New', monospace; font-size: 11px;
+    background: var(--bg); border-radius: 4px; padding: 6px;
+    border: 1px solid var(--border); line-height: 1.7;
+    word-break: break-all;
+  }
+  .hb { color: var(--cyan); } .hb.z { color: var(--dim); }
+  .hl { color: var(--dim); font-size: 10px; }
+
+  /* Module panel */
+  .mod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .mod {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    padding: 6px; text-align: center; font-size: 12px;
+    font-family: 'Courier New', monospace; cursor: pointer;
+  }
+  .mod.active { border-color: var(--dot-on); color: var(--dot-on); }
+
+  /* Log */
+  #log {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    padding: 6px; font-family: 'Courier New', monospace; font-size: 10px;
+    height: 100px; overflow-y: auto; color: var(--dim);
+  }
+  #log .ok { color: var(--green); }
+  #log .err { color: var(--red); }
+  #log .data { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<h1>灵触·随行 手机控制</h1>
+<span class="ver">15模组 · Web Bluetooth · MODULE_ROT180</span>
+
+<!-- BLE -->
+<div class="panel">
+  <div class="ble-bar">
+    <button class="btn-accent" id="btnBLE" onclick="toggleBLE()">连接</button>
+    <span class="dot" id="bleDot"></span>
+    <span class="ble-text" id="bleText">未连接</span>
+  </div>
+</div>
+
+<!-- Grid -->
+<div class="panel">
+  <div class="panel-title">点阵 10×9</div>
+  <div id="grid"></div>
+  <div style="height:8px"></div>
+  <div class="btn-row">
+    <button onclick="patternAll(1)">全亮</button>
+    <button onclick="patternAll(0)">全灭</button>
+    <button onclick="patternInvert()">反转</button>
+    <button onclick="patternChecker()">棋盘</button>
+    <button onclick="patternCross()">十字</button>
+  </div>
+  <div style="height:8px"></div>
+  <div class="btn-row">
+    <button class="btn-fill" onclick="sendGrid()" style="flex:1">发送到设备</button>
+  </div>
+  <div style="height:8px"></div>
+  <div class="hex" id="hex">--</div>
+</div>
+
+<!-- Modules -->
+<div class="panel">
+  <div class="panel-title">模组 (点击切换)</div>
+  <div class="mod-grid" id="mods"></div>
+</div>
+
+<!-- Log -->
+<div class="panel">
+  <div class="panel-title">日志 <button style="float:right;padding:2px 8px;font-size:10px;border:1px solid var(--border);background:var(--surface);color:var(--dim);border-radius:3px" onclick="document.getElementById('log').innerHTML=''">清空</button></div>
+  <div id="log"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  BIT_MAP — MODULE_ROT180 = True
+//  与 visionss/frame_converter.py 的 _BIT_MAP_ROT180 一致
+//  (bit_index, dr, dc) — 模组内 row/col 偏移
+//
+//  注意: sth2.html 目前仍用 PROD 映射（未同步），这份用 ROT180
+//  匹配真机物理接线。两份的 gridToBytes 输出对同一个栅格会不同。
+// ═══════════════════════════════════════
+const BIT_MAP = [
+  [0, 1, 0],  // bit0 → (r+1, c+0)
+  [1, 1, 1],  // bit1 → (r+1, c+1)
+  [2, 1, 2],  // bit2 → (r+1, c+2)
+  [3, 0, 0],  // bit3 → (r+0, c+0)
+  [4, 0, 1],  // bit4 → (r+0, c+1)
+  [5, 0, 2],  // bit5 → (r+0, c+2)
+];
+
+const SERVICE   = '0000ffe0-0000-1000-8000-00805f9b34fb';
+const CHAR_FFE1 = '0000ffe1-0000-1000-8000-00805f9b34fb';
+const CHAR_FFE3 = '0000ffe3-0000-1000-8000-00805f9b34fb';
+
+let grid = Array.from({length:10}, () => Array(9).fill(0));
+let bleDevice = null, charFFE1 = null, connected = false;
+
+// ═══════════════════════════════════════
+//  Grid UI
+// ═══════════════════════════════════════
+
+const gridEl = document.getElementById('grid');
+for (let r = 0; r < 10; r++) {
+  for (let c = 0; c < 9; c++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.id = `c${r}_${c}`;
+    cell.dataset.row = r;
+    cell.dataset.col = c;
+    cell.addEventListener('click', () => { grid[r][c] ^= 1; sync(); });
+    gridEl.appendChild(cell);
+  }
+}
+
+function sync() {
+  for (let r = 0; r < 10; r++)
+    for (let c = 0; c < 9; c++)
+      document.getElementById(`c${r}_${c}`).className = grid[r][c] ? 'cell on' : 'cell';
+  updateHex();
+  updateMods();
+}
+
+// ═══════════════════════════════════════
+//  Module panel
+// ═══════════════════════════════════════
+
+const modsEl = document.getElementById('mods');
+for (let m = 0; m < 15; m++) {
+  const d = document.createElement('div');
+  d.className = 'mod';
+  d.id = `mod${m}`;
+  d.addEventListener('click', () => toggleMod(m));
+  modsEl.appendChild(d);
+}
+
+function toggleMod(m) {
+  const mr = Math.floor(m / 3), mc = m % 3;
+  const r0 = mr * 2, c0 = mc * 3;
+  let any = false;
+  for (let dr = 0; dr < 2; dr++)
+    for (let dc = 0; dc < 3; dc++)
+      if (grid[r0+dr]?.[c0+dc]) any = true;
+  const v = any ? 0 : 1;
+  for (let dr = 0; dr < 2; dr++)
+    for (let dc = 0; dc < 3; dc++)
+      if (r0+dr < 10 && c0+dc < 9) grid[r0+dr][c0+dc] = v;
+  sync();
+}
+
+function updateMods() {
+  for (let m = 0; m < 15; m++) {
+    const mr = Math.floor(m / 3), mc = m % 3;
+    const r = mr * 2, c = mc * 3;
+    let b = 0;
+    for (const [bit, dr, dc] of BIT_MAP)
+      if (grid[r+dr]?.[c+dc]) b |= (1 << bit);
+    const el = document.getElementById(`mod${m}`);
+    el.textContent = `M${m+1} 0x${b.toString(16).toUpperCase().padStart(2,'0')}`;
+    el.className = b ? 'mod active' : 'mod';
+  }
+}
+
+// ═══════════════════════════════════════
+//  Grid ↔ Bytes (ROT180)
+// ═══════════════════════════════════════
+
+function gridToBytes(g) {
+  const data = new Uint8Array(15);
+  for (let m = 0; m < 15; m++) {
+    const mr = Math.floor(m / 3), mc = m % 3;
+    const r = mr * 2, c = mc * 3;
+    let b = 0;
+    for (const [bit, dr, dc] of BIT_MAP)
+      if (g[r+dr]?.[c+dc]) b |= (1 << bit);
+    data[m] = b;
+  }
+  return data;
+}
+
+// ═══════════════════════════════════════
+//  Hex preview
+// ═══════════════════════════════════════
+
+function updateHex() {
+  const bytes = gridToBytes(grid);
+  let h = '';
+  for (let i = 0; i < 15; i++) {
+    const v = bytes[i];
+    const hex = v.toString(16).toUpperCase().padStart(2, '0');
+    h += `<span class="hl">M${(i+1).toString().padStart(2,' ')}</span>:<span class="hb${v?'':' z'}">${hex}</span> `;
+    if (i % 3 === 2 && i < 14) h += '<br>';
+  }
+  document.getElementById('hex').innerHTML = h;
+}
+
+// ═══════════════════════════════════════
+//  Patterns
+// ═══════════════════════════════════════
+
+function patternAll(v) {
+  for (let r = 0; r < 10; r++) for (let c = 0; c < 9; c++) grid[r][c] = v;
+  sync();
+}
+function patternInvert() {
+  for (let r = 0; r < 10; r++) for (let c = 0; c < 9; c++) grid[r][c] ^= 1;
+  sync();
+}
+function patternChecker() {
+  for (let m = 0; m < 15; m++) setMod(m, m % 2 ? 0x00 : 0x3F);
+  sync();
+}
+function patternCross() {
+  patternAll(0);
+  for (let r = 0; r < 10; r++) { grid[r][3]=1; grid[r][4]=1; grid[r][5]=1; }
+  for (let c = 0; c < 9; c++) { grid[4][c]=1; grid[5][c]=1; }
+  sync();
+}
+function setMod(m, byte) {
+  const mr = Math.floor(m / 3), mc = m % 3;
+  const r = mr * 2, c = mc * 3;
+  for (const [bit, dr, dc] of BIT_MAP)
+    if (r+dr < 10 && c+dc < 9) grid[r+dr][c+dc] = (byte & (1 << bit)) ? 1 : 0;
+}
+
+// ═══════════════════════════════════════
+//  BLE
+// ═══════════════════════════════════════
+
+async function toggleBLE() {
+  if (connected) {
+    if (bleDevice?.gatt?.connected) bleDevice.gatt.disconnect();
+    connected = false; charFFE1 = null; bleUI(); log('断开');
+    return;
+  }
+  try {
+    log('搜索 LingChu-Tactile ...');
+    bleDevice = await navigator.bluetooth.requestDevice({
+      filters: [{ name: 'LingChu-Tactile' }],
+      optionalServices: [SERVICE]
+    });
+    bleDevice.addEventListener('gattserverdisconnected', () => {
+      connected = false; charFFE1 = null; bleUI(); log('连接断开', 'err');
+    });
+    const server = await bleDevice.gatt.connect();
+    const svc = await server.getPrimaryService(SERVICE);
+    charFFE1 = await svc.getCharacteristic(CHAR_FFE1);
+    try {
+      const c3 = await svc.getCharacteristic(CHAR_FFE3);
+      await c3.startNotifications();
+      c3.addEventListener('characteristicvaluechanged', onNotify);
+      log('FFE3 notify 已订阅', 'data');
+    } catch(e) { log('FFE3: ' + e.message, 'err'); }
+    connected = true; bleUI();
+    log('已连接 ' + bleDevice.name, 'ok');
+  } catch(e) { log('BLE: ' + e.message, 'err'); }
+}
+
+function onNotify(ev) {
+  const v = new Uint8Array(ev.target.value.buffer);
+  if (v.length < 2) return;
+  if (v[0] === 0x01) log('← 刷新完成', 'ok');
+  else if (v[0] === 0x02) log(`← 模式: ${v[1]===1?'RAPID_AVOID':v[1]===2?'LOCAL_ZOOM':'0x'+v[1].toString(16)}`, 'data');
+  else if (v[0] === 0x04) log('← 扫描请求', 'data');
+  else log(`← evt 0x${v[0].toString(16)} 0x${v[1].toString(16)}`, 'data');
+}
+
+function bleUI() {
+  document.getElementById('btnBLE').textContent = connected ? '断开' : '连接';
+  document.getElementById('btnBLE').className = connected ? 'btn-red' : 'btn-accent';
+  document.getElementById('bleDot').className = connected ? 'dot on' : 'dot';
+  document.getElementById('bleText').textContent = connected ? (bleDevice?.name||'已连接') : '未连接';
+}
+
+async function sendGrid() {
+  const bytes = gridToBytes(grid);
+  const hex = Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join(' ');
+  if (!connected || !charFFE1) { log('未连接 BLE', 'err'); return; }
+  try {
+    await charFFE1.writeValueWithoutResponse(bytes.buffer);
+    log('→ ' + hex, 'data');
+  } catch(e) { log('发送失败: ' + e.message, 'err'); }
+}
+
+// ═══════════════════════════════════════
+//  Log
+// ═══════════════════════════════════════
+
+function log(msg, cls='') {
+  const el = document.getElementById('log');
+  const t = new Date().toLocaleTimeString('en',{hour12:false});
+  el.innerHTML += `<div class="${cls}">[${t}] ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+// Init
+sync();
+log('灵触·随行 手机控制就绪');
+log('点击网格编辑 → 连接BLE → 发送');
+</script>
+</body>
+</html>

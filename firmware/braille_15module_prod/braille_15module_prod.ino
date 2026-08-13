@@ -42,7 +42,7 @@
 #define FRAME_LEN       15
 #define PINS_PER_MOD    6
 
-#define DEFAULT_PHASE_A  200
+#define DEFAULT_PHASE_A   10
 #define DEFAULT_PHASE_B   80
 #define DEFAULT_PHASE_C  300
 #define DEFAULT_PHASE_D   10
@@ -212,11 +212,11 @@ void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) 
     sendRaw(frame, FRAME_LEN);
     vTaskDelay(pdMS_TO_TICKS(phaseA));
 
-    // Phase B: 关SMA，只保持线圈 — 锁在冷却复位窗口内被线圈顶在高位咬合
+    // Phase B
     memset(frame, 0x00, FRAME_LEN);
     for (int j = i; j < batchEnd; j++) {
       int p = needRefresh[j];
-      frame[posToChain[p]] = posData[p] & 0x3F;
+      frame[posToChain[p]] = (posData[p] & 0x3F) | 0x40;
     }
     sendRaw(frame, FRAME_LEN);
     vTaskDelay(pdMS_TO_TICKS(phaseB));
@@ -236,7 +236,7 @@ void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) 
       memset(frame, 0x00, FRAME_LEN);
       for (int j = i; j < batchEnd; j++) {
         int p = needRefresh[j];
-        frame[posToChain[p]] = posData[p] & 0x3F;
+        frame[posToChain[p]] = (posData[p] & 0x3F) | 0x40;
       }
       sendRaw(frame, FRAME_LEN);
       vTaskDelay(pdMS_TO_TICKS(phaseB));
@@ -250,7 +250,7 @@ void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) 
     vTaskDelay(pdMS_TO_TICKS(phaseD));
   }
 
-  vTaskDelay(pdMS_TO_TICKS(300));
+  vTaskDelay(pdMS_TO_TICKS(1000));
   memset(holdFrame, 0x00, FRAME_LEN);
   sendRaw(holdFrame, FRAME_LEN);
   refreshComplete = true;

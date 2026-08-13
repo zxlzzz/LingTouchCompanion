@@ -1,11 +1,6 @@
 /*
- * 灵触·随行 — ESP32-S3 固件 (15模组正式版 · 板体180°反装)
- * V2.3-reverse — 板子物理旋转180°后的 posToChain / deadDots 重映射
- *
- * 与 braille_15module_prod 的唯一区别：
- *   - posToChain：旋转180°后原来的反序映射变为恒等映射
- *   - deadDots：按新的物理位置顺序重排（bit值不变，接线未动）
- *   其余逻辑（含 Phase A/B/C 时序）与 prod 保持一致
+ * 灵触·随行 — ESP32-S3 固件 (15模组正式版)
+ * V2.3 — 合并线圈通道诊断命令
  *
  * 变更（相对 V2.2）：
  *   - 新增串口命令：hold / ex / stop（来自诊断固件 V1.1）
@@ -47,7 +42,7 @@
 #define FRAME_LEN       15
 #define PINS_PER_MOD    6
 
-#define DEFAULT_PHASE_A  200
+#define DEFAULT_PHASE_A   10
 #define DEFAULT_PHASE_B   80
 #define DEFAULT_PHASE_C  300
 #define DEFAULT_PHASE_D   10
@@ -81,18 +76,15 @@ enum DeviceMode : uint8_t {
 // ═══════════════════════════════════════
 
 uint8_t posToChain[NUM_MODULES] = {
-   0,  1,  2,  3,  4,
-   5,  6,  7,  8,  9,
-  10, 11, 12, 13, 14,
+  14, 13, 12, 11, 10,
+   9,  8,  7,  6,  5,
+   4,  3,  2,  1,  0,
 };
 
-// 新pos: 0=M15  1=M14  2=M13  3=M12  4=M11
-//         5=M10  6=M9   7=M8   8=M7   9=M6
-//        10=M5  11=M4  12=M3  13=M2  14=M1
 uint8_t deadDots[NUM_MODULES] = {
-  0x00, 0x20, 0x1A, 0x3F, 0x00,
-  0x00, 0x00, 0x08, 0x27, 0x1F,
-  0x11, 0x08, 0x2F, 0x13, 0x0A,
+  0x00,0x00,0x00,0x00,0x00,
+  0x00,0x00,0x00,0x00,0x00,
+  0x00,0x00,0x00,0x00,0x00,
 };
 
 // ═══════════════════════════════════════
@@ -220,11 +212,11 @@ void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) 
     sendRaw(frame, FRAME_LEN);
     vTaskDelay(pdMS_TO_TICKS(phaseA));
 
-    // Phase B: 关SMA，只保持线圈 — 锁在冷却复位窗口内被线圈顶在高位咬合
+    // Phase B
     memset(frame, 0x00, FRAME_LEN);
     for (int j = i; j < batchEnd; j++) {
       int p = needRefresh[j];
-      frame[posToChain[p]] = posData[p] & 0x3F;
+      frame[posToChain[p]] = (posData[p] & 0x3F) | 0x40;
     }
     sendRaw(frame, FRAME_LEN);
     vTaskDelay(pdMS_TO_TICKS(phaseB));
@@ -244,7 +236,7 @@ void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) 
       memset(frame, 0x00, FRAME_LEN);
       for (int j = i; j < batchEnd; j++) {
         int p = needRefresh[j];
-        frame[posToChain[p]] = posData[p] & 0x3F;
+        frame[posToChain[p]] = (posData[p] & 0x3F) | 0x40;
       }
       sendRaw(frame, FRAME_LEN);
       vTaskDelay(pdMS_TO_TICKS(phaseB));
@@ -258,7 +250,7 @@ void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) 
     vTaskDelay(pdMS_TO_TICKS(phaseD));
   }
 
-  vTaskDelay(pdMS_TO_TICKS(300));
+  vTaskDelay(pdMS_TO_TICKS(1000));
   memset(holdFrame, 0x00, FRAME_LEN);
   sendRaw(holdFrame, FRAME_LEN);
   refreshComplete = true;
