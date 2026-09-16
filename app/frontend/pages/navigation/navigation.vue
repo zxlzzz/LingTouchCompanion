@@ -135,7 +135,7 @@ import { getAssistantSelectedPlaceKey } from '@/utils/globalAssistant.js'
 // ======================== 配置 ========================
 // 高德 JS API Key（与 REST API 的 Key 不同，需要单独申请 JS API 类型）
 // 如果你只申请了 Web服务 Key，需要再申请一个 "Web端(JS API)" Key
-const AMAP_JS_KEY = 'd40d91da8f4450f8c9677f3b439c1ff1'         // ← 替换
+const AMAP_JS_KEY = 'REPLACE_WITH_YOUR_AMAP_JS_API_KEY'         // ← 替换
 const AMAP_JS_SECURITY = 'f501d8e9609333da4084a7aafb011071'  // ← 替换（高德安全密钥）
 
 const DEFAULT_LOCATION = {

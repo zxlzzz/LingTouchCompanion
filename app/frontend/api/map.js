@@ -6,7 +6,7 @@
  * 申请地址: https://lbs.amap.com → 控制台 → 应用管理 → 添加Key → 服务平台选"Web服务"
  */
 
-const AMAP_KEY = '022d2b829219a983cce05c48d2d1db47' // ← 替换为你的 Key
+const AMAP_KEY = 'REPLACE_WITH_YOUR_AMAP_WEB_SERVICE_KEY' // ← 替换为你的 Key
 
 const BASE = 'https://restapi.amap.com'
 

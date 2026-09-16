@@ -10,7 +10,7 @@
 - `api/map.js`：高德路线服务配置。
 - `pages/navigation/navigation.vue`：高德地图 JS 配置。
 
-地图 Key 需自行配置；当前代码含硬编码值，发布前应处理。
+两处地图 Key 均为无效占位值（`REPLACE_WITH_YOUR_...`），不能直接调用服务。使用前分别配置自己的高德 Web 服务 Key 和 JS API Key；不要把真实值提交到仓库。
 
 ## 页面
 
