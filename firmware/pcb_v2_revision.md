@@ -37,7 +37,7 @@
 | P7 | 模块焊死不可换 | 6.5mm 水平 / 11mm 垂直中心距、12 脚通孔，拆一个必伤邻位与焊盘 | 坐标文件确认：U31–U45，X 间距 6.5mm、Y 间距 11mm |
 | P8 | 焊接前无法验证模块好坏 | 无测试工装 | 90 点中约 33 点失效，无法区分来料 vs 焊接 |
 | P9 | 无任何回读 / 自检能力 | 595 链单向，U15.9 (QH′) 悬空 | netlist：U15.9 无连接 |
-| P10 | 物理装配方向与逻辑方向相反 | 板在手柄内 180° 旋转 → `MODULE_ROT180` 需在三处同步（vision/frame_converter.py、visionss/frame_converter.py、sth2.html），叠加 posToChain 倒序 + 两次 bit remap。**且元件物理位置一并被翻**——SW1 图纸在阵列 −X 侧，实装落在拇指下方 | 已实现但脆弱 |
+| P10 | 物理装配方向与逻辑方向相反 | 板在手柄内 180° 旋转 → `MODULE_ROT180` 需在三处同步（vision/frame_converter.py、visionss/frame_converter.py、ble_testbench.html），叠加 posToChain 倒序 + 两次 bit remap。**且元件物理位置一并被翻**——SW1 图纸在阵列 −X 侧，实装落在拇指下方 | 已实现但脆弱 |
 | P11 | VCC（线圈轨）零本地去耦 | C1–C15 全挂在 FB1 后的 VCC_LOGIC 上，C16–C30 挂 VCCS，VCC 一颗没有 | netlist 网络归属 |
 
 ### 1.2 高度怀疑但未证实

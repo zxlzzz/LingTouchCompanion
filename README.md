@@ -1,44 +1,38 @@
-# LingTouch · Companion（灵触·随行）
+# 灵触·随行 · LingTouch Companion
 
-面向视障用户的触觉导航辅助设备。通过白杖挂件形式，将深度视觉信息实时转化为 9*10 盲文模块阵列的触觉反馈，帮助用户感知前方障碍物分布。
+将视觉信息转换为触觉阵列反馈的辅助感知项目。当前实验使用手机摄像头、电脑端深度推理和 ESP32-S3，输出为 15 个六点模组，共 90 个触点。
 
-## 系统组成
+## 项目入口
 
-| 模块 | 目录 | 说明 |
-|------|------|------|
-| 手机 App | `app/frontend/smart_cane/` | uni-app（Vue），负责导航、语音交互、BLE 通讯 |
-| 后端服务 | `app/backend/smart_cane_server/` | Node.js，百度地图路径规划、AI 助手接口 |
-| 视觉管线 | `vision/` | Python，运行于树莓派，深度估计 + 障碍物检测 |
-| 固件 | `firmware/` | Arduino，ESP32-S3 驱动 15 模块盲文点阵 |
-| 俯视栅格离线验证 | `topdown_pipeline.py` / `validate_distance.py` / `check_balloon_depth.py` | Python，metric 深度→点云→地面拟合→俯视栅格，标定与测试集验证见 [TOPDOWN_VALIDATION.md](TOPDOWN_VALIDATION.md) |
+| 目录 | 用途 |
+|---|---|
+| [visionss/](visionss/README.md) | 当前实验：米制深度、俯视栅格、BLE 传输与日志 |
+| [single_point/](single_point/README.md) | 共用实验通路的单点告警对照条件 |
+| [firmware/](firmware/README.md) | ESP32-S3 固件、引脚与通信协议 |
+| [app/frontend/](app/frontend/README.md) | uni-app 手机应用 |
+| [app/backend/](app/backend/README.md) | 地图、命令解析与视觉帧转发服务 |
+| [vision/](vision/README.md) | 旧图像平面视觉管线，保留作回退 |
 
-## 硬件概要
+## 运行实验
 
-- **触觉输出**：15 个 WUJIE SMA 盲文模块（3×5 排列，共 90 触点），通过 74HC595 级联 + ULN2803A 驱动
-- **主控**：ESP32-S3 DevKitC-1（N16R8），BLE 连接手机
-- **视觉**：树莓派 + 摄像头，运行 Depth Anything V2 深度估计
-- **供电**：VCC 3.2V（线圈）、VCCS 2.0V（SMA），外部可调 DC-DC 模块
+在仓库根目录、配置好依赖的 Python 环境中运行：
 
-## 快速开始
-
-各模块的环境配置与运行方式详见对应目录下的 README.md。
-
-## 目录结构
-
+```powershell
+python visionss/phone_server.py
 ```
-LingTouch-Companion/
-├── README.md
-├── TOPDOWN_VALIDATION.md             # 俯视栅格标定/验证记录
-├── .gitignore
-├── topdown_pipeline.py               # metric深度→点云→地面拟合→俯视栅格
-├── validate_distance.py              # 批量测试集: 估距 vs 真实距离
-├── check_balloon_depth.py            # 深度图直接采样验证(气球等贴地细长物体)
-├── pics/                             # 标定/测试集照片(gitignore, 不进repo)
-├── app/
-│   ├── backend/smart_cane_server/   # Node.js 后端
-│   └── frontend/smart_cane/         # uni-app 前端
-├── vision/                          # 树莓派视觉管线
-│   └── data/                        # 测试用 jsonl 数据
-└── firmware/                        # ESP32-S3 固件
-    └── braille_15module_prod/
-```
+
+本机已验证环境为 `D:\anaconda\envs\LING\python.exe`。模型准备、手机连接与操作见 [实验说明](visionss/README.md)。
+
+## 浏览器工具
+
+| 文件 | 用途 |
+|---|---|
+| [depth_preview.html](depth_preview.html) | 图片深度预览；先运行 `python visionss/depth_server.py` |
+| [ble_mobile_controller.html](ble_mobile_controller.html) | 手机 BLE 点阵控制，使用 ROT180 映射 |
+| [ble_testbench.html](ble_testbench.html) | 点阵与帧数据调试，保留旧 PROD 映射 |
+
+BLE 页面需要浏览器提供 Web Bluetooth；两种映射不同，须与实际装配方向对应。
+
+离线标定和距离验证见 [TOPDOWN_VALIDATION.md](TOPDOWN_VALIDATION.md)，工具为 `validate_distance.py`、`check_balloon_depth.py` 和照片复制脚本 `prep_new_pics.py`。
+
+模型、测试照片、实验输出、论文材料和本地协作记录不随 Git 上传；源码、HTML 工具与必要配置保留在仓库中。

@@ -1,29 +1,24 @@
-# 后端服务（smart_cane_server）
+# 手机应用后端
 
-为手机 App 提供百度地图路径规划和 AI 语音助手接口。
-
-## 环境要求
-
-- Node.js >= 16
-
-## 配置
-
-复制 `.env.example` 为 `.env`，填入百度地图 AK：
-
-```bash
-cp .env.example .env
-```
+Node.js + Express：百度地图接口、规则式语音命令解析，以及视觉帧 HTTP 接收 / WebSocket 转发。LLM 解析仅预留接口。
 
 ## 运行
 
-```bash
-npm install
-node server.js
+进入 `app/backend/`，复制 `.env.example` 为 `.env`，配置 `BAIDU_AK`：
+
+```sh
+npm ci
+npm start
 ```
 
-## 接口
+默认端口3000，可用环境变量 `PORT` 修改；`npm run dev` 启用自动重启。
 
-| 路由文件 | 功能 |
-|---------|------|
-| `routes/map.js` | 地点搜索、步行路径规划、逆地理编码 |
-| `routes/assistant.js` | AI 语音助手对话 |
+| 接口 | 用途 |
+|---|---|
+| `GET /` | 服务状态 |
+| `/api/map/search`、`walk-route`、`reverse-geocode` | 地点搜索、步行路线、逆地理编码 |
+| `POST /api/assistant/parse-command` | 文本命令解析 |
+| `POST /api/vision/frame` | 接收视觉帧 |
+| `WS /api/vision/stream` | 向手机推送视觉帧 |
+
+当前实验服务 `visionss/` 可独立运行，不依赖此后端。`.env` 不提交。

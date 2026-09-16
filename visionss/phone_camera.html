@@ -34,7 +34,7 @@ button.running{background:#da3633}
  * ->压缩到320x240->每300ms连续POST这种"持续推流"设计, 换取实时预览流畅度。
  *
  * visionss/ 这条新管线(topdown_pipeline)要求 metric 深度, fx=3260 的标定
- * 是在 3072px 宽的竖版原图上做的, 分辨率/长宽比必须对得上标定值。但实测发现
+ * 是在 3072px 宽的竖版原图上做的, 长宽比必须对得上标定值。但实测发现
  * Android 上 getUserMedia 基本不理会竖版的 width/height 约束(写 3072x4096 也
  * 照样给传感器原生的横版流, screen.orientation.lock('portrait') 也没用,
  * <video> 元素只是显示时转了一下, videoWidth/videoHeight 仍然是横的)——与其
@@ -45,8 +45,8 @@ button.running{background:#da3633}
  * 所以改成"轮询式按需拍照": 页面只负责让 <video> 保持取流(本地渲染,不
  * 耗带宽), 每 POLL_INTERVAL_MS 问一次电脑"有没有新的拍照请求"(/poll,
  * 只返回一个很小的 JSON, 不含图像), 请求号变化就立刻从 <video> 抓一帧
- * 原生分辨率 JPEG(质量0.9) POST 给 /frame。一次扫描才传一次大图, 局域网内
- * 2-3MB 的图不到一秒能传完。
+ * JPEG POST 给 /frame。摄像头仍取完整4:3视场，上传前等比缩到2048长边；电脑端
+ * 按实际宽度等比换算fx。这样保留视场与距离标定关系，同时满足约1Hz连续实验。
  */
 const statusEl=document.getElementById('status');
 const count=document.getElementById('count');
@@ -56,13 +56,16 @@ const video=document.getElementById('v');
 const canvas=document.getElementById('c');
 const ctx=canvas.getContext('2d');
 let stream, running=false, sent=0, pollTimer=null;
-let lastGen=-1;
+let lastGen=null;
 let reconnecting=false;
 
-const PC_ORIGIN=`https://${location.hostname}:8760`;
-const POLL_URL=`${PC_ORIGIN}/poll`;
-const FRAME_URL=`${PC_ORIGIN}/frame`;
+// 使用当前页面端口，因此 spatial(8760) 和 single_point(8761) 共用同一页面。
+const POLL_URL='/poll';
+const FRAME_URL='/frame';
 const POLL_INTERVAL_MS=200;
+// 保留完整传感器视场，只在上传前等比缩小。转正后对应 1536x2048，
+// 服务端会按实际宽度把 fx 从 3260 等比换算为 1630。
+const UPLOAD_MAX_SIDE=2048;
 
 function setStatus(text, level){
   statusEl.textContent=text;
@@ -167,7 +170,11 @@ function stop(){
 function pollLoop(){
   if(!running)return;
   fetch(POLL_URL).then(r=>r.json()).then(d=>{
-    if(d.gen !== lastGen){
+    if(lastGen===null){
+      lastGen=d.gen;
+      // 页面可能恰好在电脑等待拍照时打开，不能漏掉这次请求。
+      if(d.awaiting)captureAndSend(d.gen);
+    }else if(d.gen !== lastGen){
       lastGen=d.gen;
       captureAndSend(d.gen);
     }
@@ -183,15 +190,21 @@ function captureAndSend(gen){
     setStatus('电脑端请求拍照，但摄像头未就绪', 'warn');
     return;
   }
-  canvas.width=video.videoWidth;
-  canvas.height=video.videoHeight;
+  const scale=Math.min(1,UPLOAD_MAX_SIDE/Math.max(video.videoWidth,video.videoHeight));
+  canvas.width=Math.round(video.videoWidth*scale);
+  canvas.height=Math.round(video.videoHeight*scale);
   ctx.drawImage(video,0,0,canvas.width,canvas.height);
   setStatus(`拍照中 (${canvas.width}x${canvas.height}) ...`);
   canvas.toBlob(blob=>{
+    if(!blob){setStatus('JPEG编码失败','err');return}
     fetch(`${FRAME_URL}?gen=${gen}`,{method:'POST',body:blob}).then(r=>r.json()).then(d=>{
-      sent++;
-      count.textContent='已拍摄: '+sent+' 张';
-      setStatus(`已发送 (${canvas.width}x${canvas.height}, ${(blob.size/1024).toFixed(0)}KB)`);
+      if(d.accepted){
+        sent++;
+        count.textContent='已拍摄: '+sent+' 张';
+        setStatus(`已发送 (${canvas.width}x${canvas.height}, ${(blob.size/1024).toFixed(0)}KB)`);
+      }else{
+        setStatus('该帧已过期，等待下一次请求','warn');
+      }
     }).catch(e=>{
       setStatus('发送失败: '+e.message, 'warn');
     });

@@ -1,23 +1,25 @@
-# 前端 App（smart_cane）
+# 手机应用
 
-基于 uni-app（Vue）的跨平台手机应用，提供导航界面、BLE 设备连接、语音助手交互。
-
-## 环境要求
-
-- HBuilderX
+基于 uni-app（Vue），提供导航、BLE 设备控制、语音交互与诊断页面。
 
 ## 运行
 
-**HBuilderX 方式：**
-1. 用 HBuilderX 打开
-2. 菜单 → 运行 → 运行到浏览器 / 运行到手机
+用 HBuilderX 打开 `app/frontend/`，选择运行到浏览器或手机；BLE 等设备功能需在支持的平台验证。
 
-## 页面结构
+- `utils/request.js`：后端地址，默认 `http://localhost:3000`；真机访问需改为电脑可达地址。
+- `api/map.js`：高德路线服务配置。
+- `pages/navigation/navigation.vue`：高德地图 JS 配置。
 
-| 页面 | 路径 | 功能 |
-|------|------|------|
-| 首页 | `pages/home/` | 主入口 |
-| 地图 | `pages/map/` | 百度地图展示与导航 |
-| 导航 | `pages/navigation/` | 步行导航模式 |
-| 设备 | `pages/device/` | BLE 盲文设备连接管理 |
-| 诊断 | `pages/diagnostic/` | 设备调试与状态检测 |
+地图 Key 需自行配置；当前代码含硬编码值，发布前应处理。
+
+## 页面
+
+| 页面 | 用途 |
+|---|---|
+| `home` | 首页与入口 |
+| `navigation` | 步行导航 |
+| `map` | 地图页面 |
+| `device` | BLE连接与触觉控制 |
+| `diagnostic` | 设备诊断 |
+
+后端说明见 [app/backend](../backend/README.md)。编译输出 `unpackage/` 不提交。

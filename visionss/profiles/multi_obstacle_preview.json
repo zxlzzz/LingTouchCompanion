@@ -1,0 +1,23 @@
+{
+  "cam_h_true": 1.4,
+  "focal_scale": 1.0,
+  "stride": 8,
+  "h_min": 0.06,
+  "h_max": 1.8,
+  "d_min": 1.0,
+  "d_max": 5.0,
+  "ground_img_frac": 0.25,
+  "ground_d_max": 6.0,
+  "ransac_iters": 300,
+  "ransac_tol": 0.05,
+  "refit_low": -0.15,
+  "refit_high": 0.05,
+  "refit_rounds": 3,
+  "occ_fill_frac": 0.012,
+  "occ_min": 8,
+  "max_cells_per_col": 10,
+  "dilation_cols": 0,
+  "floor_correction": true,
+  "floor_bin_m": 0.4,
+  "floor_quantile": 0.3
+}

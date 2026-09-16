@@ -31,7 +31,7 @@ grid_to_bytes 的字节格式(15字节, 每字节 bit0~bit5 对应一个模组�
 改动记录: 2026-08-09 从 vision/frame_converter.py 复制, 加 MODULE_ROT180 开关,
 加 mirror_grid_horizontal(), 改 ascii_preview() 远近标签方向。以后这两份
 frame_converter.py 谁的 _BIT_MAP/MODULE_ROT180 变了, 记得同步另一份 +
-sth2.html 的 gridToBytes()(sth2.html 目前还是老的 prod 映射, 没跟着"180°反装"
+ble_testbench.html 的 gridToBytes()(ble_testbench.html 目前还是老的 prod 映射, 没跟着"180°反装"
 这次改动同步, 实验阶段不用它测试, 见 vision/frame_converter.py 的
 _self_test 注释)。
 """
@@ -43,7 +43,7 @@ GRID_ROWS = 10
 NUM_MODULES = 15
 
 # 真机模组是 180° 反装的, 所以默认 True。改成 False 会用未反装的 prod 映射
-# (跟 sth2.html 当前的 gridToBytes 一致, 但和真机实际接线不一致——除非以后
+# (跟 ble_testbench.html 当前的 gridToBytes 一致, 但和真机实际接线不一致——除非以后
 # 真的把模组翻回来重装, 否则不要改这个)。
 MODULE_ROT180 = True
 
@@ -59,7 +59,7 @@ _BIT_MAP_ROT180 = [
     (5, 0, 2),
 ]
 
-# prod(未反装, 跟 sth2.html 当前 gridToBytes 一致)映射: 对 ROT180 应用同一个
+# prod(未反装, 跟 ble_testbench.html 当前 gridToBytes 一致)映射: 对 ROT180 应用同一个
 # (bit, dr, dc) -> (bit, 1-dr, 2-dc) 变换反推出来(这个变换是对合的, 应用两次
 # 等于没变, 所以从 ROT180 反推 prod 和从 prod 推 ROT180 用的是同一个变换)。
 _BIT_MAP_PROD = [(bit, 1 - dr, 2 - dc) for bit, dr, dc in _BIT_MAP_ROT180]
@@ -126,7 +126,7 @@ def ascii_preview(frame):
 
 
 def hex_preview(data):
-    """按 3 列排布打印 15 字节，便于与 sth2.html 的 Hex 面板逐字节比对。"""
+    """按 3 列排布打印 15 字节，便于与 ble_testbench.html 的 Hex 面板逐字节比对。"""
     lines = []
     for row in range(5):
         cells = []

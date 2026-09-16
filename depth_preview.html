@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>深度热力图预览</title>
+<style>
+  :root {
+    --bg: #14161b;
+    --panel: #1d2027;
+    --panel-border: #2c303a;
+    --text: #e8e9ec;
+    --muted: #8a8f9c;
+    --accent: #5b9dff;
+    --accent-dim: #2d4a80;
+    --ok: #4caf7d;
+    --err: #e05a5a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 20px; line-height: 1.6; }
+  .sub code { background: #0009; padding: 1px 6px; border-radius: 4px; }
+
+  .bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: var(--panel); border: 1px solid var(--panel-border);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;
+  }
+  .bar label { font-size: 13px; color: var(--muted); }
+  .bar input[type=text] {
+    background: #0d0f13; border: 1px solid var(--panel-border); color: var(--text);
+    border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 220px;
+  }
+  .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
+  .status-dot.ok { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+  .status-dot.err { background: var(--err); box-shadow: 0 0 6px var(--err); }
+  .status-text { font-size: 13px; color: var(--muted); }
+  .bar button.small {
+    margin-left: auto; background: transparent; border: 1px solid var(--panel-border);
+    color: var(--muted); border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer;
+  }
+  .bar button.small:hover { border-color: var(--accent); color: var(--accent); }
+
+  .dropzone {
+    border: 2px dashed var(--panel-border); border-radius: 12px; padding: 28px;
+    text-align: center; cursor: pointer; transition: border-color .15s, background .15s;
+    background: var(--panel);
+  }
+  .dropzone.drag { border-color: var(--accent); background: #1a2233; }
+  .dropzone p { margin: 0; color: var(--muted); font-size: 14px; }
+  .dropzone .hint { font-size: 12px; margin-top: 6px; color: #666a75; }
+  input[type=file] { display: none; }
+
+  .actions { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
+  button.primary {
+    background: var(--accent); color: #0b0e14; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button.primary:disabled { background: var(--accent-dim); color: #6b7280; cursor: not-allowed; }
+  button.ghost {
+    background: transparent; border: 1px solid var(--panel-border); color: var(--text);
+    border-radius: 8px; padding: 10px 18px; font-size: 14px; cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center;
+  }
+  button.ghost:disabled { color: var(--muted); border-color: var(--panel-border); cursor: not-allowed; opacity: .5; }
+  .spinner {
+    display: none; width: 15px; height: 15px; border-radius: 50%;
+    border: 2px solid #0b0e1440; border-top-color: #0b0e14; animation: spin .7s linear infinite;
+  }
+  .busy .spinner { display: inline-block; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-banner {
+    display: none; background: #3a1f22; border: 1px solid var(--err); color: #ffb3b3;
+    border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px;
+  }
+
+  .grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px;
+    padding: 14px; min-height: 260px; display: flex; flex-direction: column;
+  }
+  .panel h3 { margin: 0 0 10px; font-size: 13px; color: var(--muted); font-weight: 500; }
+  .img-wrap {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    background: repeating-conic-gradient(#20232b 0% 25%, #191c22 0% 50%) 50% / 16px 16px;
+    border-radius: 8px; overflow: hidden; min-height: 220px;
+  }
+  .img-wrap img { max-width: 100%; max-height: 420px; display: block; }
+  .img-wrap .placeholder { color: #4a4e59; font-size: 13px; }
+
+  .stats {
+    display: flex; gap: 18px; flex-wrap: wrap; margin-top: 12px; font-size: 12px; color: var(--muted);
+  }
+  .stats b { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+
+  <h1>深度热力图预览</h1>
+  <p class="sub">
+    上传一张图片，本地调用 Depth-Anything-V2 metric 模型（<code>visionss/depth_runner.py</code>）跑深度推理，看一眼热力图效果。
+    整个过程只在浏览器内存和本地服务内存里处理，不落盘；满意的话点“下载热力图”手动保存。<br>
+    使用前先在终端启动本地推理服务：
+    <code>D:\anaconda\envs\LING\python.exe visionss\depth_server.py</code>
+  </p>
+
+  <div class="bar">
+    <span class="status-dot" id="statusDot"></span>
+    <span class="status-text" id="statusText">检测中…</span>
+    <label>服务地址</label>
+    <input type="text" id="serverUrl" value="http://127.0.0.1:8765">
+    <button type="button" class="small" id="recheckBtn">重新检测</button>
+  </div>
+
+  <div class="error-banner" id="errorBanner"></div>
+
+  <div class="dropzone" id="dropzone">
+    <p id="dropText">点击选择图片，或把图片拖到这里</p>
+    <div class="hint">支持 jpg / png 等常见格式</div>
+    <input type="file" id="fileInput" accept="image/*" aria-label="选择图片文件" title="选择图片文件">
+  </div>
+
+  <div class="actions">
+    <button type="button" class="primary" id="runBtn" disabled>
+      <span class="spinner"></span><span id="runBtnText">生成深度热力图</span>
+    </button>
+    <button type="button" class="ghost" id="downloadBtn" disabled>下载热力图</button>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h3>原图</h3>
+      <div class="img-wrap" id="originalWrap"><span class="placeholder">尚未选择图片</span></div>
+    </div>
+    <div class="panel">
+      <h3>深度热力图</h3>
+      <div class="img-wrap" id="heatWrap"><span class="placeholder">尚未生成</span></div>
+      <div class="stats" id="stats" style="display:none;">
+        <span>尺寸 <b id="statSize">-</b></span>
+        <span>最近 <b id="statMin">-</b> m</span>
+        <span>中位 <b id="statMedian">-</b> m</span>
+        <span>最远 <b id="statMax">-</b> m</span>
+        <span>推理耗时 <b id="statTime">-</b> s</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const serverUrlInput = document.getElementById('serverUrl');
+  const recheckBtn = document.getElementById('recheckBtn');
+  const dropzone = document.getElementById('dropzone');
+  const dropText = document.getElementById('dropText');
+  const fileInput = document.getElementById('fileInput');
+  const runBtn = document.getElementById('runBtn');
+  const runBtnText = document.getElementById('runBtnText');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const originalWrap = document.getElementById('originalWrap');
+  const heatWrap = document.getElementById('heatWrap');
+  const errorBanner = document.getElementById('errorBanner');
+  const statsRow = document.getElementById('stats');
+  const statSize = document.getElementById('statSize');
+  const statMin = document.getElementById('statMin');
+  const statMedian = document.getElementById('statMedian');
+  const statMax = document.getElementById('statMax');
+  const statTime = document.getElementById('statTime');
+
+  let selectedFile = null;
+  let originalObjectUrl = null;
+  let heatBlobUrl = null;
+
+  function serverUrl() {
+    return serverUrlInput.value.replace(/\/+$/, '');
+  }
+
+  function setStatus(ok, text) {
+    statusDot.className = 'status-dot ' + (ok === null ? '' : (ok ? 'ok' : 'err'));
+    statusText.textContent = text;
+  }
+
+  async function checkHealth() {
+    setStatus(null, '检测中…');
+    try {
+      const res = await fetch(serverUrl() + '/health', { method: 'GET' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      setStatus(true, `已连接本地服务（设备: ${data.device}）`);
+    } catch (e) {
+      setStatus(false, '未连接到本地服务，请先启动 depth_server.py');
+    }
+  }
+
+  function showError(msg) {
+    errorBanner.textContent = msg;
+    errorBanner.style.display = 'block';
+  }
+  function clearError() {
+    errorBanner.style.display = 'none';
+    errorBanner.textContent = '';
+  }
+
+  function handleFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      showError('请选择图片文件（jpg / png 等）');
+      return;
+    }
+    clearError();
+    selectedFile = file;
+    dropText.textContent = file.name;
+
+    if (originalObjectUrl) URL.revokeObjectURL(originalObjectUrl);
+    originalObjectUrl = URL.createObjectURL(file);
+    originalWrap.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = originalObjectUrl;
+    originalWrap.appendChild(img);
+
+    heatWrap.innerHTML = '<span class="placeholder">尚未生成</span>';
+    statsRow.style.display = 'none';
+    downloadBtn.disabled = true;
+    if (heatBlobUrl) { URL.revokeObjectURL(heatBlobUrl); heatBlobUrl = null; }
+
+    runBtn.disabled = false;
+  }
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
+  });
+  dropzone.addEventListener('click', () => fileInput.click());
+  ['dragenter', 'dragover'].forEach(ev => dropzone.addEventListener(ev, (e) => {
+    e.preventDefault(); dropzone.classList.add('drag');
+  }));
+  ['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, (e) => {
+    e.preventDefault(); dropzone.classList.remove('drag');
+  }));
+  dropzone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+
+  function base64ToBlob(b64, mime) {
+    const byteChars = atob(b64);
+    const bytes = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
+  }
+
+  function setBusy(busy) {
+    runBtn.disabled = busy;
+    runBtn.classList.toggle('busy', busy);
+    runBtnText.textContent = busy ? '推理中…' : '生成深度热力图';
+  }
+
+  async function runInference() {
+    if (!selectedFile) return;
+    clearError();
+    setBusy(true);
+    try {
+      const res = await fetch(serverUrl() + '/infer', {
+        method: 'POST',
+        body: selectedFile,
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error((data && data.error) || ('HTTP ' + res.status));
+      }
+      setStatus(true, '已连接本地服务');
+
+      const blob = base64ToBlob(data.heatmap_png_base64, 'image/png');
+      if (heatBlobUrl) URL.revokeObjectURL(heatBlobUrl);
+      heatBlobUrl = URL.createObjectURL(blob);
+
+      heatWrap.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = heatBlobUrl;
+      heatWrap.appendChild(img);
+
+      statSize.textContent = `${data.width}×${data.height}`;
+      statMin.textContent = data.min_m.toFixed(2);
+      statMedian.textContent = data.median_m.toFixed(2);
+      statMax.textContent = data.max_m.toFixed(2);
+      statTime.textContent = data.infer_seconds.toFixed(2);
+      statsRow.style.display = 'flex';
+
+      downloadBtn.disabled = false;
+      downloadBtn.dataset.filename = (selectedFile.name.replace(/\.[^.]+$/, '') || 'image') + '_depth_heat.png';
+    } catch (e) {
+      showError('推理失败：' + e.message + '（确认 depth_server.py 正在运行，且地址端口一致）');
+      setStatus(false, '请求失败，检查本地服务是否在运行');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  downloadBtn.addEventListener('click', () => {
+    if (!heatBlobUrl) return;
+    const a = document.createElement('a');
+    a.href = heatBlobUrl;
+    a.download = downloadBtn.dataset.filename || 'depth_heat.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+
+  runBtn.addEventListener('click', runInference);
+  recheckBtn.addEventListener('click', checkHealth);
+  serverUrlInput.addEventListener('change', checkHealth);
+
+  checkHealth();
+})();
+</script>
+</body>
+</html>

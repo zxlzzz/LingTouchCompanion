@@ -1,30 +1,23 @@
-# 固件（ESP32-S3 盲文驱动）
+# ESP32-S3 触觉固件
 
-ESP32-S3 固件，通过 SPI 驱动 74HC595 级联链路控制 15 个 WUJIE SMA 盲文模块，BLE 接收手机端触觉帧数据。
+通过 SPI 驱动15个六点模组，BLE接收15字节触觉帧。
 
-## 环境要求
+## 烧录
 
-- Arduino IDE >= 2.0
-- Board package：**esp32 by Espressif Systems**（通过 Boards Manager 安装）
-- 开发板选择：ESP32-S3 Dev Module
+Arduino IDE 安装 **esp32 by Espressif Systems**，选择 **ESP32-S3 Dev Module**，打开 [当前 V2.8 固件](braille_15module_prod/braille_15module_prod.ino) 并烧录。
 
-## 编译烧录
+`braille_15module_reverse/` 为旧 V2.3 版本，保留作历史参考，不是当前默认入口。
 
-1. 用 Arduino IDE 打开 `braille_15module_prod/braille_15module_prod.ino`
-2. 选择开发板 ESP32-S3 Dev Module，端口选择对应串口
-3. 编译并上传
+## 引脚与协议
 
-## 硬件连接
+| 信号 | GPIO |
+|---|---|
+| SER / SRCLK / RCLK | 11 / 12 / 10 |
+| OE# / SRCLR# | 9 / 8 |
+| 按钮 | 6 |
 
-| 信号 | GPIO | 功能 |
-|------|------|------|
-| SER (MOSI) | GPIO11 | SPI 数据 |
-| SRCLK | GPIO12 | SPI 时钟 |
-| RCLK | GPIO10 | 74HC595 锁存 |
-| OE# | GPIO9 | 输出使能（低有效） |
-| SRCLR# | GPIO8 | 移位寄存器清零（低有效） |
-| BTN | GPIO6 | 按钮 |
+BLE 服务 `FFE0`：写入特征 `FFE1` 接收15字节，每字节低6位对应一个模组；通知特征 `FFE3` 中，`0x01` 为刷新完成，`0x04` 为按键扫描请求。
 
-## 通讯协议
+V2.8 默认全量刷新约220 ms。电脑端实验通路见 [visionss](../visionss/README.md)；浏览器调试可使用根目录两个 BLE 工具，注意其 ROT180 / PROD 映射差异。
 
-BLE GATT 服务 0xFFE0，特征 0xFFE1/0xFFE3。每帧 30 字节，每字节 bit0~bit5 对应一个盲文模块的 6 个点。
+[PCB历史摘要](PCB历史检查摘要.md) 与 [早期改版记录](pcb_v2_revision.md) 仅供追溯，不代表当前生产板状态。

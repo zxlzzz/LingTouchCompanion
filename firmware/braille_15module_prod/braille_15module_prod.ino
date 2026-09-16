@@ -1,14 +1,33 @@
 /*
  * 灵触·随行 — ESP32-S3 固件 (15模组正式版)
- * V2.3 — 合并线圈通道诊断命令
+ * V2.8 — 新增每阶段帧内容串口打印，用于对照示波器核实实际发出的bit值
  *
- * 变更（相对 V2.2）：
- *   - 新增串口命令：hold / ex / stop（来自诊断固件 V1.1）
- *     共用主固件的 SPI/GPIO/posToChain，无重复定义
- *   - hold/ex 执行期间阻塞串口（与 V1.1 行为一致）
- *   - hold/ex 执行完毕后调用 allOff() 并恢复 brailleData 状态
+ * 新增：refreshGrouped 每个阶段(A/B/C/D) sendRaw 之后打印本次实际发送的
+ * 15字节帧（十六进制，SPI链序号，非物理位置pos）。用法：
+ *   set N XX 触发一次刷新，串口会依次打印4行"[帧] A/B/C/D..."，
+ *   对照示波器实测的那一路电压变化时刻，逐阶段核实固件到底发的是什么，
+ *   不用再靠代码推理猜。frame[i] 是链序号i(0~14)的字节，某个物理位置pos
+ *   对应的字节看 frame[posToChain[pos]]。
  *
- * 命令（新增）：
+ * V2.7 — 四阶段定义按无界人工确认修正
+ *
+ * 四阶段真实定义（无界确认，非代码字面推断）：
+ *   A. 解锁：仅SMA通电，线圈不通
+ *   B. 升起：SMA+线圈同时通电
+ *   C. 稳定：SMA关闭，仅线圈保持通电
+ *   D. 全断：线圈也关闭
+ *
+ * 变更（相对 V2.8）：
+ *   - Phase B 由"仅线圈"改为"SMA+线圈同时"（bit6|0x40）
+ *   - Phase C 由"同B"改为"仅线圈，SMA清0"（&0x3F）
+ *   - Phase A/D 不变
+ *
+ * 变更（V2.8，相对 V2.5，仍保留）：
+ *   - 删除 changeMask/risingMask 动态挑选变化模组的逻辑，每次触发全量刷新
+ *   - refreshStep 默认值 NUM_MODULES(15)，一次性全部一起走完，不分批
+ *   - posToChain 映射、bit remap（不需要）、GPIO/BLE/串口命令框架均未改
+ *
+ * 命令：
  *   hold N XX [T]   位置N(1-15)线圈按0xXX通电T秒(1-10,默认5)，SMA不动
  *   ex N XX [C]     位置N按0xXX做解锁锻炼循环C次(1-30,默认10)
  *   stop            立即全部断电（同 clear 但不改 brailleData）
@@ -43,13 +62,13 @@
 #define PINS_PER_MOD    6
 
 #define DEFAULT_PHASE_A   10
-#define DEFAULT_PHASE_B   80
-#define DEFAULT_PHASE_C  300
+#define DEFAULT_PHASE_B   50
+#define DEFAULT_PHASE_C  150
 #define DEFAULT_PHASE_D   10
 
-#define DEFAULT_STEP      8
+// 默认一次性全部15个一起走完，不分批（对齐"不分批"要求；见文件头说明，需确认）
+#define DEFAULT_STEP      NUM_MODULES
 
-#define RETRY_GAP_MS      5
 #define BTN_DEBOUNCE_MS   200
 #define MAX_PHASE_MS      500
 
@@ -155,104 +174,89 @@ void allOff() {
   sendRaw(f, FRAME_LEN);
 }
 
+// 打印实际发送的帧内容，逐字节标出 bit6(SMA) 和 bit0-5(线圈)
+// frame下标是posToChain之后的SPI链序号，不是物理位置pos；
+// 需要看某个物理位置pos的值时，看 frame[posToChain[pos]]
+void printFrame(const char *label, uint8_t *frame) {
+  Serial.printf("[帧] %s: ", label);
+  for (int i = 0; i < FRAME_LEN; i++) {
+    Serial.printf("%02X ", frame[i]);
+  }
+  Serial.println();
+}
+
 // ═══════════════════════════════════════
-//  四相分组刷新（V2.2: Phase A线圈隔离）
+//  分组刷新（V2.8：逐字对齐无界 send_braille_data_grouped）
+//
+//  与无界原代码的对应关系：
+//    posData        ↔ data_array（30字节，此处15字节）
+//    sentData[]     ↔ sent_data[]，基线，初始全0
+//    offset/step    ↔ offset/step，从数组末端往前分组
+//    A/B/C/D 四阶段 ↔ 无界文档 9.3 节 A/B/C/D 完全一致
+//    Data_Rev_Finish==true 打断 ↔ newDataReady==true 打断
+//  唯一差异：不做 bit remap（已确认板子接线干净，无需 order[]/order_test[]）
 // ═══════════════════════════════════════
 
-void refreshGrouped(uint8_t *posData, uint16_t changeMask, uint16_t risingMask) {
+void refreshGrouped(uint8_t *posData) {
+  uint8_t sentData[FRAME_LEN] = {0};   // 对应无界 sent_data[]，初始全0
   uint8_t frame[FRAME_LEN];
-  static uint8_t holdFrame[FRAME_LEN] = {0};
   refreshComplete = false;
 
-  int needRefresh[NUM_MODULES];
-  int needCount = 0;
-  for (int p = 0; p < NUM_MODULES; p++) {
-    if ((changeMask & (1 << p)) && (moduleMask & (1 << p))) {
-      needRefresh[needCount++] = p;
-    }
-  }
+  int step = min(refreshStep, (int)NUM_MODULES);
+  if (step < 1) step = 1;
 
-  if (needCount == 0) {
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    memset(holdFrame, 0x00, FRAME_LEN);
-    sendRaw(holdFrame, FRAME_LEN);
-    refreshComplete = true;
-    return;
-  }
+  int offset = NUM_MODULES - step;   // 从数组末端开始，对应无界逻辑
 
-  for (int k = 0; k < needCount; k++) {
-    int p = needRefresh[k];
-    holdFrame[posToChain[p]] = posData[p] & 0x3F;
-  }
-
-  #define MAX_STEP 12
-  int step = min(refreshStep, MAX_STEP);
-
-  for (int i = 0; i < needCount; i += step) {
+  while (offset >= 0) {
     if (newDataReady) {
-      vTaskDelay(pdMS_TO_TICKS(1000));
-      memset(holdFrame, 0x00, FRAME_LEN);
-      sendRaw(holdFrame, FRAME_LEN);
+      // 对应无界: Data_Rev_Finish==true → 立即中止本次刷新并返回
+      memset(frame, 0x00, FRAME_LEN);
+      sendRaw(frame, FRAME_LEN);
       refreshComplete = true;
       return;
     }
 
-    int batchEnd = min(i + step, needCount);
+    int batchEnd = min(offset + step, (int)NUM_MODULES);
 
-    bool batchHasRising = false;
-    for (int j = i; j < batchEnd; j++) {
-      if (risingMask & (1 << needRefresh[j])) { batchHasRising = true; break; }
-    }
-
-    // Phase A: 全清，只开当前batch SMA
+    // A. 解锁：仅打开SMA，线圈不通（本组）
     memset(frame, 0x00, FRAME_LEN);
-    for (int j = i; j < batchEnd; j++) {
-      frame[posToChain[needRefresh[j]]] = 0x40;
+    for (int i = offset; i < batchEnd; i++) {
+      frame[posToChain[i]] = 0x40;
     }
     sendRaw(frame, FRAME_LEN);
     vTaskDelay(pdMS_TO_TICKS(phaseA));
 
-    // Phase B
+    // B. 升起：SMA+线圈同时通电（本组，bit6|0x40），其余为sentData基线
     memset(frame, 0x00, FRAME_LEN);
-    for (int j = i; j < batchEnd; j++) {
-      int p = needRefresh[j];
-      frame[posToChain[p]] = (posData[p] & 0x3F) | 0x40;
+    for (int i = 0; i < NUM_MODULES; i++) frame[posToChain[i]] = sentData[i];
+    for (int i = offset; i < batchEnd; i++) {
+      frame[posToChain[i]] = (posData[i] & 0x3F) | 0x40;
     }
     sendRaw(frame, FRAME_LEN);
     vTaskDelay(pdMS_TO_TICKS(phaseB));
 
-    // 二次脉冲（含升边batch）
-    if (batchHasRising) {
-      sendRaw(holdFrame, FRAME_LEN);
-      vTaskDelay(pdMS_TO_TICKS(RETRY_GAP_MS));
-
-      memset(frame, 0x00, FRAME_LEN);
-      for (int j = i; j < batchEnd; j++) {
-        frame[posToChain[needRefresh[j]]] = 0x40;
-      }
-      sendRaw(frame, FRAME_LEN);
-      vTaskDelay(pdMS_TO_TICKS(phaseA));
-
-      memset(frame, 0x00, FRAME_LEN);
-      for (int j = i; j < batchEnd; j++) {
-        int p = needRefresh[j];
-        frame[posToChain[p]] = (posData[p] & 0x3F) | 0x40;
-      }
-      sendRaw(frame, FRAME_LEN);
-      vTaskDelay(pdMS_TO_TICKS(phaseB));
+    // C. 稳定：关闭SMA，仅保留线圈通电（本组，&0x3F清bit6）
+    memset(frame, 0x00, FRAME_LEN);
+    for (int i = 0; i < NUM_MODULES; i++) frame[posToChain[i]] = sentData[i];
+    for (int i = offset; i < batchEnd; i++) {
+      frame[posToChain[i]] = posData[i] & 0x3F;
     }
-
-    // Phase C
-    sendRaw(holdFrame, FRAME_LEN);
+    sendRaw(frame, FRAME_LEN);
     vTaskDelay(pdMS_TO_TICKS(phaseC));
 
-    // Phase D
+    // D. 关闭输出（真发全0帧，V2.5遗漏了这一帧，此处补上）
+    memset(frame, 0x00, FRAME_LEN);
+    sendRaw(frame, FRAME_LEN);
     vTaskDelay(pdMS_TO_TICKS(phaseD));
+
+    // 本组sentData复位为0（对应无界 sent_data[offset+i]=0x00）
+    for (int i = offset; i < batchEnd; i++) {
+      sentData[i] = 0x00;
+    }
+
+    offset -= step;
   }
 
-  vTaskDelay(pdMS_TO_TICKS(1000));
-  memset(holdFrame, 0x00, FRAME_LEN);
-  sendRaw(holdFrame, FRAME_LEN);
   refreshComplete = true;
 }
 
@@ -397,6 +401,7 @@ void manageBLE() {
 
 // ═══════════════════════════════════════
 //  驱动任务（核心1）
+//  V2.8: 不再做changeMask变化检测，每次触发都全量刷新（对齐无界逻辑）
 // ═══════════════════════════════════════
 
 void driveTask(void *pvParam) {
@@ -405,39 +410,16 @@ void driveTask(void *pvParam) {
       newDataReady = false;
       for (int i = 0; i < NUM_MODULES; i++) brailleData[i] &= ~deadDots[i];
 
-      uint16_t changeMask = 0;
-      uint16_t risingMask = 0;
-      for (int i = 0; i < NUM_MODULES; i++) {
-        if (brailleData[i] != prevData[i]) {
-          changeMask |= (1 << i);
-        }
-        uint8_t rising = brailleData[i] & ~prevData[i] & 0x3F;
-        if (rising) {
-          risingMask |= (1 << i);
-        }
-      }
-
-      if (changeMask != 0) {
-        int cnt = 0, rcnt = 0;
-        for (int i = 0; i < NUM_MODULES; i++) {
-          if (changeMask & (1<<i)) cnt++;
-          if (risingMask & (1<<i)) rcnt++;
-        }
-        Serial.printf("[刷新] %d个模组变化 (含%d个升边), changeMask=0x%04X risingMask=0x%04X\n",
-                      cnt, rcnt, changeMask, risingMask);
-
-        refreshGrouped(brailleData, changeMask, risingMask);
-        memcpy(prevData, brailleData, NUM_MODULES);
-      } else {
-        Serial.println("[跳过] 数据无变化");
-      }
+      Serial.println("[刷新] 全量刷新（照抄无界逻辑，不做变化检测）");
+      refreshGrouped(brailleData);
+      memcpy(prevData, brailleData, NUM_MODULES);
 
       queueNotify(EVT_REFRESH_DONE, 0x00);
     }
 
     if (forceRefresh) {
       forceRefresh = false;
-      refreshGrouped(brailleData, 0x7FFF, 0x7FFF);
+      refreshGrouped(brailleData);
       memcpy(prevData, brailleData, NUM_MODULES);
     }
 
@@ -450,7 +432,7 @@ void driveTask(void *pvParam) {
 // ═══════════════════════════════════════
 
 void printHelp() {
-  Serial.println("=== 灵触·随行 15模组驱动 V2.3 ===");
+  Serial.println("=== 灵触·随行 15模组驱动 V2.8 ===");
   Serial.println("命令:");
   Serial.println("  help              显示帮助");
   Serial.println("  test              全部凸起");
@@ -459,7 +441,7 @@ void printHelp() {
   Serial.println("  row R XX          第R行(1-5)设为0xXX");
   Serial.println("  col C XX          第C列(1-3)设为0xXX");
   Serial.println("  mask 0xNNNN       设模组掩码");
-  Serial.println("  step N            设分组步长(1-15)");
+  Serial.println("  step N            设分组步长(1-15，默认15=不分批)");
   Serial.println("  timing A B C D    设四相时序(ms)");
   Serial.println("  mode              查看/切换模式");
   Serial.println("  print             打印当前状态");
@@ -693,10 +675,8 @@ void processSerial() {
     if (sscanf(line.c_str(), "step %d", &val) == 1 && val >= 1 && val <= NUM_MODULES) {
       refreshStep = val;
       Serial.printf("步长 = %d\n", refreshStep);
-      if (refreshStep > 12) {
-        Serial.println("⚠ 警告: step>12时VCCS电流可能超AMS1117的1A极限");
-      } else if (refreshStep > 8) {
-        Serial.println("ℹ 提示: step>8时升起成功率可能下降（推荐≤8）");
+      if (refreshStep < NUM_MODULES) {
+        Serial.println("ℹ 提示: 步长<15会分批处理，各批之间D阶段会全部断电（含已抬起的批次），不再是全部同时通电");
       }
     } else {
       Serial.println("格式: step N (1-15)");
@@ -760,7 +740,7 @@ void setup() {
   Serial.println();
   Serial.println("================================");
   Serial.println("  灵触·随行 15模组盲文驱动");
-  Serial.println("  V2.3 — 合并线圈通道诊断命令");
+  Serial.println("  V2.8 — refreshGrouped逐字对齐无界结构");
   Serial.println("================================");
 
   initGPIO();
@@ -791,7 +771,7 @@ void setup() {
   Serial.println();
   Serial.printf("当前模式: RAPID_AVOID (0x%02X)\n", currentMode);
   Serial.printf("模组掩码: 0x%04X\n", moduleMask);
-  Serial.printf("分组步长: %d\n", refreshStep);
+  Serial.printf("分组步长: %d (默认不分批)\n", refreshStep);
   Serial.println("按物理按钮触发扫描 | 串口输入 mode 切换模式");
   Serial.println();
 }

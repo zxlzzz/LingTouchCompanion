@@ -4,7 +4,7 @@ frame_converter — 90点扁平帧 <-> 15字节模组帧
 视觉管线输出：90 字节 / 90 元素数组，9列 × 10行，行优先，row0=远，row9=近。
 设备接收：15 字节，每字节 bit0~bit5 对应该模组的 6 个点。
 
-模组在 9×10 栅格中的覆盖范围（与 sth2.html gridToBytes 完全一致，已在硬件上验证）：
+模组在 9×10 栅格中的覆盖范围（与 ble_testbench.html gridToBytes 完全一致，已在硬件上验证）：
   模组 m (0..14)  ->  modRow = m // 3 (0..4), modCol = m % 3 (0..2)
   占据栅格行 r = modRow*2 与 r+1，栅格列 c = modCol*3 .. c+2
   即每个模组在栅格上呈 3列 × 2行（模组物理为 2×3，横置安装）
@@ -82,7 +82,7 @@ def ascii_preview(frame):
 
 
 def hex_preview(data):
-    """按 3 列排布打印 15 字节，便于与 sth2.html 的 Hex 面板逐字节比对。"""
+    """按 3 列排布打印 15 字节，便于与 ble_testbench.html 的 Hex 面板逐字节比对。"""
     lines = []
     for row in range(5):
         cells = []
@@ -106,7 +106,7 @@ def _self_test():
         d = grid_to_bytes(f)
         assert sum(bin(x).count("1") for x in d) == 1, f"点{i}映射丢失或重复"
 
-    # 180°反装后 bit 位与 prod / sth2.html 不再一致（sth2.html 未同步更新，
+    # 180°反装后 bit 位与 prod / ble_testbench.html 不再一致（ble_testbench.html 未同步更新，
     # 实验阶段不用它测试）。栅格左上角单点 -> M1 bit3 = 0x08
     f = np.zeros((GRID_ROWS, GRID_COLS), dtype=np.uint8)
     f[0, 0] = 1

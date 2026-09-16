@@ -5,7 +5,7 @@ scan_link — BLE 侧的"扫描请求 → 下发"触发器。
 EVT_SCAN_REQUEST (0x04, 见固件 braille_15module_prod.ino)。
 本模块用 bleak 连接 "LingChu-Tactile"、订阅 FFE3，收到 0x04 后
 向回调索取当前 90 点栅格，打包成 15 字节写入 FFE1 (write)。
-UUID 与写法均与 sth2.html 的 Web Bluetooth 实现保持一致。
+UUID 与写法均与 ble_testbench.html 的 Web Bluetooth 实现保持一致。
 
 bleak 是异步库；这里起一个独立线程跑自己的 event loop，对外仍暴露
 start()/send_now()/stop() 同步接口，供 phone_server.py 直接调用。

@@ -1,57 +1,57 @@
-# Dependencies
+# Local notes, paper materials and scratch work
+/AGENTS.md
+/.claude/
+/.codex-work/
+/paper/
+/tools/
+/tmp/
+
+# Dependencies and build outputs
 node_modules/
-
-# Environment secrets
-.env
-!.env.example
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
 dist/
 .venv/
 venv/
+*.egg-info/
+/app/frontend/unpackage/
+/app/frontend/.hbuilderx/
 
-# Vision artifacts
-vision/data/*.jpg
-vision/data/exports/
-vision_output.bin
+# Environment secrets and generated local HTTPS certificates
+.env
+.env.*
+!.env.example
+!.env.*.example
+/vision/cert.pem
+/vision/key.pem
+/visionss/cert.pem
+/visionss/key.pem
+/single_point/cert.pem
+/single_point/key.pem
 
-# Depth Anything V2 (official repo clone + model weights, not project source)
-Depth-Anything-V2/
+# External model source and weights
+/Depth-Anything-V2/
 *.pth
 *.safetensors
 
-# 俯视栅格标定/测试集照片 + 中间产物(深度npy、四联图), 不进repo
-pics/
+# Local datasets, experiment logs and generated outputs
+/pics/
+/experiment_runs/
+/output/
+/vision/data/
+/visionss/data/
+vision_output.bin
 *_topdown.png
 *_raw_depth_meter.npy
 
-# Auto-generated local dev HTTPS cert (phone_server.py ensure_cert())
-vision/cert.pem
-vision/key.pem
+# Python caches
+__pycache__/
+*.py[cod]
 
-# visionss artifacts (镜像上面 vision/ 的规则, 两条路径完全独立见 tasks.md)
-visionss/data/exports/
-visionss/cert.pem
-visionss/key.pem
-visionss/*_raw_depth_meter.npy
-
-# IDE
+# Editors, OS files and logs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Logs
 *.log
-
-
-*.jpg

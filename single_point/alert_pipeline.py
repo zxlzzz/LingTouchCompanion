@@ -3,7 +3,7 @@
 """
 single_point/alert_pipeline — 核心: metric 深度 -> 单点障碍告警 (bool | None)
 
-对照条件说明见仓库根目录 1.md。目的: 与 visionss/(spatial grid，10x9栅格给方位) 做
+对照条件说明见本目录 README.md。目的: 与 visionss/(spatial grid，10x9栅格给方位) 做
 RQ1 对比——同一相机、同一深度模型(Depth-Anything-V2 metric-hypersim-vitl)、同一相机
 标定(fx=3260px)、同一地面拟合算法，只把"深度图怎么变成输出"从"俯视栅格"换成"身前
 一个矩形区域内有没有东西"。隔离的自变量是"空间信息的价值"，所以除了这一步，其余全部
