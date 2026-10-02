@@ -1,0 +1,39 @@
+{
+  "file": "Headset_Repro/generated/latest/Rear_Carbon6K_FlatBase_Review_Wearing.3mf",
+  "source_mesh": "Headset_Carbon6K_FlatBase_Review_2026-10-02/geometry/rear_unified_preview.npz",
+  "source_mesh_sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
+  "file_sha256": "8706195a68a3f5faa4a2bf2121f214cab1a969544bfcc04d89fc2d059204b43a",
+  "review_only": true,
+  "wearing_coordinates_preserved_exactly": true,
+  "units": "millimeter",
+  "single_closed_connected_solid": true,
+  "connected_positive_solids": 1,
+  "enclosed_air_boundary_shells": 0,
+  "volume_mm3": 19988.331926224786,
+  "bounds_xyz_mm": [
+    [
+      -47.5,
+      195.3,
+      25.49999999701977
+    ],
+    [
+      47.5,
+      230.70000000298023,
+      57.5
+    ]
+  ],
+  "reference_objects_included": [
+    "head",
+    "battery"
+  ],
+  "extents_xyz_mm": [
+    95.0,
+    35.40000000298022,
+    32.00000000298023
+  ],
+  "volume_cm3": 19.988331926224784,
+  "raw_input_rebuild": true,
+  "version": "latest",
+  "matches_delivered_npz_sha256": true,
+  "matches_delivered_3mf_model_xml_exactly": true
+}

@@ -1,0 +1,130 @@
+{
+  "note": "Saved check results are retained as evidence. A present hash identifies a mesh, not a successful check; unmatched hashes must not be taken as verification of the latest shell.",
+  "results": [
+    {
+      "result": "Headset_CompactFront_Review_2026-10-02/audit/camera_head_side_samples.json",
+      "referenced_hashes": []
+    },
+    {
+      "result": "Headset_CompactFront_Review_2026-10-02/audit/clearances.json",
+      "referenced_hashes": [
+        {
+          "field": "/head_sha256",
+          "sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+          "matching_packaged_meshes": [
+            "Headset_Carbon6K_FlatBase_Review_2026-10-02/inputs/Medium_Trial_Registered.npz"
+          ],
+          "status": "packaged mesh present"
+        }
+      ]
+    },
+    {
+      "result": "Headset_CompactFront_Review_2026-10-02/audit/joint_revision_checks.json",
+      "referenced_hashes": [
+        {
+          "field": "/front_source_sha256",
+          "sha256": "86ca9b553bef8edb572dc24caddbbfd2f70828ab748c3b4dda6e4a3c2a1640c9",
+          "matching_packaged_meshes": [
+            "Headset_CompactFront_Review_2026-10-02/geometry/front_unified_preview.npz"
+          ],
+          "status": "packaged mesh present"
+        },
+        {
+          "field": "/rear_source_sha256",
+          "sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
+          "matching_packaged_meshes": [
+            "Headset_Carbon6K_FlatBase_Review_2026-10-02/geometry/rear_unified_preview.npz"
+          ],
+          "status": "packaged mesh present"
+        }
+      ]
+    },
+    {
+      "result": "Headset_CompactFront_Review_2026-10-02/audit/new_head_clearance.json",
+      "referenced_hashes": [
+        {
+          "field": "/source_sha256",
+          "sha256": "86ca9b553bef8edb572dc24caddbbfd2f70828ab748c3b4dda6e4a3c2a1640c9",
+          "matching_packaged_meshes": [
+            "Headset_CompactFront_Review_2026-10-02/geometry/front_unified_preview.npz"
+          ],
+          "status": "packaged mesh present"
+        }
+      ]
+    },
+    {
+      "result": "Headset_CompactFront_Review_2026-10-02/audit/solid_checks.json",
+      "referenced_hashes": [
+        {
+          "field": "/geometry_sha256",
+          "sha256": "86ca9b553bef8edb572dc24caddbbfd2f70828ab748c3b4dda6e4a3c2a1640c9",
+          "matching_packaged_meshes": [
+            "Headset_CompactFront_Review_2026-10-02/geometry/front_unified_preview.npz"
+          ],
+          "status": "packaged mesh present"
+        }
+      ]
+    },
+    {
+      "result": "Headset_CompactFront_Review_2026-10-02/audit/upper_and_wings.json",
+      "referenced_hashes": [
+        {
+          "field": "/source_sha256",
+          "sha256": "891c2f2fc2e1cf416b09ed92d957505e4e9093f76c27dc83d04c05d6a4e7960e",
+          "matching_packaged_meshes": [],
+          "status": "not a current packaged NPZ hash; inspect scope/version"
+        }
+      ]
+    },
+    {
+      "result": "Headset_Carbon6K_FlatBase_Review_2026-10-02/audit/box_plate_thickness.json",
+      "referenced_hashes": [
+        {
+          "field": "/rear_source_sha256",
+          "sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
+          "matching_packaged_meshes": [
+            "Headset_Carbon6K_FlatBase_Review_2026-10-02/geometry/rear_unified_preview.npz"
+          ],
+          "status": "packaged mesh present"
+        }
+      ]
+    },
+    {
+      "result": "Headset_Carbon6K_FlatBase_Review_2026-10-02/audit/surface_clearance_audit.json",
+      "referenced_hashes": [
+        {
+          "field": "/head_source_sha256",
+          "sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+          "matching_packaged_meshes": [
+            "Headset_Carbon6K_FlatBase_Review_2026-10-02/inputs/Medium_Trial_Registered.npz"
+          ],
+          "status": "packaged mesh present"
+        },
+        {
+          "field": "/rear_inner_surface/source_sha256",
+          "sha256": "4a3e617084592120fba3e53fea64430157d1fd530d1bf3881eebc5425b2c3889",
+          "matching_packaged_meshes": [
+            "Headset_Carbon6K_FlatBase_Review_2026-10-02/geometry/rear_inner_surface.npz"
+          ],
+          "status": "packaged mesh present"
+        },
+        {
+          "field": "/rear_outer_surface/source_sha256",
+          "sha256": "aa92eed4b8c7746c603e5b9c416709a69f623f259fc3ac6133fe72d75e630f36",
+          "matching_packaged_meshes": [
+            "Headset_Carbon6K_FlatBase_Review_2026-10-02/geometry/rear_outer_surface.npz"
+          ],
+          "status": "packaged mesh present"
+        },
+        {
+          "field": "/rear_source_sha256",
+          "sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
+          "matching_packaged_meshes": [
+            "Headset_Carbon6K_FlatBase_Review_2026-10-02/geometry/rear_unified_preview.npz"
+          ],
+          "status": "packaged mesh present"
+        }
+      ]
+    }
+  ]
+}

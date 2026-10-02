@@ -1,0 +1,87 @@
+{
+  "geometry_sha256": "86ca9b553bef8edb572dc24caddbbfd2f70828ab748c3b4dda6e4a3c2a1640c9",
+  "horizontal_sweep_intersection_excluding_hooks_mm3": 0.0,
+  "horizontal_original_only_collision_mm3": 0.0,
+  "horizontal_new_shell_collision_mm3": 0.0,
+  "rotation_conservative_envelope_intersection_excluding_hooks_mm3": 0.0,
+  "installed_camera_collision_excluding_hooks_mm3": 0.0,
+  "original_below_outer_bottom_plane_changed_mm3": 34.999076968809455,
+  "new_camera_region_material_below_outer_bottom_plane_mm3": 0.0,
+  "fixed_wing_bounds": {
+    "left": [
+      -65.0,
+      -33.817264101308254,
+      13.254337497617913,
+      -47.27,
+      30.9240349111,
+      57.14
+    ],
+    "right": [
+      47.27,
+      -33.817264101308254,
+      13.25433749761791,
+      65.0,
+      30.9264873525,
+      57.14
+    ]
+  },
+  "flat_pose_at_stop_camera_intersection_mm3": 0.0,
+  "individual_insertion_poses": [
+    {
+      "rearward_offset_from_stop_mm": 0,
+      "collision_mm3": 0.0
+    },
+    {
+      "rearward_offset_from_stop_mm": 1,
+      "collision_mm3": 0.0
+    },
+    {
+      "rearward_offset_from_stop_mm": 3,
+      "collision_mm3": 0.0
+    },
+    {
+      "rearward_offset_from_stop_mm": 5,
+      "collision_mm3": 0.0
+    },
+    {
+      "rearward_offset_from_stop_mm": 10,
+      "collision_mm3": 0.0
+    },
+    {
+      "rearward_offset_from_stop_mm": 20,
+      "collision_mm3": 0.0
+    },
+    {
+      "rearward_offset_from_stop_mm": 30,
+      "collision_mm3": 0.0
+    },
+    {
+      "rearward_offset_from_stop_mm": 40,
+      "collision_mm3": 0.0
+    }
+  ],
+  "horizontal_blocking_original_bounds_xyz_mm": [
+    Infinity,
+    Infinity,
+    Infinity,
+    -Infinity,
+    -Infinity,
+    -Infinity
+  ],
+  "minimum_original_material_removal_for_exact_horizontal_path_mm3": 0.0,
+  "rotation_envelope_method": "Convex hull of all four corner samples every0.05deg plus0.00001mm offset; corner chord sagitta <=0.00000372mm. Conservative covers continuous20deg sweep but may include non-swept inner areas.",
+  "shell_plates_nominal_mm": {
+    "front": 2,
+    "bottom": 2,
+    "side": 2,
+    "flat_top": 2,
+    "chamfer": 2
+  },
+  "preserved_ears_thickness_mm": [
+    3.2590459,
+    3.4156225
+  ],
+  "minimum_inside_flat_top_gap_mm": 0.30188708116107676,
+  "front_overall_max_forward_mm": 33.817264101308254,
+  "central_region_max_forward_mm": 33.48456823825836
+}

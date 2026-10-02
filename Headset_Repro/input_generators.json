@@ -1,0 +1,26 @@
+{
+  "front_inputs": {
+    "original_reference.npz": "BTTF Normal extraction by inspect_reference.py; exact wearing translation in build.py",
+    "actual_original_forward_limit.npz": "history/Headset_ThinShell_Review_2026-10-02/geometry/build_actual_face_limit.py",
+    "wing_left.npz": "history/Headset_ThinShell_Review_2026-10-02/geometry/build_thin_front.py",
+    "wing_right.npz": "history/Headset_ThinShell_Review_2026-10-02/geometry/build_thin_front.py",
+    "front_tabs.npz": "history/Headset_ThinShell_Review_2026-10-02/geometry/build_thin_front.py",
+    "window_cut.npz": "history/Headset_ThinShell_Review_2026-10-02/geometry/build_thin_front.py",
+    "air_sealed_left.npz": "history/Headset_ThinShell_Review_2026-10-02/geometry/build_thin_front.py",
+    "air_sealed_right.npz": "history/Headset_ThinShell_Review_2026-10-02/geometry/build_thin_front.py",
+    "camera_official_source.npz": "Headset_CompactFront_Review_2026-10-02/measure_camera_faces.py, from raw/CS30_customer.stp"
+  },
+  "rear_inputs": {
+    "Medium_Trial_Registered.npz": "history/Headset_TwoParts_Preview_2026-10-02/headform/register_head.py, from raw/Medium_Symmetry.stl",
+    "head_display.npz": "history/Headset_Elastic25_2026-10-02/preview_work/prepare_head_display.py",
+    "rear_tray.npz": "history/Headset_Elastic25_2026-10-02/rear_work/build_rear_tray.py",
+    "rear_inner_surface.npz": "history/Headset_Elastic25_2026-10-02/rear_work/build_rear_tray.py",
+    "rear_outer_surface.npz": "history/Headset_Elastic25_2026-10-02/rear_work/build_rear_tray.py",
+    "rear_fill.npz": "history/Headset_Elastic25_2026-10-02/rear_work/assemble_rear_preview.py"
+  },
+  "missing_required_geometry_generators": [],
+  "retained_without_generator": {
+    "Headset_CompactFront_Review_2026-10-02/inputs/camera_source_front.png": "Preserved inspection image; original capture/render script is not identified. Not consumed by either 3MF generation command."
+  },
+  "historical_source_recovery": "Earlier stage folders had been deleted. Full script additions and modification patches were recovered from the corresponding completed local tool records. Current reviewed scripts are authoritative for the latest version; versions/ preserves the explicitly requested earlier shell generators."
+}

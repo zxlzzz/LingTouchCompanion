@@ -1,0 +1,40 @@
+{
+  "rear_source_sha256": "7992fbd9fa5f49e76916b6ccdebd7a4e2a2026e49fe3b29050dd4ca5b6cac660",
+  "front_source_sha256": "83af1ea68a0066a13382948085567001e2e447c0619bcc3108df7510d6e9b9da",
+  "single_connected_closed_solid": true,
+  "overall_xyz_dimensions_mm": [
+    95.0,
+    35.40000000298022,
+    29.700000002980232
+  ],
+  "volume_cm3": 20.547516149509576,
+  "rear_front_intersection_mm3": 0,
+  "rear_straps_intersection_mm3": 0,
+  "battery_installed_nohook_intersection_mm3": 0,
+  "battery_installed_withhook_intersection_mm3": 0,
+  "battery_vertical_path_nohook_intersection_mm3": 0,
+  "battery_vertical_path_straps_intersection_mm3": 0,
+  "battery_vertical_path_front_intersection_mm3": 0,
+  "battery_vertical_path_hook_intersection_mm3": 1.3189921522606154,
+  "vertical_sweep": {
+    "translation_z_mm": 27.401,
+    "radius_circumscribed_mm": 11.400381526109813,
+    "segments": 384,
+    "fully_clear_battery_min_z_mm": 55.201,
+    "method": "Convex hull of an enclosing384-sided circular cylinder at both ends of+Z motion equals its continuous vertical translate union. Zero non-hook intersection covers the true circular cylinder, not sampled steps."
+  },
+  "spring": {
+    "free_upward_play_before_nominal_circle_hook_contact_mm": 0.2608384285872125,
+    "required_maximum_geometric_deflection_y_mm": 0.5,
+    "physical_deflection": "Not tested"
+  },
+  "box_inner_clearance_each_side_mm": 0.3,
+  "mouth_xy_mm": [
+    91,
+    23.4
+  ],
+  "strap_lengths_mm": [
+    46.303375428500885,
+    46.307978057966544
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "python": "3.11.15 | packaged by conda-forge | (main, Jun 11 2026, 03:27:10) [MSC v.1944 64 bit (AMD64)]",
+  "isolated": 1,
+  "user_site_enabled": false,
+  "include_system_site_packages": false,
+  "dependency_install": "fresh venv; pip --no-cache-dir -r requirements-lock.txt",
+  "inputs": "Git HEAD archive plus only the files selected for this handoff",
+  "generated_intermediates": "empty build directory at each command; no cached NPZ/3MF copied"
+}

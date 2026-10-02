@@ -1,0 +1,78 @@
+{
+  "head_source": "Headset_Carbon6K_FlatBase_Review_2026-10-02/inputs/Medium_Trial_Registered.npz",
+  "head_source_sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+  "pose_unchanged": true,
+  "head_is_not_manifold": "Head source has an open/nonmanifold neck; no head-volume Boolean is asserted.",
+  "rear_head_continuous_minimum": {
+    "distance_mm": 0.9958408450639148,
+    "head_witness_xyz_mm": [
+      9.636360364694971,
+      198.7211206468413,
+      39.06629666197816
+    ],
+    "case_witness_xyz_mm": [
+      9.723225880988222,
+      199.70633273813553,
+      38.95006195999808
+    ],
+    "head_face_index": 5429,
+    "case_face_index": 11652,
+    "broadphase_pairs": 2538827,
+    "exact_pairs_tested": 110119,
+    "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately."
+  },
+  "rear_inner_surface": {
+    "source_sha256": "4a3e617084592120fba3e53fea64430157d1fd530d1bf3881eebc5425b2c3889",
+    "vertices": 5001,
+    "triangles": 9454,
+    "vertex_distance_min_mm": 0.9972236301303244,
+    "vertex_distance_max_mm": 1.0010834535344517,
+    "max_triangle_edge_mm": 0.7495084870594785,
+    "continuous_surface_distance_bound_mm": [
+      0.5644947033666254,
+      1.4338123802981508
+    ],
+    "certificate": "Distance to original triangular surface is 1-Lipschitz; every triangle point lies within maximum-edge/sqrt(3) of some vertex. Vertex distances computed over every possibly closer source triangle, including face and edge features."
+  },
+  "rear_outer_surface": {
+    "source_sha256": "aa92eed4b8c7746c603e5b9c416709a69f623f259fc3ac6133fe72d75e630f36",
+    "vertices": 5001,
+    "triangles": 9454,
+    "vertex_distance_min_mm": 3.4973968542669693,
+    "vertex_distance_max_mm": 3.5010161939419557,
+    "max_triangle_edge_mm": 0.7477716835605224,
+    "continuous_surface_distance_bound_mm": [
+      3.065670671470922,
+      3.932742376738003
+    ],
+    "certificate": "Distance to original triangular surface is 1-Lipschitz; every triangle point lies within maximum-edge/sqrt(3) of some vertex. Vertex distances computed over every possibly closer source triangle, including face and edge features."
+  },
+  "tray_inner_entire_surface_0_to_2_pass": true,
+  "tray_inner_outer_minimum": {
+    "distance_mm": 2.496693034460371,
+    "head_witness_xyz_mm": [
+      9.972602739726028,
+      199.72284344249843,
+      39.24372277331557
+    ],
+    "case_witness_xyz_mm": [
+      10.204966708045827,
+      202.19324954499717,
+      38.966997669129874
+    ],
+    "head_face_index": 4849,
+    "case_face_index": 4684,
+    "broadphase_pairs": 983704,
+    "exact_pairs_tested": 335222,
+    "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately."
+  },
+  "posterior_vertex_classification": {
+    "valid_vertices": 10931,
+    "total_vertices": 10931,
+    "minimum_positive_Y_gap_mm": 0.9991271969386162,
+    "head_triangle_surface_intersection_certified_absent": true,
+    "interpretation": "Positive Y gaps at every vertex with an anatomical posterior ray, plus a positive continuous triangle distance, certify the connected rear solid stays outside posterior head surface. This is local posterior verification; it does not certify original BTTF fit."
+  },
+  "rear_source_sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
+  "elapsed_seconds": 4.102836899997783
+}

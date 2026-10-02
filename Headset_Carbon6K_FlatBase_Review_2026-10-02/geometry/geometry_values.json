@@ -1,0 +1,451 @@
+{
+  "review_only": true,
+  "front_unchanged": false,
+  "head_pose_unchanged": true,
+  "rear_replaces": "Carbon6K top-open review before end-wall and flat-base correction",
+  "battery_dimensions_mm": {
+    "diameter": 22.8,
+    "length": 90.4,
+    "mass_g_user": 88
+  },
+  "opening_end": "+Z",
+  "tray": {
+    "bounds_xyz_mm": [
+      [
+        -20.0,
+        195.37374989149941,
+        25.5
+      ],
+      [
+        20.0,
+        203.24443660487455,
+        52.9
+      ]
+    ],
+    "volume_mm3": 2786.9422001091893,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 10002,
+    "triangles": 20000
+  },
+  "left_rib": {
+    "bounds_xyz_mm": [
+      [
+        -20.0,
+        197.3635813008767,
+        25.5
+      ],
+      [
+        -17.0,
+        205.4,
+        52.9
+      ]
+    ],
+    "volume_mm3": 452.6270504373105,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 593,
+    "triangles": 1182
+  },
+  "right_rib": {
+    "bounds_xyz_mm": [
+      [
+        17.0,
+        197.36983388139532,
+        25.5
+      ],
+      [
+        20.0,
+        205.4,
+        52.9
+      ]
+    ],
+    "volume_mm3": 449.3613301235279,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 595,
+    "triangles": 1186
+  },
+  "center_connection": {
+    "bounds_xyz_mm": [
+      [
+        -4.0,
+        199.75080383097747,
+        25.5
+      ],
+      [
+        4.0,
+        204.8,
+        27.5
+      ]
+    ],
+    "volume_mm3": 76.35475978512378,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 169,
+    "triangles": 334
+  },
+  "center_connection_nominal_bounds_mm": [
+    [
+      -4,
+      100,
+      25.5
+    ],
+    [
+      4,
+      204.8,
+      27.5
+    ]
+  ],
+  "interface_opening_mm": {
+    "end": "+X",
+    "width_y": 12,
+    "height_z": 6,
+    "y_range": [
+      211,
+      223
+    ],
+    "z_range": [
+      36.2,
+      42.2
+    ],
+    "actual_usb_and_plug_geometry": "Not measured; nominal small window only."
+  },
+  "plate_root_outer_relief_radius_mm": 1.5,
+  "hook": {
+    "bounds_xyz_mm": [
+      [
+        -43.0,
+        227.29999999701977,
+        43.399999998509884
+      ],
+      [
+        43.0,
+        228.75,
+        45.649999998509884
+      ]
+    ],
+    "volume_mm3": 98.34999978095323,
+    "components": 2,
+    "mesh_status": "Error.NoError",
+    "vertices": 24,
+    "triangles": 40
+  },
+  "box_without_hook": {
+    "bounds_xyz_mm": [
+      [
+        -47.5,
+        203.29999999701977,
+        25.49999999701977
+      ],
+      [
+        47.5,
+        230.70000000298023,
+        52.900000002980235
+      ]
+    ],
+    "volume_mm3": 15489.036940163147,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 844,
+    "triangles": 1704
+  },
+  "box_with_hook": {
+    "bounds_xyz_mm": [
+      [
+        -47.5,
+        203.29999999701977,
+        25.49999999701977
+      ],
+      [
+        47.5,
+        230.70000000298023,
+        52.900000002980235
+      ]
+    ],
+    "volume_mm3": 15581.156940321684,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 868,
+    "triangles": 1752
+  },
+  "cavity": {
+    "bounds_xyz_mm": [
+      [
+        -45.5,
+        205.29999999701977,
+        27.49999999701977
+      ],
+      [
+        45.5,
+        228.70000000298023,
+        100.0
+      ]
+    ],
+    "volume_mm3": 154342.34045137058,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 208,
+    "triangles": 412
+  },
+  "box_dimensions_mm": {
+    "outer": [
+      95,
+      27.4,
+      27.4
+    ],
+    "inner": [
+      91,
+      23.4,
+      25.4
+    ],
+    "original_battery_fit_envelope": [
+      91,
+      23.4,
+      23.4
+    ],
+    "top_wall_removed_depth_increase_mm": 2,
+    "wall": 2,
+    "outer_corner_radius": 3,
+    "inner_corner_radius": 1,
+    "closed_outer_ends_x": [
+      -47.5,
+      47.5
+    ],
+    "inner_ends_x": [
+      -45.5,
+      45.5
+    ],
+    "top_open_z": 52.9,
+    "top_open_xy_bounds": [
+      [
+        -45.5,
+        205.3
+      ],
+      [
+        45.5,
+        228.7
+      ]
+    ],
+    "center_y": 217,
+    "center_z": 39.2,
+    "front_y": 203.3,
+    "back_y": 230.7
+  },
+  "spring": {
+    "centers_x_mm": [
+      -29,
+      29
+    ],
+    "u_slit_mm": 0.6,
+    "tongue_width_mm": 28,
+    "tongue_length_mm": 12,
+    "tongue_thickness_mm": 1,
+    "root_z_mm": 33.65,
+    "tip_z_mm": 45.65,
+    "hook_inward_projection_mm": 1.4,
+    "capture_after_full_lateral_clearance_mm": 0.8,
+    "hook_z_range_mm": [
+      44.85,
+      45.65
+    ],
+    "maximum_required_deflection_mm": 1.4,
+    "strain_formula_value": 0.01458333333333333,
+    "physical_deflection_not_checked": true
+  },
+  "left_strap_plate": {
+    "bounds_xyz_mm": [
+      [
+        -46.5,
+        195.3,
+        25.5
+      ],
+      [
+        -43.5,
+        203.5,
+        57.5
+      ]
+    ],
+    "volume_mm3": 549.9706337035044,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 28,
+    "triangles": 56
+  },
+  "right_strap_plate": {
+    "bounds_xyz_mm": [
+      [
+        43.5,
+        195.3,
+        25.5
+      ],
+      [
+        46.5,
+        203.5,
+        57.5
+      ]
+    ],
+    "volume_mm3": 549.9706337035043,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 28,
+    "triangles": 56
+  },
+  "strap_plate": {
+    "thickness_mm": 3,
+    "height_mm": 32,
+    "base_z_mm": 25.5,
+    "bottom_slot_margin_mm": 3,
+    "upper_slot_margin_mm": 3,
+    "y_range_mm": [
+      195.3,
+      203.5
+    ],
+    "slot_y_mm": [
+      198.3,
+      201.3
+    ],
+    "slot_z_mm": [
+      28.5,
+      54.5
+    ],
+    "slot_center_z_mm": 41.5,
+    "front_slot_center_z_difference_mm": 2.3,
+    "slot_mm": [
+      26,
+      3
+    ],
+    "x_ranges_mm": [
+      [
+        -46.5,
+        -43.5
+      ],
+      [
+        43.5,
+        46.5
+      ]
+    ]
+  },
+  "rear_without_hook": {
+    "bounds_xyz_mm": [
+      [
+        -47.5,
+        195.3,
+        25.49999999701977
+      ],
+      [
+        47.5,
+        230.70000000298023,
+        57.5
+      ]
+    ],
+    "volume_mm3": 19896.211926066248,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 10907,
+    "triangles": 21846
+  },
+  "rear": {
+    "bounds_xyz_mm": [
+      [
+        -47.5,
+        195.3,
+        25.49999999701977
+      ],
+      [
+        47.5,
+        230.70000000298023,
+        57.5
+      ]
+    ],
+    "volume_mm3": 19988.331926224786,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 10931,
+    "triangles": 21894
+  },
+  "battery": {
+    "bounds_xyz_mm": [
+      [
+        -45.2,
+        205.6,
+        27.800000000000004
+      ],
+      [
+        45.2,
+        228.4,
+        50.6
+      ]
+    ],
+    "volume_mm3": 36902.049515330844,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 384,
+    "triangles": 764
+  },
+  "battery_axis_endpoints_mm": [
+    [
+      -45.2,
+      217,
+      39.2
+    ],
+    [
+      45.2,
+      217,
+      39.2
+    ]
+  ],
+  "strap_paths": {
+    "left": {
+      "front_slot_exit_xyz_mm": [
+        -71.0974706,
+        154.5703299,
+        39.2
+      ],
+      "free_start_xyz_mm": [
+        -71.0974706,
+        159.0703299,
+        39.2
+      ],
+      "free_end_xyz_mm": [
+        -46.5,
+        198.3,
+        41.5
+      ],
+      "free_length_mm": 46.360463501486905,
+      "slot_to_slot_centerline_length_mm": 50.860463501486905,
+      "band_width_mm": 25,
+      "illustrative_thickness_mm": 0.8,
+      "front_arm_shortening_mm": 0
+    },
+    "right": {
+      "front_slot_exit_xyz_mm": [
+        71.1061337,
+        154.5703299,
+        39.2
+      ],
+      "free_start_xyz_mm": [
+        71.1061337,
+        159.0703299,
+        39.2
+      ],
+      "free_end_xyz_mm": [
+        46.5,
+        198.3,
+        41.5
+      ],
+      "free_length_mm": 46.365060463856956,
+      "slot_to_slot_centerline_length_mm": 50.865060463856956,
+      "band_width_mm": 25,
+      "illustrative_thickness_mm": 0.8,
+      "front_arm_shortening_mm": 0
+    }
+  },
+  "thin_wall_construction": "Empty cylindrical-battery cavity. Thin tray2.5, box2 with concentric corner radii3/1, plates3, ribs3, lower central tongue2. No bulk fill between box and tray. Local junction thickness and physical spring behavior require independent audit.",
+  "sources": {
+    "old_curved_tray": "Headset_Carbon6K_FlatBase_Review_2026-10-02/inputs/rear_tray.npz",
+    "joining_surface_boundary": "Headset_Carbon6K_FlatBase_Review_2026-10-02/inputs/rear_fill.npz",
+    "head": "Headset_Carbon6K_FlatBase_Review_2026-10-02/inputs/Medium_Trial_Registered.npz",
+    "front": "Headset_CompactFront_Review_2026-10-02/geometry/front_unified_preview.npz"
+  }
+}

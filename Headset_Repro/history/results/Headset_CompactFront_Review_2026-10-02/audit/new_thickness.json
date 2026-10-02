@@ -1,0 +1,14 @@
+{
+  "source_sha256": "891c2f2fc2e1cf416b09ed92d957505e4e9093f76c27dc83d04c05d6a4e7960e",
+  "metric": "Conservative maximum inscribed-ball diameter3mm test; not a universal normal-thickness map. Original BTTF and retained old ears excluded; new raised rim included.",
+  "eroded_empty": false,
+  "eroded_volume_mm3": 0.6974109037262715,
+  "eroded_bounds": [
+    -49.66209321941758,
+    -31.969435691837027,
+    45.49696859869187,
+    49.662325770770586,
+    -30.335526529439104,
+    46.7256881176664
+  ]
+}

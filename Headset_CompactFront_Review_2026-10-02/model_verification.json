@@ -1,0 +1,67 @@
+{
+  "review_only": true,
+  "wearing_coordinates_preserved": true,
+  "independent_object_count": 3,
+  "objects": [
+    {
+      "name": "Front_Compact_Review_shell",
+      "type": "model",
+      "bounds_xyz_mm": [
+        [
+          -71.15665064153818,
+          -33.817264101308254,
+          0.0
+        ],
+        [
+          71.15665064153818,
+          159.0703299,
+          57.14000000059605
+        ]
+      ],
+      "vertices": 112660,
+      "triangles": 225360,
+      "source_sha256": "86ca9b553bef8edb572dc24caddbbfd2f70828ab748c3b4dda6e4a3c2a1640c9",
+      "single_closed_connected_solid": true,
+      "volume_cm3": 69.28371504654498
+    },
+    {
+      "name": "Head_reference_do_not_print",
+      "type": "other",
+      "bounds_xyz_mm": [
+        [
+          -86.21714,
+          -12.73515193477283,
+          -147.26303891999999
+        ],
+        [
+          86.47004,
+          220.19414806522718,
+          138.31916108000001
+        ]
+      ],
+      "vertices": 156195,
+      "triangles": 306692,
+      "source_sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3"
+    },
+    {
+      "name": "Front_Compact_Review_occupant_reference_do_not_print",
+      "type": "other",
+      "bounds_xyz_mm": [
+        [
+          -44.97,
+          -31.15123253217278,
+          16.287609335697205
+        ],
+        [
+          44.97,
+          2.6016872872449888,
+          53.028891542416176
+        ]
+      ],
+      "vertices": 8,
+      "triangles": 12,
+      "source_sha256": "07811b2bb34ce558b981a6a99e9af500db4a8752bc4f351db78f6ec8a73aeb8e"
+    }
+  ],
+  "filename": "Headset_CompactFront_Review_2026-10-02/Front_Compact_Review_Wearing.3mf"
+}

@@ -1,0 +1,34 @@
+{
+  "wing_left": {
+    "vertices_exact": true,
+    "faces_exact": true
+  },
+  "wing_right": {
+    "vertices_exact": true,
+    "faces_exact": true
+  },
+  "front_tabs": {
+    "vertices_exact": true,
+    "faces_exact": true
+  },
+  "window_cut": {
+    "vertices_exact": true,
+    "faces_exact": true
+  },
+  "original_reference": {
+    "vertices_exact": true,
+    "faces_exact": true
+  },
+  "actual_original_forward_limit": {
+    "vertices_exact": true,
+    "faces_exact": true
+  },
+  "air_sealed_left": {
+    "vertices_exact": true,
+    "faces_exact": true
+  },
+  "air_sealed_right": {
+    "vertices_exact": true,
+    "faces_exact": true
+  }
+}

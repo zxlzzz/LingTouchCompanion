@@ -1,0 +1,25 @@
+{
+  "rotation_x_deg": -65,
+  "printing_coordinates_not_applied_to_delivered_model": true,
+  "wing_internal_45_degree_geometry_only": {
+    "left": {
+      "method": "Retained wing void faces from prior genuine sealed void; the0.03mm camera-boundary crop adds no less favorable ceiling orientation. Current global solid has0 fully sealed voids, but these narrow wing spaces are conservatively treated as inaccessible to support removal.",
+      "maximum_ceiling_cos": 0.7070973351690308,
+      "minimum_ceiling_angle_deg": 45.00076539122012,
+      "below45_face_count": 0
+    },
+    "right": {
+      "method": "Retained wing void faces from prior genuine sealed void; the0.03mm camera-boundary crop adds no less favorable ceiling orientation. Current global solid has0 fully sealed voids, but these narrow wing spaces are conservatively treated as inaccessible to support removal.",
+      "maximum_ceiling_cos": 0.7070975956572376,
+      "minimum_ceiling_angle_deg": 45.00074428453774,
+      "below45_face_count": 0
+    }
+  },
+  "print_bbox_mm": [
+    142.31330128307636,
+    126.02250822232197,
+    186.676966666299
+  ],
+  "accessible_chamfer_ceiling_angle_deg": 5.1944289077348,
+  "supports_required": "Accessible inner front-upper chamfer; original face-side overhangs, arm/tab ends. No supports placed in narrow wing spaces. Slicer, removal and actual hook flexibility not tested."
+}

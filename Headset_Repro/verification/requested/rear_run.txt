@@ -1,0 +1,1052 @@
+Running Headset_Prop_Stage1_2026-10-02/inspect_reference.py
+[
+  {
+    "object_id": "2",
+    "native_size_mm": [
+      129.9806976,
+      130.0,
+      45.0
+    ],
+    "build_size_xyz_mm": [
+      147.07032990000002,
+      142.31330128307636,
+      55.17567495
+    ],
+    "build_axis_scales": [
+      1.09488027,
+      1.13131023,
+      1.22612611
+    ],
+    "triangles": 244314
+  },
+  {
+    "object_id": "3",
+    "native_size_mm": [
+      129.9806976,
+      130.0,
+      45.0
+    ],
+    "build_size_xyz_mm": [
+      153.35663980000004,
+      148.3563573768607,
+      57.77903250000001
+    ],
+    "build_axis_scales": [
+      1.14137222,
+      1.17966646,
+      1.2839785
+    ],
+    "triangles": 244314
+  },
+  {
+    "object_id": "4",
+    "native_size_mm": [
+      129.9806976,
+      130.0,
+      45.0
+    ],
+    "build_size_xyz_mm": [
+      131.27481770000003,
+      127.02869895784876,
+      49.2497478
+    ],
+    "build_axis_scales": [
+      0.977288946,
+      1.00980629,
+      1.09443884
+    ],
+    "triangles": 244314
+  }
+]
+Running Headset_TwoParts_Preview_2026-10-02/headform/register_head.py
+{
+  "headform": "NIOSH ISO Medium Symmetry, RD-10130-2020-0",
+  "scale": 1,
+  "native_units": "mm",
+  "source_url": "https://archive.cdc.gov/www_cdc_gov/niosh/npptl/topics/respirators/headforms/default.html",
+  "native_to_current_matrix": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      5.551115123125783e-17
+    ],
+    [
+      0.0,
+      0.0,
+      -1.0,
+      105.16174806522717
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      14.958561080000006
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "seating_status": "Trial contact registration only. Full original-frame fit is not established; fixed135mm arms interfere with unscaled headform.",
+  "registration_method": "Trial only: keep anatomical axes level. Original notch sagittal apex contacts anterior nose bridge. Mean upper anterior inner ear-root height is matched to original rear-leg minimum Z. Ear-root vertices are nearest original vertices to manually selected targets (native X +/-75.5, Y20, Z-5), constrained70<abs(X)<79,10<Y<27,-15<Z<4. Nose and ear vertical positions match, but rigid legs are laterally inside the head and therefore cannot contact these roots. No scale or deformation.",
+  "notch_apex_current_xyz_mm": [
+    0.0,
+    2.262841662382051,
+    20.60790297497743
+  ],
+  "nose_bridge_native_xyz_mm": [
+    -5.551115123125783e-17,
+    5.649341894977425,
+    102.89890640284513
+  ],
+  "nose_bridge_current_xyz_mm": [
+    0.0,
+    2.262841662382044,
+    20.60790297497743
+  ],
+  "ear_native_xyz_mm": [
+    [
+      -75.19423,
+      19.33749,
+      -5.364085
+    ],
+    [
+      75.47627,
+      19.40845,
+      -5.207754
+    ]
+  ],
+  "ear_current_xyz_mm": [
+    [
+      -75.19423,
+      110.52583306522718,
+      34.296051080000005
+    ],
+    [
+      75.47627,
+      110.36950206522717,
+      34.367011080000005
+    ]
+  ],
+  "ear_contact_target_leg_bottom_z_mm": 34.331531080000005,
+  "socket_underside_definition": {
+    "origin_xyz_mm": [
+      0.0,
+      -0.8,
+      23.6
+    ],
+    "q_mm": -2.5,
+    "x_mm": [
+      -47.27,
+      47.27
+    ],
+    "t_mm": [
+      -2,
+      15
+    ],
+    "up_vector": [
+      0.0,
+      -0.3420201433256687,
+      0.9396926207859084
+    ],
+    "forward_vector": [
+      0.0,
+      -0.9396926207859084,
+      -0.3420201433256687
+    ]
+  },
+  "nominal_nearest_nose_to_underside_mm": 1.03525386050828,
+  "nominal_nose_point_mm": [
+    -0.3436096682856654,
+    2.764649954537061,
+    21.316347190992378
+  ],
+  "nominal_socket_point_mm": [
+    -0.3436096682856654,
+    1.9344355998859886,
+    21.93480873468657
+  ],
+  "raise_for_3mm_clearance_mm": 3.2265009164742953,
+  "raised_nearest_clearance_mm": 3.000000000000004,
+  "raised_nose_point_mm": [
+    -0.23885795917294708,
+    4.312374527057683,
+    23.3322644197241
+  ],
+  "raised_socket_point_mm": [
+    -0.23885795917294708,
+    1.9344355998859886,
+    25.161309651160863
+  ],
+  "allowed_raise_mm": 0.563888,
+  "allowed_raise_nearest_clearance_mm": 1.3725886512011691,
+  "allowed_raise_nose_point_mm": [
+    -0.32984064090694565,
+    3.023204860987636,
+    21.662885092337397
+  ],
+  "allowed_raise_socket_point_mm": [
+    -0.32984064090694565,
+    1.9344355998859886,
+    22.49869673468657
+  ],
+  "distance_method": "Continuous minimum between original nasal triangles and the analytic bottom rectangle. Selected nasal triangles have X entirely within rectangle width, so eliminate X orthogonally, project triangles onto (t,q), and evaluate segment-triangle intersection, vertex-to-segment, segment endpoint-to-triangle-edge and endpoint-in-triangle cases. Unsigned separation; full original-frame fit assessed separately.",
+  "head_cross_section_between_y80_147_mm": [
+    {
+      "z_mm": 35.0,
+      "head_x_range_mm": [
+        -86.16873463159217,
+        86.2724186881838
+      ],
+      "head_breadth_mm": 172.441153319776,
+      "max_over_135_mm": 37.44115331977599
+    },
+    {
+      "z_mm": 37.5,
+      "head_x_range_mm": [
+        -85.44945632509216,
+        85.52206211727005
+      ],
+      "head_breadth_mm": 170.9715184423622,
+      "max_over_135_mm": 35.971518442362196
+    },
+    {
+      "z_mm": 45.0,
+      "head_x_range_mm": [
+        -74.77753123905464,
+        74.75269150966837
+      ],
+      "head_breadth_mm": 149.53022274872302,
+      "max_over_135_mm": 14.53022274872302
+    },
+    {
+      "z_mm": 51.0,
+      "head_x_range_mm": [
+        -75.53236366425234,
+        75.50279505664109
+      ],
+      "head_breadth_mm": 151.03515872089343,
+      "max_over_135_mm": 16.035158720893435
+    }
+  ],
+  "vertices_in_broad_original_leg_aabbs": 704,
+  "limits": "No unscaled NIOSH headform is explicitly labeled56cm. Head circumference proxy for Medium nativeY35 is551.963mm and core width150.834mm; this is not wearer-specific fit proof. Ear-root points are manually identified and reproducibly selected existing mesh vertices, not tagged supplier landmarks. This is a YZ trial seating because rigid arms prevent actual three-dimensional wearing."
+}
+Running Headset_CompactFront_Review_2026-10-02/measure_camera_faces.py
+Optical front circles:
+(-32.5, 0.0, -0.1605211, 10.5324588, 0.0, 0.0, -1.0)
+(-32.5, 0.0, 0.0, 8.9, 0.0, 0.0, 1.0)
+(-32.5, 0.0, -0.0, 9.0209461, 0.0, 0.0, -1.0)
+(-32.5, 0.0, 0.0, 10.336394, 0.0, -0.0, 1.0)
+(-22.0, 0.0, -1.0, 4.975, 0.0, 0.0, -1.0)
+(-22.0, 0.0, -1.0, 6.25, 0.0, 0.0, 1.0)
+(-21.9169111, -0.0017313, 9.52, 14.6671221, 0.0, 0.0, 1.0)
+(22.0, 0.0, -1.0, 6.75, 0.0, 0.0, 1.0)
+(22.0, 0.0, 8.1092166, 18.090803, 0.0, 0.0, 1.0)
+(32.5, 0.0, -0.1605211, 10.5324588, 0.0, 0.0, -1.0)
+(32.5, 0.0, 0.0, 8.9, 0.0, 0.0, 1.0)
+(32.5, 0.0, -0.0, 9.0209461, 0.0, 0.0, -1.0)
+(32.5, 0.0, 0.0, 10.336394, 0.0, 0.0, 1.0)
+Triangulated face bounds: [-44.9336726  -18.07815218 -25.        ] [44.99017559 18.07815218  9.52      ] dims [89.92384819 36.15630435 34.52      ] faces 278228
+Running Headset_Elastic25_2026-10-02/preview_work/prepare_head_display.py
+Anatomical head display only: clipped neck below Z=-20; original registration unchanged.
+Running Headset_ThinShell_Review_2026-10-02/geometry/build_actual_face_limit.py
+{"cropped_triangles": 84154, "rear_triangles": 44789, "boundary_edges": 863, "watertight": false}
+{
+  "method": "Actual original rear-facing triangular surface closed directly toY=-120; source surface coordinates preserved, not sampled rear-coordinate interpolation.",
+  "rear_source_triangles": 44789,
+  "elapsed_seconds": 4.2211222648620605,
+  "triangles": 91298,
+  "volume_mm3": 897052.6486677682,
+  "bounds_xyz_mm": [
+    [
+      -65.01,
+      -120.0,
+      0.0
+    ],
+    [
+      65.01,
+      34.06009112093906,
+      55.17567495
+    ]
+  ]
+}
+Running Headset_ThinShell_Review_2026-10-02/geometry/build_thin_front.py
+{
+  "front": {
+    "vertices": 131931,
+    "triangles": 263870,
+    "bounds_xyz_mm": [
+      [
+        -71.15665064153818,
+        -37.21895139063862,
+        0.0
+      ],
+      [
+        71.15665064153818,
+        159.0703299,
+        63.08382500373791
+      ]
+    ],
+    "volume_mm3": 81987.34065652752,
+    "components": 3,
+    "status": "Error.NoError"
+  },
+  "volume_cm3": 81.98734065652752,
+  "max_roof_z": 63.08382500373791,
+  "frontmost_y": -37.21895139063862,
+  "air": {
+    "under_left": {
+      "vertices": 4069,
+      "triangles": 8574,
+      "bounds_xyz_mm": [
+        [
+          -45.27,
+          -23.437265161333585,
+          2.0
+        ],
+        [
+          -17.0,
+          13.523723021,
+          26.15219417546091
+        ]
+      ],
+      "volume_mm3": 12227.41212795226,
+      "components": 8,
+      "status": "Error.NoError"
+    },
+    "wing_left": {
+      "vertices": 20047,
+      "triangles": 41270,
+      "bounds_xyz_mm": [
+        [
+          -65.0,
+          -35.6715929744179,
+          0.10671756259542052
+        ],
+        [
+          -47.27,
+          34.02934375248743,
+          55.2
+        ]
+      ],
+      "volume_mm3": 13912.932364524606,
+      "components": 190,
+      "status": "Error.NoError"
+    },
+    "under_right": {
+      "vertices": 4459,
+      "triangles": 9410,
+      "bounds_xyz_mm": [
+        [
+          17.0,
+          -23.437265161333585,
+          2.0
+        ],
+        [
+          45.27,
+          13.524620156752308,
+          26.15248264286853
+        ]
+      ],
+      "volume_mm3": 12227.860857360218,
+      "components": 7,
+      "status": "Error.NoError"
+    },
+    "wing_right": {
+      "vertices": 18342,
+      "triangles": 38184,
+      "bounds_xyz_mm": [
+        [
+          47.27,
+          -35.67156110717475,
+          0.11217951957129035
+        ],
+        [
+          65.0,
+          34.03269219698529,
+          55.2
+        ]
+      ],
+      "volume_mm3": 13917.176674615557,
+      "components": 174,
+      "status": "Error.NoError"
+    }
+  }
+}
+Running Headset_CompactFront_Review_2026-10-02/geometry/build_compact_front.py
+{
+  "volume_cm3": 72.02478164778641,
+  "front": {
+    "volume_mm3": 72024.78164778641,
+    "bounds_xyz_mm": [
+      [
+        -71.15665064153818,
+        -37.02379627661439,
+        0.0
+      ],
+      [
+        71.15665064153818,
+        159.0703299,
+        57.14000000059605
+      ]
+    ],
+    "triangles": 238294,
+    "components": 1
+  },
+  "central": {
+    "volume_mm3": 22078.604351290145,
+    "bounds_xyz_mm": [
+      [
+        -47.27,
+        -33.48456823825836,
+        13.25433749705553
+      ],
+      [
+        47.27,
+        14.492694331171148,
+        57.14000000059605
+      ]
+    ],
+    "triangles": 3842,
+    "components": 1
+  },
+  "wing_strip_removed_mm3": [
+    2.2458952057076,
+    2.243396990165659
+  ]
+}
+Running Headset_Elastic25_2026-10-02/rear_work/build_rear_tray.py
+{
+  "preview_only": true,
+  "head_unchanged": true,
+  "z_limits_mm": [
+    8.2,
+    55.2
+  ],
+  "height_mm": 47.0,
+  "x_limits_mm": [
+    -72.8,
+    72.8
+  ],
+  "width_mm": 145.6,
+  "nominal_inner_head_normal_offset_mm": 1.0,
+  "nominal_outer_head_normal_offset_mm": 3.5,
+  "nominal_wall_mm": 2.5,
+  "vertices_per_surface": 39653,
+  "faces_per_surface": 78460,
+  "closed_tray_vertices": 79306,
+  "closed_tray_triangles": 158608,
+  "inner_grid_max_world_edge_mm": 1.1999472252409238,
+  "outer_grid_max_world_edge_mm": 1.1999244865372132,
+  "inner_offset_solver_max_residual_mm": 0.0,
+  "outer_offset_solver_max_residual_mm": 0.0,
+  "missing_inner_nodes": 0,
+  "missing_outer_nodes": 0,
+  "refinement": [
+    {
+      "iteration": 0,
+      "selected_edges": 6528,
+      "max_world_edge_mm": 4.635468020442555
+    },
+    {
+      "iteration": 1,
+      "selected_edges": 4437,
+      "max_world_edge_mm": 2.920244214393786
+    },
+    {
+      "iteration": 2,
+      "selected_edges": 852,
+      "max_world_edge_mm": 1.9508549819274146
+    },
+    {
+      "iteration": 3,
+      "selected_edges": 1,
+      "max_world_edge_mm": 1.2103531249466781
+    },
+    {
+      "iteration": 4,
+      "selected_edges": 0,
+      "max_world_edge_mm": 1.1999472252409238
+    }
+  ],
+  "inner_bounds_xyz_mm": [
+    [
+      -72.8,
+      123.19621303224407,
+      8.2
+    ],
+    [
+      72.8,
+      200.74441726267136,
+      55.2
+    ]
+  ],
+  "outer_bounds_xyz_mm": [
+    [
+      -72.8,
+      128.5351482506239,
+      8.2
+    ],
+    [
+      72.8,
+      203.24443660487455,
+      55.2
+    ]
+  ],
+  "pocket_interface": {
+    "outer_front_plane_y_mm": 203.3,
+    "outer_back_plane_y_mm": 222.9,
+    "outer_x_mm": [
+      -60.8,
+      60.8
+    ],
+    "outer_z_mm": [
+      8.2,
+      55.2
+    ],
+    "inner_x_mm": [
+      -58.8,
+      58.8
+    ],
+    "inner_y_mm": [
+      205.3,
+      220.9
+    ],
+    "inner_z_mm": [
+      10.2,
+      55.2
+    ],
+    "fill_bridge": "Within|X|<=60.8,Z8.2..55.2,fill from tray outer surface to outer_front_planeY. Tray outer-maxY<=front plane prevents flat pocket from entering head. Shape should be Boolean joined to tray and box.",
+    "slot_reference_file": "rear_slot_contacts.json"
+  },
+  "validation_status": "Exact original-triangle distance levels queried; maximum surface edge refined below1.2mm. Continuous triangle clearance bound and actual wall verification recorded separately."
+}
+Running Headset_Elastic25_2026-10-02/rear_work/assemble_rear_preview.py
+{
+  "preview_only": true,
+  "rear_print_file_exported": false,
+  "single_closed_connected_piece": true,
+  "rear_bounds_xyz_mm": [
+    [
+      -72.8,
+      123.19621303224407,
+      8.2
+    ],
+    [
+      72.8,
+      222.9,
+      55.2
+    ]
+  ],
+  "rear_width_mm": 145.6,
+  "rear_y_bounding_span_mm": 99.70378696775593,
+  "rear_z_span_mm": 47.0,
+  "slot_height_width_mm": [
+    26.0,
+    3.0
+  ],
+  "box_inner_width_depth_height_mm": [
+    117.6,
+    15.6,
+    45.0
+  ],
+  "box_wall_mm": 2.0,
+  "battery_top_exposure_mm": 2.0,
+  "bump_inward_mm": 0.8,
+  "port_notch_width_depth_mm": [
+    11.0,
+    35.0
+  ],
+  "port_notch_z_mm": [
+    20.2,
+    55.2
+  ],
+  "tray_z_mm": [
+    8.2,
+    55.2
+  ],
+  "fill_volume_mm3": 74881.82413280243,
+  "rear_solid_volume_mm3": 123814.15199217647,
+  "slot_note": "Slots26 inZ,3 along local horizontal tangent; cutting axis is the local horizontal normal. The3mm dimension is a tangent projection, not curved-surface arc length.",
+  "front_position_unresolved": true
+}
+Running Headset_Carbon6K_FlatBase_Review_2026-10-02/geometry/build_carbon_rear.py
+{
+  "review_only": true,
+  "front_unchanged": true,
+  "head_pose_unchanged": true,
+  "rear_replaces": "Carbon6K top-open review before end-wall and flat-base correction",
+  "battery_dimensions_mm": {
+    "diameter": 22.8,
+    "length": 90.4,
+    "mass_g_user": 88
+  },
+  "opening_end": "+Z",
+  "tray": {
+    "bounds_xyz_mm": [
+      [
+        -20.0,
+        195.37374989149941,
+        25.5
+      ],
+      [
+        20.0,
+        203.24443660487455,
+        52.9
+      ]
+    ],
+    "volume_mm3": 2786.9422001091893,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 10002,
+    "triangles": 20000
+  },
+  "left_rib": {
+    "bounds_xyz_mm": [
+      [
+        -20.0,
+        197.3635813008767,
+        25.5
+      ],
+      [
+        -17.0,
+        205.4,
+        52.9
+      ]
+    ],
+    "volume_mm3": 452.6270504373105,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 593,
+    "triangles": 1182
+  },
+  "right_rib": {
+    "bounds_xyz_mm": [
+      [
+        17.0,
+        197.36983388139532,
+        25.5
+      ],
+      [
+        20.0,
+        205.4,
+        52.9
+      ]
+    ],
+    "volume_mm3": 449.3613301235279,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 595,
+    "triangles": 1186
+  },
+  "center_connection": {
+    "bounds_xyz_mm": [
+      [
+        -4.0,
+        199.75080383097747,
+        25.5
+      ],
+      [
+        4.0,
+        204.8,
+        27.5
+      ]
+    ],
+    "volume_mm3": 76.35475978512378,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 169,
+    "triangles": 334
+  },
+  "center_connection_nominal_bounds_mm": [
+    [
+      -4,
+      100,
+      25.5
+    ],
+    [
+      4,
+      204.8,
+      27.5
+    ]
+  ],
+  "interface_opening_mm": {
+    "end": "+X",
+    "width_y": 12,
+    "height_z": 6,
+    "y_range": [
+      211,
+      223
+    ],
+    "z_range": [
+      36.2,
+      42.2
+    ],
+    "actual_usb_and_plug_geometry": "Not measured; nominal small window only."
+  },
+  "plate_root_outer_relief_radius_mm": 1.5,
+  "hook": {
+    "bounds_xyz_mm": [
+      [
+        27.0,
+        227.89999999850988,
+        42.79999999701977
+      ],
+      [
+        33.8,
+        228.75,
+        43.600000001490116
+      ]
+    ],
+    "volume_mm3": 2.992000020772198,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 10,
+    "triangles": 16
+  },
+  "box_without_hook": {
+    "bounds_xyz_mm": [
+      [
+        -47.5,
+        203.29999999701977,
+        25.49999999701977
+      ],
+      [
+        47.5,
+        230.70000000298023,
+        52.900000002980235
+      ]
+    ],
+    "volume_mm3": 16250.316942165875,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 818,
+    "triangles": 1648
+  },
+  "box_with_hook": {
+    "bounds_xyz_mm": [
+      [
+        -47.5,
+        203.29999999701977,
+        25.49999999701977
+      ],
+      [
+        47.5,
+        230.70000000298023,
+        52.900000002980235
+      ]
+    ],
+    "volume_mm3": 16253.03694220134,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 830,
+    "triangles": 1672
+  },
+  "cavity": {
+    "bounds_xyz_mm": [
+      [
+        -45.5,
+        205.29999999701977,
+        27.49999999701977
+      ],
+      [
+        45.5,
+        228.70000000298023,
+        100.0
+      ]
+    ],
+    "volume_mm3": 154342.34045137058,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 208,
+    "triangles": 412
+  },
+  "box_dimensions_mm": {
+    "outer": [
+      95,
+      27.4,
+      27.4
+    ],
+    "inner": [
+      91,
+      23.4,
+      25.4
+    ],
+    "original_battery_fit_envelope": [
+      91,
+      23.4,
+      23.4
+    ],
+    "top_wall_removed_depth_increase_mm": 2,
+    "wall": 2,
+    "outer_corner_radius": 3,
+    "inner_corner_radius": 1,
+    "closed_outer_ends_x": [
+      -47.5,
+      47.5
+    ],
+    "inner_ends_x": [
+      -45.5,
+      45.5
+    ],
+    "top_open_z": 52.9,
+    "top_open_xy_bounds": [
+      [
+        -45.5,
+        205.3
+      ],
+      [
+        45.5,
+        228.7
+      ]
+    ],
+    "center_y": 217,
+    "center_z": 39.2,
+    "front_y": 203.3,
+    "back_y": 230.7
+  },
+  "spring": {
+    "u_slit_mm": 0.6,
+    "tongue_width_mm": 6.8,
+    "tongue_length_mm": 12,
+    "root_z_mm": 32,
+    "tip_z_mm": 44,
+    "hook_inward_projection_mm": 0.8,
+    "hook_z_range_mm": [
+      42.8,
+      43.6
+    ],
+    "physical_deflection_not_checked": true
+  },
+  "left_strap_plate": {
+    "bounds_xyz_mm": [
+      [
+        -46.5,
+        195.3,
+        25.5
+      ],
+      [
+        -43.5,
+        203.5,
+        55.2
+      ]
+    ],
+    "volume_mm3": 493.6227444060658,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 28,
+    "triangles": 56
+  },
+  "right_strap_plate": {
+    "bounds_xyz_mm": [
+      [
+        43.5,
+        195.3,
+        25.5
+      ],
+      [
+        46.5,
+        203.5,
+        55.2
+      ]
+    ],
+    "volume_mm3": 493.62274440606524,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 28,
+    "triangles": 56
+  },
+  "strap_plate": {
+    "thickness_mm": 3,
+    "height_mm": 29.7,
+    "base_z_mm": 25.5,
+    "bottom_slot_margin_mm": 0.7,
+    "y_range_mm": [
+      195.3,
+      203.5
+    ],
+    "slot_y_mm": [
+      198.3,
+      201.3
+    ],
+    "slot_z_mm": [
+      26.2,
+      52.2
+    ],
+    "slot_mm": [
+      26,
+      3
+    ],
+    "x_ranges_mm": [
+      [
+        -46.5,
+        -43.5
+      ],
+      [
+        43.5,
+        46.5
+      ]
+    ]
+  },
+  "rear_without_hook": {
+    "bounds_xyz_mm": [
+      [
+        -47.5,
+        195.3,
+        25.49999999701977
+      ],
+      [
+        47.5,
+        230.70000000298023,
+        55.2
+      ]
+    ],
+    "volume_mm3": 20544.796149474114,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 10881,
+    "triangles": 21790
+  },
+  "rear": {
+    "bounds_xyz_mm": [
+      [
+        -47.5,
+        195.3,
+        25.49999999701977
+      ],
+      [
+        47.5,
+        230.70000000298023,
+        55.2
+      ]
+    ],
+    "volume_mm3": 20547.516149509574,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 10894,
+    "triangles": 21816
+  },
+  "battery": {
+    "bounds_xyz_mm": [
+      [
+        -45.2,
+        205.6,
+        27.800000000000004
+      ],
+      [
+        45.2,
+        228.4,
+        50.6
+      ]
+    ],
+    "volume_mm3": 36902.049515330844,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 384,
+    "triangles": 764
+  },
+  "battery_axis_endpoints_mm": [
+    [
+      -45.2,
+      217,
+      39.2
+    ],
+    [
+      45.2,
+      217,
+      39.2
+    ]
+  ],
+  "strap_paths": {
+    "left": {
+      "front_slot_exit_xyz_mm": [
+        -71.0974706,
+        154.5703299,
+        39.2
+      ],
+      "free_start_xyz_mm": [
+        -71.0974706,
+        159.0703299,
+        39.2
+      ],
+      "free_end_xyz_mm": [
+        -46.5,
+        198.3,
+        39.2
+      ],
+      "free_length_mm": 46.303375428500885,
+      "slot_to_slot_centerline_length_mm": 50.803375428500885,
+      "band_width_mm": 25,
+      "illustrative_thickness_mm": 0.8,
+      "front_arm_shortening_mm": 0
+    },
+    "right": {
+      "front_slot_exit_xyz_mm": [
+        71.1061337,
+        154.5703299,
+        39.2
+      ],
+      "free_start_xyz_mm": [
+        71.1061337,
+        159.0703299,
+        39.2
+      ],
+      "free_end_xyz_mm": [
+        46.5,
+        198.3,
+        39.2
+      ],
+      "free_length_mm": 46.307978057966544,
+      "slot_to_slot_centerline_length_mm": 50.807978057966544,
+      "band_width_mm": 25,
+      "illustrative_thickness_mm": 0.8,
+      "front_arm_shortening_mm": 0
+    }
+  },
+  "thin_wall_construction": "Empty cylindrical-battery cavity. Thin tray2.5, box2 with concentric corner radii3/1, plates3, ribs3, lower central tongue2. No bulk fill between box and tray. Local junction thickness and physical spring behavior require independent audit.",
+  "sources": {
+    "old_curved_tray": ".build\\headset_requested_rear\\Headset_Elastic25_2026-10-02\\rear_work\\rear_tray.npz",
+    "joining_surface_boundary": ".build\\headset_requested_rear\\Headset_Elastic25_2026-10-02\\rear_work\\rear_fill.npz",
+    "head": ".build\\headset_requested_rear\\Headset_FullCase_30mm_Preview_2026-10-02\\headform\\Medium_Trial_Registered.npz",
+    "front": ".build\\headset_requested_rear\\Headset_CompactFront_Review_2026-10-02\\geometry\\front_unified_preview.npz"
+  }
+}
+Running Headset_Carbon6K_FlatBase_Review_2026-10-02/export_review.py
+{"volume_mm3": 20547.516149509574, "bounds_xyz_mm": [[-47.5, 195.3, 25.49999999701977], [47.5, 230.70000000298023, 55.2]], "single_closed_connected_solid": true, "source_mesh_sha256": "7992fbd9fa5f49e76916b6ccdebd7a4e2a2026e49fe3b29050dd4ca5b6cac660"}
+{
+  "file": "Headset_Repro/generated/requested/Rear_Carbon6K_FlatBase_Review_Wearing.3mf",
+  "source_mesh": "Headset_Carbon6K_FlatBase_Review_2026-10-02/geometry/rear_unified_preview.npz",
+  "source_mesh_sha256": "7992fbd9fa5f49e76916b6ccdebd7a4e2a2026e49fe3b29050dd4ca5b6cac660",
+  "file_sha256": "0c60b1564a2fd6e6992de8559ca129841a22e7eab1fa3d596d529a495696518f",
+  "review_only": true,
+  "wearing_coordinates_preserved_exactly": true,
+  "units": "millimeter",
+  "single_closed_connected_solid": true,
+  "connected_positive_solids": 1,
+  "enclosed_air_boundary_shells": 0,
+  "volume_mm3": 20547.516149509574,
+  "bounds_xyz_mm": [
+    [
+      -47.5,
+      195.3,
+      25.49999999701977
+    ],
+    [
+      47.5,
+      230.70000000298023,
+      55.2
+    ]
+  ],
+  "extents_xyz_mm": [
+    95.0,
+    35.40000000298022,
+    29.700000002980232
+  ],
+  "volume_cm3": 20.547516149509576,
+  "raw_input_rebuild": true,
+  "version": "requested"
+}
