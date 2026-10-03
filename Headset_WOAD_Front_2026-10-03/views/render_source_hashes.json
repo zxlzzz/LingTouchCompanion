@@ -2,10 +2,10 @@
   "mesh_inputs": {
     "front": {
       "path": "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz",
-      "sha256": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
-      "vertices": 113402,
-      "faces": 226856,
-      "blue_groove_faces": 2817
+      "sha256": "8c48b63d31c0c6e5d876272d10c94d6bc0489ede1e8e4438389ad08fde76ead2",
+      "vertices": 113263,
+      "faces": 226566,
+      "blue_groove_faces": 2884
     },
     "camera": {
       "path": "Headset_WOAD_Front_2026-10-03/geometry/camera.npz",
@@ -84,14 +84,14 @@
   },
   "view_projection": {
     "woad_front_angle": {
-      "ortho_width_mm": 304.7554931640625,
+      "ortho_width_mm": 296.6835632324219,
       "rgb_rx_baseline_mm": 44.0,
-      "projected_rgb_rx_baseline_px": 158.83175177157526
+      "projected_rgb_rx_baseline_px": 163.15311948487695
     },
     "woad_inside_angle": {
-      "ortho_width_mm": 288.24249267578125,
+      "ortho_width_mm": 281.6257019042969,
       "rgb_rx_baseline_mm": 44.0,
-      "projected_rgb_rx_baseline_px": 233.02822255206254
+      "projected_rgb_rx_baseline_px": 238.50321642532012
     },
     "worn_side": {
       "ortho_width_mm": 341.9293212890625,
@@ -113,20 +113,20 @@
         ]
       ],
       "source_baseline_px": 75.15317691222374,
-      "actual_baseline_px": 158.83175177157526,
+      "actual_baseline_px": 163.15311948487695,
       "common_baseline_px": 140.0,
       "image_scales": [
         1.8628620339432231,
-        0.881435849182988
+        0.8580896304160273
       ]
     }
   },
   "outputs": {
-    "woad_front_angle.png": "146ee9b3b4c7651e58b72474da6ae9441f010063189485d75b149973ef56136c",
-    "woad_inside_angle.png": "5cfe69319b8ec4d1d8bf98019bff3682b2859001ab41d529ca679d1f1089218b",
-    "worn_side.png": "ab2ca466ba8adf9dc9dde4dddfea845e52c7e4104c6a5e1a359f365aa1a1d586",
-    "comparison_front.png": "f9ec8d90b7643ae14cb6273a4500968b242b136eb86200927514469b224478e8",
-    "comparison_inside.png": "601a20507d3d7c31bcbc404420771ef4e6eda5ccc66ccb4f1ffce31509ba112c",
-    "comparison_worn_side.png": "a42e739452fc8a010e645300d6712147af1f3c18db955084b4d7d7c9b971d3f6"
+    "woad_front_angle.png": "7ced6e7d7e209bc54567869d59c61eea1c6cecf620b6bcfbc580e82f9be9e9ef",
+    "woad_inside_angle.png": "86f836ae01fef6851cb3bf862cfc00418029ab37f5364399f1062505ab001e0d",
+    "worn_side.png": "d1d8c5665a50bd81782382862672cec15da6c4d37ab588ed606dff6f09c954fe",
+    "comparison_front.png": "ffac10381417f9438822b919320fe8b0340d3393699d9b74514ab37ec2868214",
+    "comparison_inside.png": "6d01033a10990aafd41d5c2646a2defe2ccfd6e526ebe5d7a8e5d208f56d02e2",
+    "comparison_worn_side.png": "2a6fb70ea62715946d4fecdc969683211ef5cc5ba7b0dcdd761ef23bfec704a7"
   }
 }

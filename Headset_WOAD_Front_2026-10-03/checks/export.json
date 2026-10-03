@@ -1,6 +1,6 @@
 {
   "file": "Front_Wearing.3mf",
-  "sha256": "b63e4455998856f359897a6b3eefe6df65579f86fc9f47ed09ebba5b3628013e",
+  "sha256": "e4b8b52645952151825a1db9870e1604d4a241ba8a1173bcac535f6ca071e6ad",
   "wearing_coordinates_preserved_exactly": true,
   "single_printable_body": true,
   "objects": [
@@ -8,9 +8,9 @@
       "name": "PRINT_Front_shell",
       "printable": true,
       "source": "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz",
-      "source_sha256": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
-      "vertices": 113402,
-      "triangles": 226856,
+      "source_sha256": "8c48b63d31c0c6e5d876272d10c94d6bc0489ede1e8e4438389ad08fde76ead2",
+      "vertices": 113263,
+      "triangles": 226566,
       "source_unused_vertices_removed": 0,
       "used_vertex_bounds_xyz_mm": [
         [
@@ -26,13 +26,13 @@
       ],
       "triangle_index_min_max": [
         0,
-        113401
+        113262
       ],
-      "volume_cm3": 53.91453838693217,
+      "volume_cm3": 51.06154411606886,
       "closed_connected_manifold": true,
       "material_triangle_counts": {
-        "0": 224039,
-        "1": 2817
+        "0": 223682,
+        "1": 2884
       },
       "readback_coordinates_and_indices_exact": true
     },
@@ -117,7 +117,7 @@
   ],
   "print_ready": {
     "file": "Front_Print_Ready.3mf",
-    "sha256": "627c1154b59fea7c2acd2454d77179bef886255bfac16f6fba591c8d8cc34f04",
+    "sha256": "dc166009145935fea60e8ab4ae56e3dbdf67629b728cb0e6867d68e7dacec17a",
     "printable_objects": 1,
     "reference_objects": 0,
     "base_materials": 1,
@@ -163,10 +163,10 @@
       ]
     ],
     "triangle_indices_unchanged": true,
-    "vertices": 113402,
-    "triangles": 226856,
-    "volume_cm3": 53.91453838693216,
-    "source_volume_delta_mm3": -1.4551915228366852e-11,
+    "vertices": 113263,
+    "triangles": 226566,
+    "volume_cm3": 51.061544116068816,
+    "source_volume_delta_mm3": -4.3655745685100555e-11,
     "closed_connected_manifold": true,
     "coordinates_and_indices_readback_exact": true,
     "physical_groove_preserved": true,
@@ -215,13 +215,13 @@
     "bed_contact": {
       "plane_z_mm": 0,
       "triangle_z_tolerance_mm": 1e-07,
-      "total_area_mm2": 5386.871795786201,
-      "triangles": 27986,
+      "total_area_mm2": 4960.548282886809,
+      "triangles": 38280,
       "edge_connected_patches": 1,
       "patches": [
         {
-          "area_mm2": 5386.871795786201,
-          "triangles": 27986,
+          "area_mm2": 4960.548282886809,
+          "triangles": 38280,
           "bounds_xyz_mm": [
             [
               36.1355972558315,
@@ -241,11 +241,11 @@
     "pass": true
   },
   "source_sha256": {
-    "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
+    "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz": "8c48b63d31c0c6e5d876272d10c94d6bc0489ede1e8e4438389ad08fde76ead2",
     "Headset_Inputs/Medium_Trial_Registered.npz": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
     "Headset_WOAD_Front_2026-10-03/geometry/camera.npz": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
     "Headset_WOAD_Front_2026-10-03/geometry/retention_band.npz": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
-    "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "294adf2566e91ae94af60db683756f634754de3241129808afa07c7cc17f931c",
+    "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "8fde1dfdd427a047fc3b325da666241329e7b716e62b2cda126bcad94b5cd3f9",
     "Headset_Inputs/CS30_customer.stp": "6ca6a7366083cdc55d1f1ecbaac5d0dacb1b0811861912300d585f8f19c289b8",
     "Headset_Inputs/BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
     "Headset_Rear/Rear_Wearing.3mf": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296"

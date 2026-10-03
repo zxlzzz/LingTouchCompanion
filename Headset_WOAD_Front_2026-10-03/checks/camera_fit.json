@@ -1,9 +1,9 @@
 {
   "source_sha256": {
-    "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
+    "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz": "8c48b63d31c0c6e5d876272d10c94d6bc0489ede1e8e4438389ad08fde76ead2",
     "Headset_WOAD_Front_2026-10-03/geometry/camera.npz": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
     "Headset_WOAD_Front_2026-10-03/geometry/retention_band.npz": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
-    "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "294adf2566e91ae94af60db683756f634754de3241129808afa07c7cc17f931c",
+    "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "8fde1dfdd427a047fc3b325da666241329e7b716e62b2cda126bcad94b5cd3f9",
     "Headset_WOAD_Front_2026-10-03/inputs/camera_physical_native.npz": "3ab286dd328bb1206bd967502e1b652c3e76c502bd2efd0a262ae312ce8b81dd",
     "Headset_Inputs/Medium_Trial_Registered.npz": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3"
   },
@@ -65,16 +65,16 @@
         ]
       },
       "rear": {
-        "sampled_upper_bound_mm": 2.790906490126699,
+        "sampled_upper_bound_mm": 2.790910222207924,
         "camera_point_mm": [
           -32.52905362,
           5.61657092,
           27.85779258
         ],
         "shell_point_mm": [
-          -32.586851673294376,
+          -32.58687695611287,
           4.912127999999996,
-          25.15787061925214
+          25.15786730275855
         ]
       },
       "top": {
@@ -104,28 +104,28 @@
         ]
       },
       "left": {
-        "sampled_upper_bound_mm": 1.0160766764652276,
+        "sampled_upper_bound_mm": 1.0160470708896063,
         "camera_point_mm": [
           -42.8869235,
           -19.28631811,
           37.73432567
         ],
         "shell_point_mm": [
-          -42.985304998601386,
-          -20.297620682521977,
+          -42.986181299214486,
+          -20.297505303134113,
           37.73432567
         ]
       },
       "right": {
-        "sampled_upper_bound_mm": 1.0217051007202795,
+        "sampled_upper_bound_mm": 1.021725793931263,
         "camera_point_mm": [
           42.82879356,
           -19.28631811,
           38.26655754
         ],
         "shell_point_mm": [
-          42.92772003008415,
-          -20.303222661250768,
+          42.928606114567366,
+          -20.30315686414699,
           38.26655754
         ]
       }
@@ -301,10 +301,10 @@
   "band_route": {
     "band_body_overlap_mm3": 0.0,
     "body_overlap_components": [],
-    "band_conservative_camera_overlap_mm3": 1.7656633701740341e-06,
+    "band_conservative_camera_overlap_mm3": 1.7656633772794615e-06,
     "camera_overlap_components": [
       {
-        "volume_mm3": 1.7656633701740341e-06,
+        "volume_mm3": 1.7656633772794615e-06,
         "bounds_xyz_mm": [
           -36.49806524099419,
           5.71212799847126,
@@ -338,7 +338,7 @@
           0,
           0
         ],
-        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 2310.296032389851
+        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 2631.6602461442462
       },
       {
         "direction": [
@@ -346,7 +346,7 @@
           0,
           0
         ],
-        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 2309.877954445126
+        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 2631.490211819281
       },
       {
         "direction": [
@@ -362,7 +362,7 @@
           -1,
           0
         ],
-        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 2899.3166480882687
+        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 2899.316249538898
       },
       {
         "direction": [
@@ -370,7 +370,7 @@
           0,
           1
         ],
-        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 3188.49328695276
+        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 3188.4931306433364
       },
       {
         "direction": [
@@ -378,7 +378,7 @@
           0,
           -1
         ],
-        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 3087.5111141797083
+        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 3087.5111922485107
       }
     ],
     "minimum_camera_caliper": {
@@ -418,5 +418,5 @@
     "No operational FOV, USB, cooling, electronics or electrical safety certification is intended for this unpowered prop."
   ],
   "pass": true,
-  "runtime_seconds": 124.62701845169067
+  "runtime_seconds": 104.5767891407013
 }

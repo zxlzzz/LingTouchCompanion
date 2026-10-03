@@ -57,10 +57,10 @@
   ],
   "geometry": {
     "front_body": {
-      "volume_cm3": 53.91453838693217,
+      "volume_cm3": 51.06154411606886,
       "components": 1,
-      "vertices": 113402,
-      "faces": 226856,
+      "vertices": 113263,
+      "faces": 226566,
       "bounds_xyz_mm": [
         [
           -92.11504923897152,
@@ -120,7 +120,7 @@
     "roof_normal_thickness_mm": 1.4
   },
   "front_design_dimensions_mm": {
-    "broad_frontal_width": 140,
+    "broad_frontal_width": 132.0,
     "central_height": 45,
     "integral_long_oval": [
       90,
@@ -129,6 +129,12 @@
     "oval_center_z": 41.0,
     "groove_width": 1,
     "groove_depth": 0.28
+  },
+  "front_side_shape_mm": {
+    "camera_zone_half_width": 46.0,
+    "wing_front_additional_retreat": 6.0,
+    "wing_start_depth": 21.700000000000003,
+    "note": "Only blank wings and shoulder turn are compacted; central face, camera pose and common print plane remain unchanged."
   },
   "rear_opening_mm": {
     "width": 143.5,

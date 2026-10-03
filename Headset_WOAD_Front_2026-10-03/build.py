@@ -14,7 +14,9 @@ sys.path.insert(0,str(I))
 from head_surface import HeadSurface
 M=md.Manifold
 WALL=1.4
-FACE_HALF=70.
+FACE_HALF=66.
+CAMERA_ZONE_HALF=46.
+WING_SWEEP=6.5
 ARM_START_X=81.5
 OVAL_CENTER_Z=41.
 REAR_Y=5.712128
@@ -47,7 +49,8 @@ def smooth(t):
 def dimensions(x):
     q=abs(x)
     front=-23.8+2.4*(min(q,46)/46)**2
-    if q>46:front+=.5*smooth((q-46)/24)
+    if q>CAMERA_ZONE_HALF:
+        front+=WING_SWEEP*smooth((q-CAMERA_ZONE_HALF)/(FACE_HALF-CAMERA_ZONE_HALF))
     return front,6.8,23.4+1.6*(q/70)**2,68.4
 def front_y(x): return dimensions(x)[0]
 def print_top(y):return PRINT_INTERCEPT-PRINT_SLOPE*y
@@ -85,9 +88,11 @@ def shoulder(t,side,inside=False):
     # A quarter turn with a continuous tangent replaces the old intersecting
     # vertical end cap / larger oval arm collar.
     u=t*math.pi/2;s=smooth(t);hs=smooth((t-.72)/.28)
-    center=np.array([side*(70+11.5*math.sin(u)),-7.05+50.05*(1-math.cos(u)),44.9-3.9*hs])
-    theta=math.atan2(50.05*math.sin(u),11.5*math.cos(u))
-    width=27.7*(1-s)+4.4*s;height=39.8*(1-hs)+12*hs
+    front,back,bottom,unused_top=dimensions(FACE_HALF)
+    start_y=(front+back)/2;turn_x=ARM_START_X-FACE_HALF;turn_y=43-start_y
+    center=np.array([side*(FACE_HALF+turn_x*math.sin(u)),start_y+turn_y*(1-math.cos(u)),44.9-3.9*hs])
+    theta=math.atan2(turn_y*math.sin(u),turn_x*math.cos(u))
+    width=(back-front)*(1-s)+4.4*s;height=2*(44.9-bottom)*(1-hs)+12*hs
     low=center[2]-height/2
     target=max(center[2]+height/2,print_top(center[1])+PRINT_SLOPE*width*abs(math.cos(theta))/2+.7)
     top=68.4*(1-smooth(t/.12))+target*smooth(t/.12)
@@ -213,13 +218,13 @@ def paint(v,f):
 def build():
     head=HeadSurface()
     print('Building sculpted hollow visor and continuous arms',flush=True)
-    mid=[profile(x) for x in np.linspace(-70,70,281)]
+    mid=[profile(x) for x in np.linspace(-FACE_HALF,FACE_HALF,281)]
     left=[shoulder(t,-1) for t in np.linspace(1,0,81)[:-1]]
     right=[shoulder(t,1) for t in np.linspace(0,1,81)[1:]]
     larm=arm_rows(-1,head)[::-1][:-1]
     outer=loft(larm+left+mid+right+arm_rows(1,head)[1:])^below_print_plane()
     il=[shoulder(t,-1,True) for t in np.linspace(1,0,81)[:-1]]
-    inner=loft(il+[profile(x,True) for x in np.linspace(-70,70,281)]+[shoulder(t,1,True) for t in np.linspace(0,1,81)[1:]])^below_print_plane(WALL)
+    inner=loft(il+[profile(x,True) for x in np.linspace(-FACE_HALF,FACE_HALF,281)]+[shoulder(t,1,True) for t in np.linspace(0,1,81)[1:]])^below_print_plane(WALL)
     front_skin=skin_cutter(head)
     hood=outer-inner-(front_skin^box([-100,-100,0],[100,43,100]))-lateral_skin_cutter(head)
     # Explicit face-side opening removes every rear wall patch. Top, bottom
@@ -303,7 +308,8 @@ def build():
             'nominal_clearance_mm':{'front_center':3.112128,'front_at_camera_ends':1.0,'camera_ceiling':1.5,'camera_end_to_cheek':1.28,'bottom_seat':0,'rear_to_skin':0},
             'internal_ceiling_mm':{'underside_z':57,'thickness':1.2,'width':94,'rear_edge':'Upper lip ends at Z57; camera-height back remains open. Single outer roof, no floating inner ceiling.'},
             'print_bearing_plane':{'z_intercept_mm':PRINT_INTERCEPT,'z_y_slope':-PRINT_SLOPE,'rotation_about_wearing_x_deg':PRINT_ROTATION,'temple_upper_web_mm':WALL,'roof_normal_thickness_mm':WALL},
-            'front_design_dimensions_mm':{'broad_frontal_width':140,'central_height':45,'integral_long_oval':[90,28],'oval_center_z':OVAL_CENTER_Z,'groove_width':1,'groove_depth':.28},
+            'front_design_dimensions_mm':{'broad_frontal_width':2*FACE_HALF,'central_height':45,'integral_long_oval':[90,28],'oval_center_z':OVAL_CENTER_Z,'groove_width':1,'groove_depth':.28},
+            'front_side_shape_mm':{'camera_zone_half_width':CAMERA_ZONE_HALF,'wing_front_additional_retreat':6.,'wing_start_depth':dimensions(FACE_HALF)[1]-dimensions(FACE_HALF)[0],'note':'Only blank wings and shoulder turn are compacted; central face, camera pose and common print plane remain unchanged.'},
             'rear_opening_mm':{'width':143.5,'height':41.2,'center_z':45.4,'front_y':REAR_Y-.8},
             'fixing':'One 15 mm hook-loop cinch band; 40 mm parallel folded overlap; generic broad front/floor stops. No camera hole, rear cover or fitted snap.',
             'retention_band_mm':{'width':15,'suggested_purchase_length':220,'folded_overlap_min':40,'reference_thickness':.7,'eyes':[2.2,16.5]},

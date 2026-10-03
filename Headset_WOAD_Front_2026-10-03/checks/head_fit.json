@@ -2,8 +2,8 @@
   "head_source": "Headset_Inputs\\Medium_Trial_Registered.npz",
   "head_sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
   "head_pose_unchanged": true,
-  "build_source_sha256": "2857ac686eedd105467b30c13290eb9770726efe4954f596f0c8764de172e139",
-  "geometry_values_sha256": "294adf2566e91ae94af60db683756f634754de3241129808afa07c7cc17f931c",
+  "build_source_sha256": "0be0b5d69f0bedb3e24459ff59229a94e2a56966190e5e6dd2ba1a6db399c4e0",
+  "geometry_values_sha256": "8fde1dfdd427a047fc3b325da666241329e7b716e62b2cda126bcad94b5cd3f9",
   "audit_source_sha256": {
     "head_fit.py": "5025ce059735db0b6a58d44f6befa9127c5d46d8d77dc14292eafc8fca1a45da",
     "mesh_distance.py": "1a05116565e9e078230a04030037b9a523c70f413e1e30ef71e6e7cdf06aaf79"
@@ -14,7 +14,7 @@
     "retention_band"
   ],
   "source_geometry_sha256": {
-    "front_body": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
+    "front_body": "8c48b63d31c0c6e5d876272d10c94d6bc0489ede1e8e4438389ad08fde76ead2",
     "camera": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
     "retention_band": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838"
   },
@@ -36,15 +36,15 @@
           34.3574267753619
         ],
         "head_face_index": 302529,
-        "case_face_index": 172370,
-        "broadphase_pairs": 8930960,
-        "exact_pairs_tested": 124807,
+        "case_face_index": 172625,
+        "broadphase_pairs": 10593881,
+        "exact_pairs_tested": 127832,
         "method": "Conservative enclosing-sphere and AABB broadphase; every vertex-face and interior edge-edge minimum plus all six edge-face intersection tests per possibly closer triangle pair. Exterior/penetration classification is checked separately.",
         "excluded_head_triangle_distance_lower_bound_mm": 0.015812739130727775,
         "head_triangles_checked": 40021
       },
       "part_points_against_skin": {
-        "points_checked": 680542,
+        "points_checked": 679678,
         "closest_normal_signs_corrected_by_closed_surface_parity": 0,
         "points_strictly_inside": 0,
         "points_deeper_than_contact_epsilon": 0,
@@ -262,7 +262,7 @@
           182.8703299,
           45.1491947767463
         ],
-        "signed_mesh_volume_cm3": 53.914538386931206,
+        "signed_mesh_volume_cm3": 51.061544116068184,
         "front_ahead_of_nose_tip_y_mm": 11.06484806522717
       },
       "camera": {
@@ -338,25 +338,25 @@
     "bttf_normal_source": "Headset_Inputs/BTTF_Glasses.3mf build object 2",
     "bttf_normal_source_sha256": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
     "bttf_normal_material_volume_cm3": 44.28878944272184,
-    "body_volume_ratio_to_normal": 1.2173405294054882,
-    "body_volume_difference_to_normal_cm3": 9.625748944209363,
+    "body_volume_ratio_to_normal": 1.1529225512498025,
+    "body_volume_difference_to_normal_cm3": 6.772754673346341,
     "actual_front_portions": [
       {
         "cut_y_le_mm": -21.4,
         "bounds_xyz_mm": [
           [
-            -46.000000000040544,
+            -46.19893352032111,
             -23.8,
             23.58076580422269
           ],
           [
-            46.000000000040544,
+            46.19893352032111,
             -21.4,
             66.10838393756651
           ]
         ],
         "size_xyz_mm": [
-          92.00000000008109,
+          92.39786704064223,
           2.400000000000002,
           42.52761813334382
         ]
@@ -365,18 +365,18 @@
         "cut_y_le_mm": 0,
         "bounds_xyz_mm": [
           [
-            -86.45439909716245,
+            -82.17698368685663,
             -23.8,
             23.4
           ],
           [
-            86.45439909716245,
+            82.17698368685663,
             1.7763568394002505e-15,
             68.3491947767463
           ]
         ],
         "size_xyz_mm": [
-          172.9087981943249,
+          164.35396737371326,
           23.800000000000004,
           44.9491947767463
         ]
@@ -385,18 +385,18 @@
         "cut_y_le_mm": 20,
         "bounds_xyz_mm": [
           [
-            -86.45439909716245,
+            -83.3696876022537,
             -23.8,
             23.4
           ],
           [
-            86.45439909716245,
+            83.3696876022537,
             20.000000000000004,
             68.3491947767463
           ]
         ],
         "size_xyz_mm": [
-          172.9087981943249,
+          166.7393752045074,
           43.800000000000004,
           44.9491947767463
         ]
@@ -405,18 +405,18 @@
         "cut_y_le_mm": 43,
         "bounds_xyz_mm": [
           [
-            -86.45439909716245,
+            -83.7,
             -23.8,
             23.4
           ],
           [
-            86.45439909716245,
+            83.7,
             43.0,
             68.3491947767463
           ]
         ],
         "size_xyz_mm": [
-          172.9087981943249,
+          167.4,
           66.8,
           44.9491947767463
         ]
@@ -433,6 +433,6 @@
       ]
     ],
     "front_center_x0_height_mm": 44.9491947767463,
-    "printed_body_plus_reference_band_cm3": 55.05903839180389
+    "printed_body_plus_reference_band_cm3": 52.20604412094087
   }
 }
