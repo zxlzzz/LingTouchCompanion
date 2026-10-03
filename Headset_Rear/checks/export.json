@@ -1,10 +1,10 @@
 {
   "file": "Rear_Wearing.3mf",
-  "sha256": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296",
+  "sha256": "8944ec972826b5633c35e8b2127f18c6420f8e519f897ffb20246600d3c3479d",
   "wearing_coordinates_preserved": true,
   "rear_body_arrays_unchanged": true,
   "original_rear_3mf_sha256": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296",
-  "original_3mf_byte_copy_preserved": true,
+  "original_3mf_byte_copy_preserved": false,
   "objects": [
     {
       "name": "Rear_Carbon6K_top_open_flat_base_shell",

@@ -1,0 +1,153 @@
+{
+  "engine": "D:\\Bambu Studio\\bambu-studio.exe",
+  "mode": "Hidden command-line --info: actual 3MF import; no GUI, no slicing.",
+  "root_cause": "Bambu importer rejects XML encoding utf8; identical model payload with UTF-8 imports.",
+  "files": [
+    {
+      "file": "Headset_WOAD_Front_2026-10-03/Front_Print_Ready.3mf",
+      "sha256": "0fe7f6a783f947105a515f02eb674ced53de7970107c4170ba01333b3ae091fa",
+      "objects": [
+        {
+          "name": "PRINT_Front_shell_black",
+          "vertices": 113263,
+          "triangles": 226566
+        }
+      ],
+      "encoding_only_regression": {
+        "regression": {
+          "process_exit_code": 4294967290,
+          "engine_report": {
+            "error_string": "The input model file to the slicer can not be parsed.",
+            "export_time": 0,
+            "layer_height": 0.0,
+            "plate_index": 0,
+            "prepare_time": 0,
+            "return_code": -6,
+            "sparse_infill_density": 0.0,
+            "wall_loops": 0
+          }
+        },
+        "delivered": {
+          "process_exit_code": 0,
+          "engine_report": {
+            "error_string": "Success.",
+            "export_time": 0,
+            "layer_height": 0.0,
+            "plate_index": 0,
+            "prepare_time": 501,
+            "return_code": 0,
+            "sparse_infill_density": 0.0,
+            "wall_loops": 0
+          }
+        }
+      },
+      "file_unchanged_during_check": true
+    },
+    {
+      "file": "Headset_WOAD_Front_2026-10-03/Front_Wearing.3mf",
+      "sha256": "07f04229106105e4274fc23980ab69ec360cd6db0561dda79f7331e4cfa39459",
+      "objects": [
+        {
+          "name": "PRINT_Front_shell",
+          "vertices": 113263,
+          "triangles": 226566
+        },
+        {
+          "name": "REFERENCE_Head_do_not_print",
+          "vertices": 156195,
+          "triangles": 306692
+        },
+        {
+          "name": "REFERENCE_Actual_CS30_customer_STEP_do_not_print",
+          "vertices": 269712,
+          "triangles": 351968
+        },
+        {
+          "name": "REFERENCE_Textile_cinch_band_do_not_print",
+          "vertices": 24,
+          "triangles": 44
+        }
+      ],
+      "encoding_only_regression": {
+        "regression": {
+          "process_exit_code": 4294967290,
+          "engine_report": {
+            "error_string": "The input model file to the slicer can not be parsed.",
+            "export_time": 0,
+            "layer_height": 0.0,
+            "plate_index": 0,
+            "prepare_time": 0,
+            "return_code": -6,
+            "sparse_infill_density": 0.0,
+            "wall_loops": 0
+          }
+        },
+        "delivered": {
+          "process_exit_code": 0,
+          "engine_report": {
+            "error_string": "Success.",
+            "export_time": 0,
+            "layer_height": 0.0,
+            "plate_index": 0,
+            "prepare_time": 1946,
+            "return_code": 0,
+            "sparse_infill_density": 0.0,
+            "wall_loops": 0
+          }
+        }
+      },
+      "file_unchanged_during_check": true
+    },
+    {
+      "file": "Headset_Rear/Rear_Wearing.3mf",
+      "sha256": "8944ec972826b5633c35e8b2127f18c6420f8e519f897ffb20246600d3c3479d",
+      "objects": [
+        {
+          "name": "Rear_Carbon6K_top_open_flat_base_shell",
+          "vertices": 10931,
+          "triangles": 21894
+        },
+        {
+          "name": "Head_reference_do_not_print",
+          "vertices": 156195,
+          "triangles": 306692
+        },
+        {
+          "name": "Rear_Carbon6K_top_open_flat_base_occupant_reference_do_not_print",
+          "vertices": 384,
+          "triangles": 764
+        }
+      ],
+      "encoding_only_regression": {
+        "regression": {
+          "process_exit_code": 4294967290,
+          "engine_report": {
+            "error_string": "The input model file to the slicer can not be parsed.",
+            "export_time": 0,
+            "layer_height": 0.0,
+            "plate_index": 0,
+            "prepare_time": 0,
+            "return_code": -6,
+            "sparse_infill_density": 0.0,
+            "wall_loops": 0
+          }
+        },
+        "delivered": {
+          "process_exit_code": 0,
+          "engine_report": {
+            "error_string": "Success.",
+            "export_time": 0,
+            "layer_height": 0.0,
+            "plate_index": 0,
+            "prepare_time": 982,
+            "return_code": 0,
+            "sparse_infill_density": 0.0,
+            "wall_loops": 0
+          }
+        }
+      },
+      "file_unchanged_during_check": true
+    }
+  ],
+  "pass": true
+}

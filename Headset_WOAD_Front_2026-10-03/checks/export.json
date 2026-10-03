@@ -1,6 +1,6 @@
 {
   "file": "Front_Wearing.3mf",
-  "sha256": "e4b8b52645952151825a1db9870e1604d4a241ba8a1173bcac535f6ca071e6ad",
+  "sha256": "07f04229106105e4274fc23980ab69ec360cd6db0561dda79f7331e4cfa39459",
   "wearing_coordinates_preserved_exactly": true,
   "single_printable_body": true,
   "objects": [
@@ -117,7 +117,7 @@
   ],
   "print_ready": {
     "file": "Front_Print_Ready.3mf",
-    "sha256": "dc166009145935fea60e8ab4ae56e3dbdf67629b728cb0e6867d68e7dacec17a",
+    "sha256": "0fe7f6a783f947105a515f02eb674ced53de7970107c4170ba01333b3ae091fa",
     "printable_objects": 1,
     "reference_objects": 0,
     "base_materials": 1,
@@ -248,9 +248,10 @@
     "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "8fde1dfdd427a047fc3b325da666241329e7b716e62b2cda126bcad94b5cd3f9",
     "Headset_Inputs/CS30_customer.stp": "6ca6a7366083cdc55d1f1ecbaac5d0dacb1b0811861912300d585f8f19c289b8",
     "Headset_Inputs/BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
-    "Headset_Rear/Rear_Wearing.3mf": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296"
+    "Headset_Rear/Rear_Wearing.3mf": "8944ec972826b5633c35e8b2127f18c6420f8e519f897ffb20246600d3c3479d"
   },
   "source_changed_during_run": false,
-  "rear_original_3mf_byte_copy_unchanged_sha256": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296",
+  "rear_3mf_sha256": "8944ec972826b5633c35e8b2127f18c6420f8e519f897ffb20246600d3c3479d",
+  "rear_body_arrays_unchanged": true,
   "pass": true
 }

@@ -1,6 +1,7 @@
 """Export the unchanged rear with registered head and battery references.
 
-The delivered Rear_Wearing.3mf is the original byte-for-byte container copy.
+The delivered Rear_Wearing.3mf preserves the original meshes; its XML encoding
+declaration is normalized to UTF-8 for Bambu compatibility.
 Use --verify-existing to verify it without rewriting. Running without that
 flag regenerates the container while preserving all mesh coordinates exactly.
 """
@@ -64,7 +65,7 @@ def write(path):
         ET.SubElement(build,tag('item'),objectid=str(i))
     members={'[Content_Types].xml':b'<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>',
              '_rels/.rels':b'<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>',
-             '3D/3dmodel.model':ET.tostring(model,encoding='utf8',xml_declaration=True)}
+             '3D/3dmodel.model':ET.tostring(model,encoding='UTF-8',xml_declaration=True)}
     with zipfile.ZipFile(path,'w') as ar:
         for name,data in members.items():
             info=zipfile.ZipInfo(name,(1980,1,1,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED

@@ -3,7 +3,7 @@
 Python 3.11: install requirements.txt, then run this file. --render adds the
 three comparison views; --slice requires the installed Bambu Studio engine.
 Both wearing-reference and single-material, bed-oriented 3MF files are rebuilt.
-The original rear 3MF is preserved byte-for-byte while its mesh is rebuilt.
+The original rear mesh is preserved; its container uses standard UTF-8 XML.
 """
 from pathlib import Path
 import argparse, hashlib, json, subprocess, sys

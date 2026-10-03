@@ -16,7 +16,7 @@ def compact(q):
     used=np.unique(f);return v[used],np.searchsorted(used,f),used
 
 def write_archive(path,model):
-    members={'[Content_Types].xml':b'<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>','_rels/.rels':b'<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>','3D/3dmodel.model':ET.tostring(model,encoding='utf8',xml_declaration=True)}
+    members={'[Content_Types].xml':b'<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>','_rels/.rels':b'<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>','3D/3dmodel.model':ET.tostring(model,encoding='UTF-8',xml_declaration=True)}
     with zipfile.ZipFile(path,'w') as ar:
         for name,data in members.items():
             info=zipfile.ZipInfo(name,(1980,1,1,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;ar.writestr(info,data,compresslevel=6)
@@ -143,8 +143,8 @@ def main():
     ready=print_ready(exported[0][0],exported[0][1],rows[0]['volume_cm3']*1000,
                       json.loads((G/'geometry_values.json').read_text(encoding='utf8')))
     assert all(digest(R/name)==sha for name,sha in hashes.items()),'Inputs changed during export'
-    rear=json.loads((R/'Headset_Rear/source_provenance.json').read_text(encoding='utf8'));rear_hash=digest(R/'Headset_Rear/Rear_Wearing.3mf');assert rear_hash==rear['source_rear_3mf']['sha256']
-    result={'file':out.name,'sha256':digest(out),'wearing_coordinates_preserved_exactly':True,'single_printable_body':True,'objects':rows,'print_ready':ready,'source_sha256':hashes,'source_changed_during_run':False,'rear_original_3mf_byte_copy_unchanged_sha256':rear_hash,'pass':True}
+    rear_check=json.loads((R/'Headset_Rear/checks/export.json').read_text(encoding='utf8'));rear_hash=digest(R/'Headset_Rear/Rear_Wearing.3mf');assert rear_check['rear_body_arrays_unchanged'] and rear_hash==rear_check['sha256']
+    result={'file':out.name,'sha256':digest(out),'wearing_coordinates_preserved_exactly':True,'single_printable_body':True,'objects':rows,'print_ready':ready,'source_sha256':hashes,'source_changed_during_run':False,'rear_3mf_sha256':rear_hash,'rear_body_arrays_unchanged':True,'pass':True}
     (P/'checks').mkdir(exist_ok=True);(P/'checks/export.json').write_text(json.dumps(result,indent=2),encoding='utf8')
     print(json.dumps({**{k:result[k] for k in ['file','sha256','single_printable_body','pass']},
                      'print_ready':{k:ready[k] for k in ['file','sha256','only_black_material','reference_objects','used_vertex_bounds_xyz_mm','volume_cm3','bed_contact']}},indent=2))
