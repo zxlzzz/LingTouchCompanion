@@ -1,0 +1,169 @@
+{
+  "file": "Front_WOAD_Wearing.3mf",
+  "sha256": "f5e362185715ee187e12f64bc8a11a9de3305dd2d5b0dcf2989b0a8afb019074",
+  "wearing_coordinates_preserved": true,
+  "object_count": 8,
+  "objects": [
+    {
+      "name": "PRINT_Front_shell",
+      "printable": true,
+      "source_sha256": "7a54426cc83e2f421439cbfb7364ee60d747b5c7f69835c24052329d6b24d674",
+      "vertices": 115673,
+      "triangles": 231378,
+      "bounds_xyz_mm": [
+        [
+          -76.2,
+          -34.4,
+          5.0000000013803305
+        ],
+        [
+          76.2061337,
+          159.0703299,
+          58.0
+        ]
+      ],
+      "volume_cm3": 63.55027498695458,
+      "closed_connected_manifold": true
+    },
+    {
+      "name": "PRINT_Removable_cover",
+      "printable": true,
+      "source_sha256": "37963ca1528f7eb702e6e76a0040429abb24ae40db8c70a40cf6cee7612c6134",
+      "vertices": 782,
+      "triangles": 1576,
+      "bounds_xyz_mm": [
+        [
+          -51.0,
+          -1.6,
+          19.899999998509884
+        ],
+        [
+          51.0,
+          0.4,
+          56.899999998509884
+        ]
+      ],
+      "volume_cm3": 7.3481179569832165,
+      "closed_connected_manifold": true
+    },
+    {
+      "name": "PRINT_Blue_bezel_optional",
+      "printable": true,
+      "source_sha256": "9f0c2da8d9185815c235ce1e4647d6a62c04cdc9687902cc293f5c63dd1c05a7",
+      "vertices": 392,
+      "triangles": 784,
+      "bounds_xyz_mm": [
+        [
+          -37.0,
+          -34.25,
+          20.5
+        ],
+        [
+          37.0,
+          -32.0,
+          50.5
+        ]
+      ],
+      "volume_cm3": 0.26352525075692307,
+      "closed_connected_manifold": true
+    },
+    {
+      "name": "PRINT_TPU_split_cable_gland",
+      "printable": true,
+      "source_sha256": "ecee5cebad38e31a52d3ca3d10ebd6b1890132afefb0f9b970e76151b94419b5",
+      "vertices": 409,
+      "triangles": 818,
+      "bounds_xyz_mm": [
+        [
+          -44.8,
+          -1.6,
+          18.7
+        ],
+        [
+          -37.2,
+          1.5,
+          26.3
+        ]
+      ],
+      "volume_cm3": 0.07246643658222655,
+      "closed_connected_manifold": true
+    },
+    {
+      "name": "REFERENCE_Head_do_not_print",
+      "printable": false,
+      "source_sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+      "vertices": 156195,
+      "triangles": 306692,
+      "bounds_xyz_mm": [
+        [
+          -86.21714,
+          -12.73515193477283,
+          -147.26303891999999
+        ],
+        [
+          86.47004,
+          220.19414806522718,
+          138.31916108000001
+        ]
+      ]
+    },
+    {
+      "name": "REFERENCE_Actual_CS30_customer_STEP_do_not_print",
+      "printable": false,
+      "source_sha256": "9d688c3e74073e1fbac6ca8c87ce372d829fd467e884a617c9d488d073297a53",
+      "vertices": 270032,
+      "triangles": 351968,
+      "bounds_xyz_mm": [
+        [
+          -44.96450837015203,
+          -30.00000000000003,
+          22.99994999548
+        ],
+        [
+          44.966903987705244,
+          -4.999999999984283,
+          52.99998418600424
+        ]
+      ]
+    },
+    {
+      "name": "REFERENCE_Four_M3x12_screws_and_M3_nuts_do_not_print",
+      "printable": false,
+      "source_sha256": "8d99669ca91ac0b5d10a5f7c7e741992ff117c960d1cff9e01b5872ca3f6f9d5",
+      "vertices": 1584,
+      "triangles": 3152,
+      "bounds_xyz_mm": [
+        [
+          -51.1754264831543,
+          -11.6,
+          22.2
+        ],
+        [
+          51.1754264831543,
+          2.1,
+          54.599999999999994
+        ]
+      ]
+    },
+    {
+      "name": "REFERENCE_Compressed_soft_pads_do_not_print",
+      "printable": false,
+      "source_sha256": "38f96158bd330701900fc45e16b18ad5e5833bd8a2eea256808a6dc487543537",
+      "vertices": 72,
+      "triangles": 108,
+      "bounds_xyz_mm": [
+        [
+          -34.5,
+          -30.8,
+          22.0
+        ],
+        [
+          34.5,
+          -1.6,
+          55.6
+        ]
+      ]
+    }
+  ],
+  "rear_assembly_unchanged_sha256": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296"
+}

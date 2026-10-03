@@ -1,0 +1,896 @@
+{
+  "source_sha256": {
+    "camera": "9d688c3e74073e1fbac6ca8c87ce372d829fd467e884a617c9d488d073297a53",
+    "front_body": "7a54426cc83e2f421439cbfb7364ee60d747b5c7f69835c24052329d6b24d674",
+    "service_lid": "37963ca1528f7eb702e6e76a0040429abb24ae40db8c70a40cf6cee7612c6134",
+    "bezel_trim": "9f0c2da8d9185815c235ce1e4647d6a62c04cdc9687902cc293f5c63dd1c05a7",
+    "cable_gland": "ecee5cebad38e31a52d3ca3d10ebd6b1890132afefb0f9b970e76151b94419b5",
+    "fasteners": "8d99669ca91ac0b5d10a5f7c7e741992ff117c960d1cff9e01b5872ca3f6f9d5"
+  },
+  "source_changed_during_run": false,
+  "actual_camera_reference_vertices": 179799,
+  "actual_camera_reference_triangles": 351968,
+  "wearing_vs_transformed_native_source_max_error_mm": 0.0,
+  "physical_step_fov_artifacts_present": false,
+  "physical_assembly_parts_checked": [
+    "front_body",
+    "service_lid",
+    "bezel_trim",
+    "cable_gland",
+    "fasteners"
+  ],
+  "fit": {
+    "conservative_camera_hull_intersection_body_mm3": 0.0,
+    "conservative_camera_hull_intersection_lid_mm3": 0.0,
+    "actual_reference_vertices_in_shell_material": 0,
+    "complete_triangle_clearance_lower_bound_mm": 0.8000000000000007,
+    "vertex_centroid_to_actual_shell_upper_bound_mm": 0.7999999999999723,
+    "closest_camera_point_mm": [
+      -36.76089958148606,
+      -30.00000000000003,
+      35.00637212486857
+    ],
+    "closest_shell_point_mm": [
+      -36.76089958148606,
+      -30.8,
+      35.00637212486857
+    ],
+    "regions": {
+      "front": {
+        "sample_count": 7608,
+        "sampled_actual_camera_to_shell_min_mm": 0.7999999999999723,
+        "camera_point_mm": [
+          -36.76089958148606,
+          -30.00000000000003,
+          35.00637212486857
+        ],
+        "shell_closest_point_mm": [
+          -36.76089958148606,
+          -30.8,
+          35.00637212486857
+        ]
+      },
+      "rear": {
+        "sample_count": 1892,
+        "sampled_actual_camera_to_shell_min_mm": 3.3999999999847597,
+        "camera_point_mm": [
+          -27.632164907404142,
+          -4.99999999998476,
+          49.47588444082471
+        ],
+        "shell_closest_point_mm": [
+          -27.632164907404142,
+          -1.6,
+          49.47588444082471
+        ]
+      },
+      "roof": {
+        "sample_count": 2875,
+        "sampled_actual_camera_to_shell_min_mm": 2.600015810000002,
+        "camera_point_mm": [
+          -26.88020597,
+          -10.32175678,
+          52.99998419
+        ],
+        "shell_closest_point_mm": [
+          -26.88020597,
+          -10.32175678,
+          55.6
+        ]
+      },
+      "bottom": {
+        "sample_count": 53396,
+        "sampled_actual_camera_to_shell_min_mm": 0.999999999996664,
+        "camera_point_mm": [
+          28.829149746495087,
+          -13.68099649530617,
+          22.999999999996664
+        ],
+        "shell_closest_point_mm": [
+          28.829149746495087,
+          -13.68099649530617,
+          22.0
+        ]
+      },
+      "left": {
+        "sample_count": 20232,
+        "sampled_actual_camera_to_shell_min_mm": 1.9999961619645272,
+        "camera_point_mm": [
+          -42.86013691,
+          -30.0,
+          35.16870227
+        ],
+        "shell_closest_point_mm": [
+          -42.86016258254327,
+          -31.999996161799757,
+          35.16870227
+        ]
+      },
+      "right": {
+        "sample_count": 20016,
+        "sampled_actual_camera_to_shell_min_mm": 1.9644246600612676,
+        "camera_point_mm": [
+          38.32833883302806,
+          -30.000000000000018,
+          31.605613507154917
+        ],
+        "shell_closest_point_mm": [
+          36.581060160124935,
+          -30.8,
+          32.013021759740376
+        ]
+      }
+    }
+  },
+  "removal_with_lid_removed": {
+    "direction": [
+      0,
+      1,
+      0
+    ],
+    "continuous_sweep_length_mm": 80,
+    "conservative_sweep_shell_intersection_mm3": 0.0,
+    "complete_triangle_clearance_lower_bound_mm": 0.8000000000000007,
+    "pass": true
+  },
+  "optical_front_axis_clipping": [
+    {
+      "name": "RGB",
+      "measured_center_wearing_mm": [
+        -22.0290536247,
+        -29,
+        35.5
+      ],
+      "front_face_sample_vertices": 396,
+      "blocked_axial_vertices": 0,
+      "blocked_examples": []
+    },
+    {
+      "name": "RX",
+      "measured_center_wearing_mm": [
+        21.9709463753,
+        -29,
+        35.5
+      ],
+      "front_face_sample_vertices": 198,
+      "blocked_axial_vertices": 0,
+      "blocked_examples": []
+    },
+    {
+      "name": "TX",
+      "measured_center_wearing_mm": [
+        6.9709463753,
+        -29,
+        35.5
+      ],
+      "front_face_sample_vertices": 216,
+      "blocked_axial_vertices": 0,
+      "blocked_examples": []
+    }
+  ],
+  "source_nominal_fov_sections": [
+    {
+      "name": "RGB",
+      "source_virtual_part_id": 63,
+      "conservative_full_source_beam_hull_shell_overlap_mm3": 0.0,
+      "complete_source_beam_lower_bound_gap_mm": 2.2634149863202655,
+      "sections": [
+        {
+          "native_front_z_mm": 0.8001,
+          "wearing_y_mm": -30.8001,
+          "native_section_xy_bounds_mm": [
+            [
+              -25.05805546,
+              -3.14642034
+            ],
+            [
+              -18.77576673,
+              3.14295779
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 96,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.1,
+          "wearing_y_mm": -31.1,
+          "native_section_xy_bounds_mm": [
+            [
+              -25.45384942,
+              -3.54266094
+            ],
+            [
+              -18.37997277,
+              3.53919839
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 96,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.4,
+          "wearing_y_mm": -31.4,
+          "native_section_xy_bounds_mm": [
+            [
+              -25.84977535,
+              -3.93903366
+            ],
+            [
+              -17.98404684,
+              3.93557111
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 96,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.7,
+          "wearing_y_mm": -31.7,
+          "native_section_xy_bounds_mm": [
+            [
+              -26.24570128,
+              -4.33540638
+            ],
+            [
+              -17.58812091,
+              4.33194383
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 96,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.9999,
+          "wearing_y_mm": -31.9999,
+          "native_section_xy_bounds_mm": [
+            [
+              -26.64149524,
+              -4.73164698
+            ],
+            [
+              -17.19232695,
+              4.72818443
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 96,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 2.4,
+          "wearing_y_mm": -32.4,
+          "native_section_xy_bounds_mm": [
+            [
+              -27.16952846,
+              -5.26027607
+            ],
+            [
+              -16.66429373,
+              5.25681352
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 96,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 2.8,
+          "wearing_y_mm": -32.8,
+          "native_section_xy_bounds_mm": [
+            [
+              -27.6974297,
+              -5.78877304
+            ],
+            [
+              -16.13639249,
+              5.78531049
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 96,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 3.2,
+          "wearing_y_mm": -33.2,
+          "native_section_xy_bounds_mm": [
+            [
+              -28.22533094,
+              -6.31727
+            ],
+            [
+              -15.60849125,
+              6.31380745
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 96,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 3.6,
+          "wearing_y_mm": -33.6,
+          "native_section_xy_bounds_mm": [
+            [
+              -28.75323218,
+              -6.84576696
+            ],
+            [
+              -15.08059001,
+              6.84230441
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 96,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 4.0,
+          "wearing_y_mm": -34.0,
+          "native_section_xy_bounds_mm": [
+            [
+              -29.28113343,
+              -7.37426393
+            ],
+            [
+              -14.55268876,
+              7.37080138
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 100,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 4.3999,
+          "wearing_y_mm": -34.3999,
+          "native_section_xy_bounds_mm": [
+            [
+              -29.80890269,
+              -7.90262877
+            ],
+            [
+              -14.0249195,
+              7.89916622
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 100,
+          "blocked_examples_mm": []
+        }
+      ],
+      "all_sampled_sections_clear": true,
+      "full_conservative_source_beam_clear": true
+    },
+    {
+      "name": "TX",
+      "source_virtual_part_id": 62,
+      "conservative_full_source_beam_hull_shell_overlap_mm3": 0.0,
+      "complete_source_beam_lower_bound_gap_mm": 0.15344496616394449,
+      "sections": [
+        {
+          "native_front_z_mm": 0.8001,
+          "wearing_y_mm": -30.8001,
+          "native_section_xy_bounds_mm": [
+            [
+              1.50148736,
+              -3.8451
+            ],
+            [
+              12.49851264,
+              3.8551
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.1,
+          "wearing_y_mm": -31.1,
+          "native_section_xy_bounds_mm": [
+            [
+              1.07318577,
+              -4.145
+            ],
+            [
+              12.92681423,
+              4.155
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.4,
+          "wearing_y_mm": -31.4,
+          "native_section_xy_bounds_mm": [
+            [
+              0.64474137,
+              -4.445
+            ],
+            [
+              13.35525863,
+              4.455
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.7,
+          "wearing_y_mm": -31.7,
+          "native_section_xy_bounds_mm": [
+            [
+              0.21629697,
+              -4.745
+            ],
+            [
+              13.78370303,
+              4.755
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.9999,
+          "wearing_y_mm": -31.9999,
+          "native_section_xy_bounds_mm": [
+            [
+              -0.21200462,
+              -5.0449
+            ],
+            [
+              14.21200462,
+              5.0549
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 2.4,
+          "wearing_y_mm": -32.4,
+          "native_section_xy_bounds_mm": [
+            [
+              -0.78340664,
+              -5.445
+            ],
+            [
+              14.78340664,
+              5.455
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 2.8,
+          "wearing_y_mm": -32.8,
+          "native_section_xy_bounds_mm": [
+            [
+              -1.35466584,
+              -5.845
+            ],
+            [
+              15.35466584,
+              5.855
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 3.2,
+          "wearing_y_mm": -33.2,
+          "native_section_xy_bounds_mm": [
+            [
+              -1.92592504,
+              -6.245
+            ],
+            [
+              15.92592504,
+              6.255
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 3.6,
+          "wearing_y_mm": -33.6,
+          "native_section_xy_bounds_mm": [
+            [
+              -2.49718424,
+              -6.645
+            ],
+            [
+              16.49718424,
+              6.655
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 4.0,
+          "wearing_y_mm": -34.0,
+          "native_section_xy_bounds_mm": [
+            [
+              -3.06844345,
+              -7.045
+            ],
+            [
+              17.06844345,
+              7.055
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 4.3999,
+          "wearing_y_mm": -34.3999,
+          "native_section_xy_bounds_mm": [
+            [
+              -3.63955984,
+              -7.4449
+            ],
+            [
+              17.63955984,
+              7.4549
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 4,
+          "blocked_examples_mm": []
+        }
+      ],
+      "all_sampled_sections_clear": true,
+      "full_conservative_source_beam_clear": true
+    },
+    {
+      "name": "RX",
+      "source_virtual_part_id": 23,
+      "conservative_full_source_beam_hull_shell_overlap_mm3": 0.0,
+      "complete_source_beam_lower_bound_gap_mm": 0.3413313661712221,
+      "sections": [
+        {
+          "native_front_z_mm": 0.8001,
+          "wearing_y_mm": -30.8001,
+          "native_section_xy_bounds_mm": [
+            [
+              14.36165856,
+              -7.63834144
+            ],
+            [
+              29.63834144,
+              7.63834144
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 100,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.1,
+          "wearing_y_mm": -31.1,
+          "native_section_xy_bounds_mm": [
+            [
+              13.93413839,
+              -8.06586161
+            ],
+            [
+              30.06586161,
+              8.06586161
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 100,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.4,
+          "wearing_y_mm": -31.4,
+          "native_section_xy_bounds_mm": [
+            [
+              13.50647566,
+              -8.49352434
+            ],
+            [
+              30.49352434,
+              8.49352434
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 100,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.7,
+          "wearing_y_mm": -31.7,
+          "native_section_xy_bounds_mm": [
+            [
+              13.07881293,
+              -8.92118707
+            ],
+            [
+              30.92118707,
+              8.92118707
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 100,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 1.9999,
+          "wearing_y_mm": -31.9999,
+          "native_section_xy_bounds_mm": [
+            [
+              12.65129276,
+              -9.34870724
+            ],
+            [
+              31.34870724,
+              9.34870724
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 104,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 2.4,
+          "wearing_y_mm": -32.4,
+          "native_section_xy_bounds_mm": [
+            [
+              12.08093323,
+              -9.91906677
+            ],
+            [
+              31.91906677,
+              9.91906677
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 104,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 2.8,
+          "wearing_y_mm": -32.8,
+          "native_section_xy_bounds_mm": [
+            [
+              11.51071626,
+              -10.48928374
+            ],
+            [
+              32.48928374,
+              10.48928374
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 104,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 3.2,
+          "wearing_y_mm": -33.2,
+          "native_section_xy_bounds_mm": [
+            [
+              10.94049929,
+              -11.05950071
+            ],
+            [
+              33.05950071,
+              11.05950071
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 104,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 3.6,
+          "wearing_y_mm": -33.6,
+          "native_section_xy_bounds_mm": [
+            [
+              10.37028232,
+              -11.62971768
+            ],
+            [
+              33.62971768,
+              11.62971768
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 104,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 4.0,
+          "wearing_y_mm": -34.0,
+          "native_section_xy_bounds_mm": [
+            [
+              9.80006535,
+              -12.19993465
+            ],
+            [
+              34.19993465,
+              12.19993465
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 108,
+          "blocked_examples_mm": []
+        },
+        {
+          "native_front_z_mm": 4.3999,
+          "wearing_y_mm": -34.3999,
+          "native_section_xy_bounds_mm": [
+            [
+              9.22999093,
+              -12.77000907
+            ],
+            [
+              34.77000907,
+              12.77000907
+            ]
+          ],
+          "boundary_points_in_shell_material": 0,
+          "point_count": 108,
+          "blocked_examples_mm": []
+        }
+      ],
+      "all_sampled_sections_clear": true,
+      "full_conservative_source_beam_clear": true
+    }
+  ],
+  "usb_plug_design_allowance": {
+    "parts": [
+      {
+        "name": "metal_nose",
+        "bounds_xyz_mm": [
+          [
+            -39.0,
+            -12.6,
+            34.3
+          ],
+          [
+            -35.8,
+            -4.4,
+            36.7
+          ]
+        ],
+        "size_xyz_mm": [
+          3.200000000000003,
+          8.2,
+          2.4000000000000057
+        ],
+        "shell_and_lid_overlap_mm3": 0.0,
+        "minimum_shell_clearance_mm": 2.8,
+        "clashes": [],
+        "pass": true
+      },
+      {
+        "name": "molded_body",
+        "bounds_xyz_mm": [
+          [
+            -52.0,
+            -13.5,
+            31.5
+          ],
+          [
+            -39.0,
+            -3.5,
+            39.5
+          ]
+        ],
+        "size_xyz_mm": [
+          13.0,
+          10.0,
+          8.0
+        ],
+        "shell_and_lid_overlap_mm3": 0.0,
+        "minimum_shell_clearance_mm": 0.5,
+        "clashes": [],
+        "pass": true
+      }
+    ],
+    "camera_socket_overlap_intentionally_not_tested": true,
+    "limitation": "This verifies shell room for the stated slim right-angle connector design envelope; it is not a measurement of a purchased cable or proof of insertion into the camera USB socket."
+  },
+  "bottom_and_side_exposure": [
+    {
+      "view": "bottom",
+      "actual_camera_vertices_with_unblocked_ray": 0,
+      "examples": []
+    },
+    {
+      "view": "left",
+      "actual_camera_vertices_with_unblocked_ray": 0,
+      "examples": []
+    },
+    {
+      "view": "right",
+      "actual_camera_vertices_with_unblocked_ray": 0,
+      "examples": []
+    }
+  ],
+  "closed_retention": {
+    "six_axis_escape_sweeps": [
+      {
+        "direction": [
+          1,
+          0,
+          0
+        ],
+        "shell_material_crossed_volume_mm3": 863.1498485161125
+      },
+      {
+        "direction": [
+          -1,
+          0,
+          0
+        ],
+        "shell_material_crossed_volume_mm3": 863.1514543179634
+      },
+      {
+        "direction": [
+          0,
+          1,
+          0
+        ],
+        "shell_material_crossed_volume_mm3": 4873.827460202126
+      },
+      {
+        "direction": [
+          0,
+          -1,
+          0
+        ],
+        "shell_material_crossed_volume_mm3": 3024.508939483867
+      },
+      {
+        "direction": [
+          0,
+          0,
+          1
+        ],
+        "shell_material_crossed_volume_mm3": 5278.391659051187
+      },
+      {
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "shell_material_crossed_volume_mm3": 9302.406954906832
+      }
+    ],
+    "pass_closed_six_axes": true,
+    "reason": "Service lid mechanically closes 96\u00d733.6 mm access opening. Front optical openings are \u226416.5 mm internally; the lower-edge split gland leaves a \u00d84.5 mm wire passage after assembly. The bolted lid and installed gland provide physical containment, while adjustable compressible pads establish seating. Six translation tests do not constitute a complete arbitrary-rotation motion proof."
+  },
+  "limitations": [
+    "Soft pads intentionally excluded from material collision check; compression and real cable plug fit require physical assembly.",
+    "Point and face-centroid closest distances are sampled upper bounds; conservative hull min_gap is a full occupied-triangle lower bound.",
+    "Camera source is not watertight. No camera volume Boolean is used.",
+    "STEP optical simulation boundary sections are a source-nominal FOV check, not a measured optical certification or a principal-plane calibration. Camera seating repeatability remains dependent on the adjustable pads."
+  ],
+  "runtime_seconds": 15.990231037139893
+}

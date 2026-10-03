@@ -1,0 +1,165 @@
+{
+  "mesh_inputs": {
+    "front": {
+      "path": "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz",
+      "sha256": "7a54426cc83e2f421439cbfb7364ee60d747b5c7f69835c24052329d6b24d674",
+      "vertices": 115673,
+      "faces": 231378
+    },
+    "service_lid": {
+      "path": "Headset_WOAD_Front_2026-10-03/geometry/service_lid.npz",
+      "sha256": "37963ca1528f7eb702e6e76a0040429abb24ae40db8c70a40cf6cee7612c6134",
+      "vertices": 782,
+      "faces": 1576
+    },
+    "camera": {
+      "path": "Headset_WOAD_Front_2026-10-03/geometry/camera.npz",
+      "sha256": "9d688c3e74073e1fbac6ca8c87ce372d829fd467e884a617c9d488d073297a53",
+      "vertices": 270032,
+      "faces": 351968
+    },
+    "fasteners": {
+      "path": "Headset_WOAD_Front_2026-10-03/geometry/fasteners.npz",
+      "sha256": "8d99669ca91ac0b5d10a5f7c7e741992ff117c960d1cff9e01b5872ca3f6f9d5",
+      "vertices": 1584,
+      "faces": 3152
+    },
+    "pads": {
+      "path": "Headset_WOAD_Front_2026-10-03/geometry/pads.npz",
+      "sha256": "38f96158bd330701900fc45e16b18ad5e5833bd8a2eea256808a6dc487543537",
+      "vertices": 72,
+      "faces": 108
+    },
+    "cable_gland": {
+      "path": "Headset_WOAD_Front_2026-10-03/geometry/cable_gland.npz",
+      "sha256": "ecee5cebad38e31a52d3ca3d10ebd6b1890132afefb0f9b970e76151b94419b5",
+      "vertices": 409,
+      "faces": 818
+    },
+    "rear": {
+      "path": "Headset_Carbon6K_FlatBase_Review_2026-10-02/geometry/rear_unified_preview.npz",
+      "sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
+      "vertices": 10931,
+      "faces": 21894
+    },
+    "battery": {
+      "path": "Headset_Carbon6K_FlatBase_Review_2026-10-02/geometry/battery_preview.npz",
+      "sha256": "068b1ebdf9b050b2d77bfeb9153cca0a51812e4d7172872c9cd3733978c37ac1",
+      "vertices": 384,
+      "faces": 764
+    },
+    "straps": {
+      "path": "Headset_WOAD_Front_2026-10-03/geometry/straps_preview.npz",
+      "sha256": "01ee5af075bd9f8ba30ce40039c9aabd0c3119e3c7ebef369c3bd7a8b0d601ce",
+      "vertices": 24,
+      "faces": 40
+    },
+    "head": {
+      "path": "Headset_Carbon6K_FlatBase_Review_2026-10-02/inputs/Medium_Trial_Registered.npz",
+      "sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+      "vertices": 156195,
+      "faces": 306692
+    },
+    "bezel_trim": {
+      "path": "Headset_WOAD_Front_2026-10-03/geometry/bezel_trim.npz",
+      "sha256": "9f0c2da8d9185815c235ce1e4647d6a62c04cdc9687902cc293f5c63dd1c05a7",
+      "vertices": 392,
+      "faces": 784
+    }
+  },
+  "context_inputs": {
+    "camera_materials.json": "d651adfa5c8a9ee5ceb35cfe849b32473ba46c5853055db0b340394edc50ea86",
+    "render_manifest.json": "0e845ee2286eb67473998745f9ce7415c4b2e371ba23e3755a80fd61dd756e70"
+  },
+  "cover_sha256": "aa6eac3d86a768ef994f274378fad2376af7e926ceccf374166edb2460c8319a",
+  "renderer_sha256": "68c05a14ddfa507d5daa218edea3c5cd5d7e104de70dd1b1ffd30662f4d52b3c",
+  "blender_version": "4.5.3 LTS",
+  "engine": "CYCLES",
+  "samples": 96,
+  "width_px": 1800,
+  "rendered_views": [
+    "woad_front_angle",
+    "woad_inside_angle",
+    "worn_side",
+    "front",
+    "back",
+    "bottom",
+    "top",
+    "left",
+    "right",
+    "service_open",
+    "front_low"
+  ],
+  "inputs_unchanged_on_completion": true,
+  "changed_inputs": [],
+  "view_directions": {
+    "woad_front_angle": [
+      0.55,
+      -0.86,
+      -0.32
+    ],
+    "woad_inside_angle": [
+      -0.61,
+      0.82,
+      0.53
+    ],
+    "worn_side": [
+      -1,
+      0,
+      0.035
+    ],
+    "front": [
+      0,
+      -1,
+      0
+    ],
+    "back": [
+      0,
+      1,
+      0
+    ],
+    "bottom": [
+      0,
+      0,
+      -1
+    ],
+    "top": [
+      0,
+      0,
+      1
+    ],
+    "left": [
+      -1,
+      0,
+      0
+    ],
+    "right": [
+      1,
+      0,
+      0
+    ],
+    "service_open": [
+      -0.45,
+      0.88,
+      0.54
+    ],
+    "front_low": [
+      0.4,
+      -1,
+      -0.3
+    ]
+  },
+  "outputs": {
+    "woad_front_angle.png": "2daf7b9561e9f4d2e1c79cad34d5e096e66a27cf50371faa5539448cc66a9749",
+    "woad_inside_angle.png": "f1d92b878c2b99f545e28485b1dbf99812e5bb619de7dd8796fb3ae3ac80a0bc",
+    "worn_side.png": "d2887f869f4413528fd602915618d56fa4e65de1b87b8325f48c232a5d83c2f6",
+    "front.png": "0ec126026cb7c1afee326af21a2efb585c516468a394972e50644f8158115096",
+    "back.png": "c50d1030ad9e4379e08dd69c2553807edbacb8d182c114ab3cf5ee5955d2c5fd",
+    "bottom.png": "357a2b4715348de431991c3713a1bc8d21525163ee6ba28bab892625314c8109",
+    "top.png": "09b38a8711c9b9b48b4be6c49e20f8faa062fec56710824dd107e846f6eb56ad",
+    "left.png": "aec5291ec5349c9e3b44be323755a0da8561466a331ec6e72d0368eaf62c1757",
+    "right.png": "112e34e303fbf4fe03229d453638c2ce2226459536590977b80103340ef818e9",
+    "service_open.png": "b72d00b8486bdc92c9d7ca054d0487c0c5761a291ebf310c567c3bf30ee4e823",
+    "front_low.png": "26beab8e8a82e9750a9a8384a497fcbac1c7d91494506a2ca6824172949ee259"
+  }
+}

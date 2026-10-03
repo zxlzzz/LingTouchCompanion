@@ -1,0 +1,192 @@
+{
+  "source": "Headset_Repro/raw/CS30_customer.stp",
+  "measured_housing_part_path": [
+    1,
+    115
+  ],
+  "housing_exact_bounds_native_xyz_mm": [
+    -44.94194285555,
+    -12.500050104519167,
+    -25.000000100016393,
+    45.000050105013216,
+    17.500264109950002,
+    3.01980662698e-14
+  ],
+  "housing_exact_width_height_depth_mm": [
+    89.94199296056323,
+    30.00031421446917,
+    25.000000100016422
+  ],
+  "native_datum": {
+    "front_optical_direction": [
+      0,
+      0,
+      1
+    ],
+    "physical_bottom_y_mm": -12.50005,
+    "rear_z_mm": -25,
+    "lens_baseline_y_mm": 0
+  },
+  "rgb": {
+    "axis_native_xy_mm": [
+      -22,
+      0
+    ],
+    "visible_front_assembly_diameter_mm": 12.5,
+    "maximum_assembly_diameter_mm": 13.0,
+    "native_front_z_mm": -1.0,
+    "inner_optical_aperture_diameter_mm": 9.95
+  },
+  "tof_receiver": {
+    "axis_native_xy_mm": [
+      22,
+      0
+    ],
+    "visible_front_disc_diameter_mm": 13.5,
+    "maximum_assembly_diameter_mm": 14.2,
+    "native_front_z_mm": -1.0
+  },
+  "ir_transmitter": {
+    "axis_native_xy_mm": [
+      7,
+      0
+    ],
+    "front_optical_window_width_height_mm": [
+      7,
+      4.5
+    ],
+    "front_optical_window_corner_radius_mm": 1.0,
+    "native_front_z_mm": -1.0,
+    "outer_front_rim_width_height_mm": [
+      7.2,
+      4.7
+    ]
+  },
+  "small_front_disc": {
+    "axis_native_xy_mm": [
+      -6,
+      0
+    ],
+    "diameter_mm": 4.445383168812,
+    "native_front_z_mm": -1.2,
+    "electrical_role": "Unconfirmed from STEP; do not label as depth transmitter."
+  },
+  "usb_c": {
+    "mouth_axis_direction_native": [
+      -1,
+      0,
+      0
+    ],
+    "socket_outer_bounds_native_xyz_mm": [
+      -35.80000010000076,
+      -4.470010535612653,
+      -23.095377099904486,
+      -28.469999899999998,
+      4.470015488965105,
+      -19.234999899649996
+    ],
+    "mouth_x_native_mm": -35.8,
+    "mouth_center_native_yz_mm": [
+      0,
+      -21.515
+    ],
+    "socket_outer_height_depth_mm": [
+      8.940026,
+      3.860377
+    ]
+  },
+  "bottom_hole": {
+    "native_axis_center_xz_mm": [
+      0,
+      -13
+    ],
+    "cylindrical_diameter_mm": 6.5,
+    "thread_status": "Unconfirmed; not suitable as fastening basis."
+  },
+  "housing_native_xy_sections": [
+    {
+      "native_depth_z_mm": -0.1,
+      "xy_min_mm": [
+        -43.00606849821318,
+        -10.50952388861373
+      ],
+      "xy_max_mm": [
+        43.00604548200506,
+        10.509523888611342
+      ]
+    },
+    {
+      "native_depth_z_mm": -1,
+      "xy_min_mm": [
+        -43.18967002203186,
+        -10.687076228970794
+      ],
+      "xy_max_mm": [
+        43.18922127125227,
+        10.685518403689308
+      ]
+    },
+    {
+      "native_depth_z_mm": -5,
+      "xy_min_mm": [
+        -43.85827440977906,
+        -11.369922460948521
+      ],
+      "xy_max_mm": [
+        43.88331409460961,
+        11.368522183723549
+      ]
+    },
+    {
+      "native_depth_z_mm": -10,
+      "xy_min_mm": [
+        -44.50842835938374,
+        -12.50000000001
+      ],
+      "xy_max_mm": [
+        44.50670917117637,
+        12.008187786897288
+      ]
+    },
+    {
+      "native_depth_z_mm": -15,
+      "xy_min_mm": [
+        -44.87983819367444,
+        -12.50000000001
+      ],
+      "xy_max_mm": [
+        44.876113915565234,
+        16.113260028467263
+      ]
+    },
+    {
+      "native_depth_z_mm": -20,
+      "xy_min_mm": [
+        -37.047634882584056,
+        -12.499999997655404
+      ],
+      "xy_max_mm": [
+        44.993125547185365,
+        17.498942231524943
+      ]
+    },
+    {
+      "native_depth_z_mm": -24.9,
+      "xy_min_mm": [
+        -36.768912369645754,
+        -10.157388725423278
+      ],
+      "xy_max_mm": [
+        42.65445990755351,
+        15.157388725394116
+      ]
+    }
+  ],
+  "reference_mesh": "camera_physical_native.npz",
+  "reference_mesh_excludes_only_fov_parts": [
+    23,
+    62,
+    63
+  ],
+  "reference_limitations": "STEP housing is a shell with transparent cover surface and small disconnected details; source tessellation is not a watertight Boolean collision solid. Use triangle surface distance plus conservative envelope for verification. Optical front glass material must be transparent to visualize measured lens discs."
+}
