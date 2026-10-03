@@ -1,0 +1,15 @@
+{
+  "clean_clone_commit": "b16e041f0ffd741722b0ddf1d8f44a1f74f68b3b",
+  "command": "python -B Headset_WOAD_Front_2026-10-03/revised/regenerate.py",
+  "new_3mf_and_body_sha256": {
+    "Headset_Rear/revised/Rear_Revised_Print_Ready.3mf": "b1c833283760338db752add8a31bb6bafae478754169908218c16be63a17a8b3",
+    "Headset_Rear/revised/Rear_Revised_Wearing.3mf": "2882bd44110c3d0fea3b1d3c4fb004a20640ed9b9ce8aa9b0cb4dbd6970994f8",
+    "Headset_WOAD_Front_2026-10-03/revised/Front_Revised_Print_Ready.3mf": "089ca8ce9ec9b6f60a6cfdea168affe7d0e0565e4fdedd349254e0d722a10793",
+    "Headset_WOAD_Front_2026-10-03/revised/Front_Revised_Wearing.3mf": "0d03b258e2505def723b20a3f944090aa59e665e8185b0b11e8f3b7e9d1f1ceb",
+    "Headset_Rear/revised/geometry/rear_body.npz": "6e59bd88f5fb86c00cea6c103b508d2f6fc78455332106bc3641d4c84e7e463c",
+    "Headset_WOAD_Front_2026-10-03/revised/geometry/front_body.npz": "ba1aedfd1d97eaca959103c0d2d12874f425de007b1eac7266244227e146c551"
+  },
+  "all_six_outputs_byte_identical": true,
+  "previous_finished_3mf_unchanged": true,
+  "original_inputs_verified": true
+}
