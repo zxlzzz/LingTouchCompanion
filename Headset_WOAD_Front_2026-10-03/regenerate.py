@@ -2,6 +2,7 @@
 
 Python 3.11: install requirements.txt, then run this file. --render adds the
 three comparison views; --slice requires the installed Bambu Studio engine.
+Both wearing-reference and single-material, bed-oriented 3MF files are rebuilt.
 The original rear 3MF is preserved byte-for-byte while its mesh is rebuilt.
 """
 from pathlib import Path
@@ -16,7 +17,7 @@ def run(path,*args):
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--render',action='store_true');ap.add_argument('--slice',action='store_true')
-    ap.add_argument('--geometry-only',action='store_true',help='Regenerate inputs, rear meshes and front 3MF; skip independent audits.')
+    ap.add_argument('--geometry-only',action='store_true',help='Regenerate inputs, rear meshes and both front 3MF files; skip independent audits.')
     args=ap.parse_args()
     raw=R/'Headset_Inputs'
     for name,row in json.loads((raw/'input_manifest.json').read_text('utf8')).items():

@@ -1,6 +1,6 @@
 {
   "file": "Front_Wearing.3mf",
-  "sha256": "8dff0638e5fca54d1ea3014eb142d4d0b96480c66b55b2e59f82921d9fcead67",
+  "sha256": "b63e4455998856f359897a6b3eefe6df65579f86fc9f47ed09ebba5b3628013e",
   "wearing_coordinates_preserved_exactly": true,
   "single_printable_body": true,
   "objects": [
@@ -8,30 +8,30 @@
       "name": "PRINT_Front_shell",
       "printable": true,
       "source": "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz",
-      "source_sha256": "493c824ce85a3fd90b0d0038897a32624c745236af971fcfce094f39e7ba26e4",
-      "vertices": 89668,
-      "triangles": 179380,
+      "source_sha256": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
+      "vertices": 113402,
+      "triangles": 226856,
       "source_unused_vertices_removed": 0,
       "used_vertex_bounds_xyz_mm": [
         [
-          -92.11673507285427,
+          -92.11504923897152,
           -23.8,
-          23.200000000000003
+          23.2
         ],
         [
-          92.26721475995697,
+          92.25916533357872,
           159.0703299,
-          68.4
+          68.3491947767463
         ]
       ],
       "triangle_index_min_max": [
         0,
-        89667
+        113401
       ],
-      "volume_cm3": 49.50992742820489,
+      "volume_cm3": 53.91453838693217,
       "closed_connected_manifold": true,
       "material_triangle_counts": {
-        "0": 176563,
+        "0": 224039,
         "1": 2817
       },
       "readback_coordinates_and_indices_exact": true
@@ -115,12 +115,137 @@
       "readback_coordinates_and_indices_exact": true
     }
   ],
+  "print_ready": {
+    "file": "Front_Print_Ready.3mf",
+    "sha256": "627c1154b59fea7c2acd2454d77179bef886255bfac16f6fba591c8d8cc34f04",
+    "printable_objects": 1,
+    "reference_objects": 0,
+    "base_materials": 1,
+    "only_black_material": true,
+    "blue_face_assignments": 0,
+    "wearing_to_print_rotation_about_x_deg": 184.27907013619713,
+    "rotation_matrix": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -0.9972124563487513,
+        0.07461445505322531
+      ],
+      [
+        0.0,
+        -0.07461445505322531,
+        -0.9972124563487513
+      ]
+    ],
+    "translation_mm": [
+      127.9279419526964,
+      192.3176981742442,
+      66.9150735710764
+    ],
+    "placement_center_xy_mm": [
+      128,
+      128
+    ],
+    "used_vertex_bounds_xyz_mm": [
+      [
+        35.81289271372488,
+        35.42183911969383,
+        0.0
+      ],
+      [
+        220.18710728627514,
+        220.57816088030614,
+        45.10376628748534
+      ]
+    ],
+    "triangle_indices_unchanged": true,
+    "vertices": 113402,
+    "triangles": 226856,
+    "volume_cm3": 53.91453838693216,
+    "source_volume_delta_mm3": -1.4551915228366852e-11,
+    "closed_connected_manifold": true,
+    "coordinates_and_indices_readback_exact": true,
+    "physical_groove_preserved": true,
+    "bed_fit": {
+      "256x256": {
+        "bed_xy_mm": [
+          256,
+          256
+        ],
+        "support_envelope_allowance_mm": 10,
+        "brim_allowance_mm": 5,
+        "combined_envelope_allowance_mm": 15.0,
+        "fits_body_support_envelope_and_brim": true,
+        "body_to_bed_edge_margins_minxy_maxxy_mm": [
+          [
+            35.81289271372488,
+            35.42183911969383
+          ],
+          [
+            35.812892713724864,
+            35.42183911969386
+          ]
+        ]
+      },
+      "H2C_330x320": {
+        "bed_xy_mm": [
+          330,
+          320
+        ],
+        "support_envelope_allowance_mm": 10,
+        "brim_allowance_mm": 5,
+        "combined_envelope_allowance_mm": 15.0,
+        "fits_body_support_envelope_and_brim": true,
+        "body_to_bed_edge_margins_minxy_maxxy_mm": [
+          [
+            35.81289271372488,
+            35.42183911969383
+          ],
+          [
+            109.81289271372486,
+            99.42183911969386
+          ]
+        ]
+      }
+    },
+    "bed_contact": {
+      "plane_z_mm": 0,
+      "triangle_z_tolerance_mm": 1e-07,
+      "total_area_mm2": 5386.871795786201,
+      "triangles": 27986,
+      "edge_connected_patches": 1,
+      "patches": [
+        {
+          "area_mm2": 5386.871795786201,
+          "triangles": 27986,
+          "bounds_xyz_mm": [
+            [
+              36.1355972558315,
+              37.80950168139705,
+              0.0
+            ],
+            [
+              219.8644027441685,
+              214.03801889520557,
+              7.105427357601002e-14
+            ]
+          ]
+        }
+      ],
+      "method": "Unmodified mesh triangles coplanar with the bed; connectivity only through shared full mesh edges."
+    },
+    "pass": true
+  },
   "source_sha256": {
-    "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz": "493c824ce85a3fd90b0d0038897a32624c745236af971fcfce094f39e7ba26e4",
+    "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
     "Headset_Inputs/Medium_Trial_Registered.npz": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
     "Headset_WOAD_Front_2026-10-03/geometry/camera.npz": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
     "Headset_WOAD_Front_2026-10-03/geometry/retention_band.npz": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
-    "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "187dcb6abd8069d553977628e572289d68cda1e9fcff1b774a389f5e7109aa00",
+    "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "294adf2566e91ae94af60db683756f634754de3241129808afa07c7cc17f931c",
     "Headset_Inputs/CS30_customer.stp": "6ca6a7366083cdc55d1f1ecbaac5d0dacb1b0811861912300d585f8f19c289b8",
     "Headset_Inputs/BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
     "Headset_Rear/Rear_Wearing.3mf": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296"

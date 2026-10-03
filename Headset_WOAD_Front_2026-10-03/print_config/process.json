@@ -1,11 +1,11 @@
 {
   "type": "process",
-  "name": "0.10mm Standard @BBL H2C 0.2 nozzle (Headset prop supports)",
+  "name": "0.20mm Standard @BBL H2C (Headset prop supports)",
   "from": "user",
   "instantiation": "true",
   "adaptive_layer_height": "0",
-  "bottom_shell_layers": "5",
-  "bottom_color_penetration_layers": "5",
+  "bottom_shell_layers": "3",
+  "bottom_color_penetration_layers": "3",
   "bottom_shell_thickness": "0",
   "bottom_surface_pattern": "monotonic",
   "bottom_surface_density": "100",
@@ -39,43 +39,43 @@
   "enable_wrapping_detection": "0",
   "filename_format": "{input_filename_base}_{filament_type[0]}_{print_time}.gcode",
   "gap_infill_speed": [
-    "50",
-    "50",
-    "50",
-    "50"
+    "250",
+    "150",
+    "250",
+    "150"
   ],
   "infill_combination": "0",
   "infill_direction": "45",
   "infill_wall_overlap": "15%",
   "monotonic_travel_into_wall": "45.0",
-  "initial_layer_line_width": "0.25",
-  "initial_layer_print_height": "0.1",
+  "initial_layer_line_width": "0.5",
+  "initial_layer_print_height": "0.2",
   "initial_layer_speed": [
-    "40",
-    "40",
-    "40",
-    "40"
+    "50",
+    "50",
+    "50",
+    "50"
   ],
-  "inner_wall_line_width": "0.22",
+  "inner_wall_line_width": "0.45",
   "inner_wall_speed": [
-    "150",
-    "150",
-    "150",
-    "150"
+    "300",
+    "600",
+    "300",
+    "600"
   ],
   "interface_shells": "0",
   "internal_bridge_support_thickness": "0.8",
-  "internal_solid_infill_line_width": "0.22",
+  "internal_solid_infill_line_width": "0.42",
   "internal_solid_infill_speed": [
-    "150",
-    "150",
-    "150",
-    "150"
+    "250",
+    "600",
+    "250",
+    "600"
   ],
-  "ironing_flow": "20%",
-  "ironing_inset": "0.11",
+  "ironing_flow": "15%",
+  "ironing_inset": "0.21",
   "ironing_spacing": "0.15",
-  "ironing_speed": "20",
+  "ironing_speed": "30",
   "ironing_type": "no ironing",
   "infill_lock_depth": "1.0",
   "initial_layer_travel_acceleration": [
@@ -86,10 +86,10 @@
   ],
   "infill_shift_step": "0.4",
   "infill_rotate_step": "0",
-  "layer_height": "0.1",
+  "layer_height": "0.2",
   "layer_time_smoothing": "0",
   "layer_time_smoothing_threshold": "30",
-  "line_width": "0.22",
+  "line_width": "0.42",
   "locked_skin_infill_pattern": "crosszag",
   "locked_skeleton_infill_pattern": "zigzag",
   "max_bridge_length": "0",
@@ -97,12 +97,12 @@
   "avoid_crossing_wall_includes_support": "0",
   "minimum_sparse_infill_area": "15",
   "only_one_wall_top": "1",
-  "outer_wall_line_width": "0.22",
+  "outer_wall_line_width": "0.42",
   "outer_wall_speed": [
-    "100",
-    "100",
-    "100",
-    "100"
+    "200",
+    "500",
+    "200",
+    "500"
   ],
   "overhang_totally_speed": [
     "10",
@@ -116,7 +116,7 @@
   ],
   "prime_tower_width": "60",
   "print_sequence": "by layer",
-  "print_settings_id": "0.10mm Standard @BBL H2C 0.2 nozzle (Headset prop supports)",
+  "print_settings_id": "0.20mm Standard @BBL H2C (Headset prop supports)",
   "prime_tower_brim_width": "-1",
   "prime_tower_enable_framework": "0",
   "prime_tower_lift_speed": "90",
@@ -139,16 +139,16 @@
   "fill_multiline": "1",
   "skeleton_infill_density": "15%",
   "skin_infill_density": "15%",
-  "sparse_infill_line_width": "0.22",
-  "skin_infill_line_width": "0.22",
+  "sparse_infill_line_width": "0.45",
+  "skin_infill_line_width": "0.45",
   "skin_infill_depth": "2.0",
-  "skeleton_infill_line_width": "0.22",
+  "skeleton_infill_line_width": "0.45",
   "sparse_infill_pattern": "grid",
   "sparse_infill_speed": [
-    "100",
-    "100",
-    "100",
-    "100"
+    "350",
+    "600",
+    "350",
+    "600"
   ],
   "spiral_mode": "0",
   "standby_temperature_delta": "-5",
@@ -169,7 +169,7 @@
     "80"
   ],
   "support_interface_top_layers": "2",
-  "support_line_width": "0.22",
+  "support_line_width": "0.42",
   "support_object_xy_distance": "0.35",
   "support_on_build_plate_only": "0",
   "support_speed": [
@@ -179,7 +179,7 @@
     "150"
   ],
   "support_style": "default",
-  "support_threshold_angle": "35.0",
+  "support_threshold_angle": "30.0",
   "support_top_z_distance": "0.2",
   "support_type": "tree(auto)",
   "enable_support_ironing": "0",
@@ -196,17 +196,17 @@
   "symmetric_infill_y_axis": "0",
   "sparse_infill_lattice_angle_1": "-45",
   "sparse_infill_lattice_angle_2": "45",
-  "top_shell_layers": "7",
-  "top_color_penetration_layers": "7",
-  "top_shell_thickness": "0.8",
-  "top_surface_line_width": "0.22",
+  "top_shell_layers": "5",
+  "top_color_penetration_layers": "5",
+  "top_shell_thickness": "1.0",
+  "top_surface_line_width": "0.42",
   "top_surface_pattern": "monotonicline",
   "top_surface_density": "100",
   "top_surface_speed": [
-    "150",
-    "150",
-    "150",
-    "150"
+    "200",
+    "200",
+    "200",
+    "200"
   ],
   "top_solid_infill_flow_ratio": [
     "1",
@@ -237,7 +237,7 @@
   "tree_support_wall_count": "-1",
   "wall_generator": "classic",
   "wall_infill_order": "inner wall/outer wall/infill",
-  "wall_loops": "4",
+  "wall_loops": "2",
   "wipe_tower_no_sparse_layers": "0",
   "xy_contour_compensation": "0",
   "xy_hole_compensation": "0",
@@ -275,10 +275,10 @@
     "500"
   ],
   "initial_layer_infill_speed": [
-    "70",
-    "70",
-    "70",
-    "70"
+    "105",
+    "105",
+    "105",
+    "105"
   ],
   "inner_wall_acceleration": [
     "0",
@@ -293,10 +293,10 @@
     "5000"
   ],
   "overhang_1_4_speed": [
-    "60",
-    "60",
-    "60",
-    "60"
+    "0",
+    "0",
+    "0",
+    "0"
   ],
   "overhang_2_4_speed": [
     "50",
@@ -400,11 +400,12 @@
     "80%",
     "80%"
   ],
-  "setting_id": "GP245",
+  "setting_id": "GP252",
+  "description": "Standard profile for 0.4mm nozzle, prioritizing speed.",
   "compatible_printers": [
-    "Bambu Lab H2C 0.2 nozzle"
+    "Bambu Lab H2C 0.4 nozzle"
   ],
-  "inherits": "0.10mm Standard @BBL H2C 0.2 nozzle",
+  "inherits": "0.20mm Standard @BBL H2C",
   "brim_type": "outer_only",
   "curr_bed_type": "Textured PEI Plate"
 }

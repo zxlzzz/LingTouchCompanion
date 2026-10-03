@@ -2,9 +2,9 @@
   "mesh_inputs": {
     "front": {
       "path": "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz",
-      "sha256": "493c824ce85a3fd90b0d0038897a32624c745236af971fcfce094f39e7ba26e4",
-      "vertices": 89668,
-      "faces": 179380,
+      "sha256": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
+      "vertices": 113402,
+      "faces": 226856,
       "blue_groove_faces": 2817
     },
     "camera": {
@@ -48,7 +48,7 @@
     "camera_materials.json": "d651adfa5c8a9ee5ceb35cfe849b32473ba46c5853055db0b340394edc50ea86"
   },
   "cover_sha256": "aa6eac3d86a768ef994f274378fad2376af7e926ceccf374166edb2460c8319a",
-  "renderer_sha256": "a249a38124fa004d655742745d73503cbd3ddf56815c94da4adf47c4b2c51265",
+  "renderer_sha256": "3ff0862d97ec1fa66beb042dfe9fd6d4e34efa3ccc709e0b72199256a4c2e758",
   "blender_version": "4.5.3 LTS",
   "engine": "CYCLES",
   "samples": 96,
@@ -89,9 +89,9 @@
       "projected_rgb_rx_baseline_px": 158.83175177157526
     },
     "woad_inside_angle": {
-      "ortho_width_mm": 281.4327697753906,
+      "ortho_width_mm": 288.24249267578125,
       "rgb_rx_baseline_mm": 44.0,
-      "projected_rgb_rx_baseline_px": 238.6667188253166
+      "projected_rgb_rx_baseline_px": 233.02822255206254
     },
     "worn_side": {
       "ortho_width_mm": 341.9293212890625,
@@ -122,11 +122,11 @@
     }
   },
   "outputs": {
-    "woad_front_angle.png": "5474353f346d007b7c9302c84f6ec947c60881052e9478680ab8ac9d0ea0b503",
-    "woad_inside_angle.png": "a695e8c7af5b0e45b415d03aebc0cd4454ec6393d718527103abb0a2ed6154ab",
-    "worn_side.png": "4141b4a427f96a041d7a318d07431b454e1d6bca6bbda6fa2f214f805ab72e98",
-    "comparison_front.png": "b3f1773c97f98b5a5a9f69ac0945bb80d556644734087979501010bf3851a0db",
-    "comparison_inside.png": "02cd67fb57b82f5d99a1ebc79547ea5936fcc0ebc493b3e1686fb2b427e25f50",
-    "comparison_worn_side.png": "1b466064d3ecce9135dbb84f8607a38e6a178cd53d6f1a1148a6d31d0d5b68db"
+    "woad_front_angle.png": "146ee9b3b4c7651e58b72474da6ae9441f010063189485d75b149973ef56136c",
+    "woad_inside_angle.png": "5cfe69319b8ec4d1d8bf98019bff3682b2859001ab41d529ca679d1f1089218b",
+    "worn_side.png": "ab2ca466ba8adf9dc9dde4dddfea845e52c7e4104c6a5e1a359f365aa1a1d586",
+    "comparison_front.png": "f9ec8d90b7643ae14cb6273a4500968b242b136eb86200927514469b224478e8",
+    "comparison_inside.png": "601a20507d3d7c31bcbc404420771ef4e6eda5ccc66ccb4f1ffce31509ba112c",
+    "comparison_worn_side.png": "a42e739452fc8a010e645300d6712147af1f3c18db955084b4d7d7c9b971d3f6"
   }
 }

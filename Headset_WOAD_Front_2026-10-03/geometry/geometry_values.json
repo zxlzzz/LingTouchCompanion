@@ -57,20 +57,20 @@
   ],
   "geometry": {
     "front_body": {
-      "volume_cm3": 49.50991062645787,
+      "volume_cm3": 53.91453838693217,
       "components": 1,
-      "vertices": 89668,
-      "faces": 179380,
+      "vertices": 113402,
+      "faces": 226856,
       "bounds_xyz_mm": [
         [
-          -92.11673507285427,
+          -92.11504923897152,
           -23.8,
-          23.200000000000003
+          23.2
         ],
         [
-          92.26721475995697,
+          92.25916533357872,
           159.0703299,
-          68.4
+          68.3491947767463
         ]
       ]
     },
@@ -110,7 +110,14 @@
     "underside_z": 57,
     "thickness": 1.2,
     "width": 94,
-    "rear_edge": "Nominal contact with registered head surface; face side remains open."
+    "rear_edge": "Upper lip ends at Z57; camera-height back remains open. Single outer roof, no floating inner ceiling."
+  },
+  "print_bearing_plane": {
+    "z_intercept_mm": 67.10212366989771,
+    "z_y_slope": -0.07482302750852413,
+    "rotation_about_wearing_x_deg": 184.27907013619713,
+    "temple_upper_web_mm": 1.4,
+    "roof_normal_thickness_mm": 1.4
   },
   "front_design_dimensions_mm": {
     "broad_frontal_width": 140,

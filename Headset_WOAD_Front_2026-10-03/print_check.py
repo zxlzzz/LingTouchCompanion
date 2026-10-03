@@ -20,9 +20,9 @@ import time
 import numpy as np
 
 P = Path(__file__).resolve().parent
-DEFAULT_MACHINE = "Bambu Lab H2C 0.2 nozzle"
-DEFAULT_PROCESS = "0.10mm Standard @BBL H2C 0.2 nozzle"
-DEFAULT_FILAMENT = "Bambu PLA Basic @BBL H2C 0.2 nozzle"
+DEFAULT_MACHINE = "Bambu Lab H2C 0.4 nozzle"
+DEFAULT_PROCESS = "0.20mm Standard @BBL H2C"
+DEFAULT_FILAMENT = "Bambu PLA Basic @BBL H2C"
 
 
 def sha(path):
@@ -58,6 +58,40 @@ def binary_stl(path, v, f):
         stream.write(b"Temporary one-piece headset front slice check".ljust(80, b" "))
         stream.write(struct.pack("<I", len(f)))
         stream.write(records.tobytes())
+
+
+def bed_contact(v, f):
+    """Measure real triangles on the lowest plane, including patch continuity."""
+    tri = v[f]
+    z = tri[:, :, 2]
+    lowest = float(v[:, 2].min())
+    mask = (np.ptp(z, axis=1) < 1e-5) & (np.abs(z.mean(axis=1) - lowest) < 1e-5)
+    flat = f[mask]
+    areas = np.linalg.norm(np.cross(tri[mask, 1] - tri[mask, 0],
+                                   tri[mask, 2] - tri[mask, 0]), axis=1) / 2
+    parents = np.arange(len(flat))
+    edges = {}
+    def find(i):
+        while parents[i] != i:
+            parents[i] = parents[parents[i]]
+            i = parents[i]
+        return i
+    for i, triangle in enumerate(flat):
+        for a, b in ((triangle[0], triangle[1]), (triangle[1], triangle[2]), (triangle[2], triangle[0])):
+            edge = tuple(sorted((int(a), int(b))))
+            if edge in edges:
+                parents[find(i)] = find(edges[edge])
+            else:
+                edges[edge] = i
+    patches = {}
+    for i, area in enumerate(areas):
+        root = int(find(i))
+        patches[root] = patches.get(root, 0.0) + float(area)
+    return {"triangle_count": int(mask.sum()), "total_area_mm2": float(areas.sum()),
+            "edge_connected_patch_areas_mm2": sorted(patches.values(), reverse=True),
+            "single_continuous_patch": len(patches) == 1,
+            "max_planarity_error_mm": float(np.ptp(z[mask])) if mask.any() else None,
+            "method": "Actual mesh triangles at minimum print Z, tolerance 0.00001 mm; shared-edge connectivity."}
 
 
 def parse_gcode(raw, filament_diameter, filament_density):
@@ -145,19 +179,30 @@ def main():
     parser.add_argument("--machine", default=DEFAULT_MACHINE)
     parser.add_argument("--process", default=DEFAULT_PROCESS)
     parser.add_argument("--filament", default=DEFAULT_FILAMENT)
-    parser.add_argument("--tilt-x", type=float, default=0.0)
-    parser.add_argument("--support-angle", type=float, default=35.0)
+    parser.add_argument("--body", type=Path, default=P / "geometry" / "front_body.npz")
+    parser.add_argument("--report", type=Path, default=P / "checks" / "print_check.json")
+    parser.add_argument("--config-dir", type=Path, default=P / "print_config")
+    parser.add_argument("--metadata", type=Path, default=None, help="Geometry metadata containing the selected bearing-plane angle.")
+    parser.add_argument("--tilt-x", type=float, default=None, help="Override the metadata bearing-plane angle.")
+    parser.add_argument("--support-angle", type=float, default=30.0)
     parser.add_argument("--timeout", type=int, default=1200)
     args = parser.parse_args()
 
-    body_path = P / "geometry" / "front_body.npz"
+    body_path = args.body.resolve()
     body_bytes = body_path.read_bytes()
     body_hash = hashlib.sha256(body_bytes).hexdigest()
+    metadata_path, metadata_hash = None, None
+    if args.tilt_x is None:
+        metadata_path = (args.metadata or body_path.with_name("geometry_values.json")).resolve()
+        raw_metadata = metadata_path.read_bytes()
+        metadata_hash = hashlib.sha256(raw_metadata).hexdigest()
+        metadata = json.loads(raw_metadata.decode("utf-8-sig"))
+        args.tilt_x = float(metadata["print_bearing_plane"]["rotation_about_wearing_x_deg"])
     data = np.load(io.BytesIO(body_bytes))
     v, f = np.asarray(data["v"], dtype=float), np.asarray(data["f"], dtype=np.int32)
-    config_dir, checks_dir = P / "print_config", P / "checks"
-    config_dir.mkdir(exist_ok=True)
-    checks_dir.mkdir(exist_ok=True)
+    config_dir = args.config_dir.resolve()
+    config_dir.mkdir(parents=True, exist_ok=True)
+    args.report.parent.mkdir(parents=True, exist_ok=True)
     profiles, sources = {}, {}
     for kind, name in (("machine", args.machine), ("process", args.process), ("filament", args.filament)):
         profiles[kind], sources[kind] = full_profile(args.bambu_root, kind, name)
@@ -203,7 +248,7 @@ def main():
     inside_bed = bool(np.all(posed[:, :2].min(0) - 5 >= bed_min) and
                       np.all(posed[:, :2].max(0) + 5 <= bed_max) and posed[:, 2].max() <= height)
     evidence = {
-        "status": "running", "body_sha256": body_hash,
+        "status": "running", "body_sha256": body_hash, "body_source": str(body_path),
         "verifier_sha256": sha(Path(__file__)),
         "bambu_executable": str(args.bambu_root / "bambu-studio.exe"),
         "bambu_executable_sha256": sha(args.bambu_root / "bambu-studio.exe"),
@@ -213,7 +258,10 @@ def main():
         "profile_sources": sources,
         "full_config_sha256": {kind: sha(path) for kind, path in config_paths.items()},
         "print_orientation": {"wearing_z_up": args.tilt_x == 0, "rotate_about_wearing_x_deg": args.tilt_x,
-                              "rotation_matrix": rot.tolist(), "translation_mm": translation.tolist()},
+                              "rotation_matrix": rot.tolist(), "translation_mm": translation.tolist(),
+                              "angle_source": str(metadata_path) if metadata_path else "explicit --tilt-x",
+                              "metadata_sha256": metadata_hash},
+        "bed_contact_plane": bed_contact(posed, f),
         "print_bounds_xyz_mm": [posed.min(0).tolist(), posed.max(0).tolist()],
         "printable_area_xy_mm": bed.tolist(), "printable_height_mm": height,
         "fits_bed_with_5mm_brim": inside_bed,
@@ -224,7 +272,7 @@ def main():
         "wearing_3mf_modified": False,
         "limitations": ["Slicing validates toolpaths and supports for the chosen profile; it does not prove printed strength, fit, support removal or physical retention."],
     }
-    evidence_path = checks_dir / "print_check.json"
+    evidence_path = args.report.resolve()
     evidence_path.write_text(json.dumps(evidence, indent=2), encoding="utf-8")
     if not inside_bed:
         evidence["status"] = "failed_bed_fit"
@@ -266,7 +314,8 @@ def main():
                 gcode[str(path.relative_to(scratch)).replace("\\", "/")] = parse_gcode(
                     path.read_bytes(), float(filament["filament_diameter"][0]), float(filament["filament_density"][0]))
             evidence["gcode_evidence"] = gcode
-            evidence["inputs_unchanged_on_completion"] = sha(body_path) == body_hash
+            evidence["inputs_unchanged_on_completion"] = sha(body_path) == body_hash and (
+                metadata_path is None or sha(metadata_path) == metadata_hash)
             evidence["status"] = "passed" if result.returncode == 0 and engine_result.get("return_code") == 0 and gcode and evidence["inputs_unchanged_on_completion"] else "failed"
             print(log[-12000:], flush=True)
         except subprocess.TimeoutExpired as exc:

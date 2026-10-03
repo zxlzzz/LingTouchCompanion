@@ -1,9 +1,9 @@
 {
   "source_sha256": {
-    "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz": "493c824ce85a3fd90b0d0038897a32624c745236af971fcfce094f39e7ba26e4",
+    "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
     "Headset_WOAD_Front_2026-10-03/geometry/camera.npz": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
     "Headset_WOAD_Front_2026-10-03/geometry/retention_band.npz": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
-    "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "187dcb6abd8069d553977628e572289d68cda1e9fcff1b774a389f5e7109aa00",
+    "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "294adf2566e91ae94af60db683756f634754de3241129808afa07c7cc17f931c",
     "Headset_WOAD_Front_2026-10-03/inputs/camera_physical_native.npz": "3ab286dd328bb1206bd967502e1b652c3e76c502bd2efd0a262ae312ce8b81dd",
     "Headset_Inputs/Medium_Trial_Registered.npz": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3"
   },
@@ -78,15 +78,15 @@
         ]
       },
       "top": {
-        "sampled_upper_bound_mm": 1.5000158100000007,
+        "sampled_upper_bound_mm": 2.061012575553983,
         "camera_point_mm": [
-          -26.88020597,
-          0.39037122,
-          55.49998419
+          8.92133049155809,
+          3.9098513266893042,
+          55.14015011887108
         ],
         "shell_point_mm": [
-          -26.88020597,
-          0.39037122,
+          8.874274553046607,
+          4.796709260581309,
           57.0
         ]
       },
@@ -276,7 +276,7 @@
         0.7071067811865475,
         0.0
       ],
-      "vertices_not_occluded_by_shell": 56234,
+      "vertices_not_occluded_by_shell": 41533,
       "worn_vertices_not_occluded_by_shell_or_head": 0,
       "uncovered_examples_mm": []
     },
@@ -287,7 +287,7 @@
         0.7071067811865475,
         0.0
       ],
-      "vertices_not_occluded_by_shell": 64839,
+      "vertices_not_occluded_by_shell": 47900,
       "worn_vertices_not_occluded_by_shell_or_head": 0,
       "uncovered_examples_mm": []
     }
@@ -301,10 +301,10 @@
   "band_route": {
     "band_body_overlap_mm3": 0.0,
     "body_overlap_components": [],
-    "band_conservative_camera_overlap_mm3": 1.7656633772794615e-06,
+    "band_conservative_camera_overlap_mm3": 1.7656633701740341e-06,
     "camera_overlap_components": [
       {
-        "volume_mm3": 1.7656633772794615e-06,
+        "volume_mm3": 1.7656633701740341e-06,
         "bounds_xyz_mm": [
           -36.49806524099419,
           5.71212799847126,
@@ -370,7 +370,7 @@
           0,
           1
         ],
-        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 5738.630876927864
+        "printed_shell_plus_taut_reference_band_crossed_volume_mm3": 3188.49328695276
       },
       {
         "direction": [
@@ -418,5 +418,5 @@
     "No operational FOV, USB, cooling, electronics or electrical safety certification is intended for this unpowered prop."
   ],
   "pass": true,
-  "runtime_seconds": 68.67851495742798
+  "runtime_seconds": 124.62701845169067
 }

@@ -20,6 +20,9 @@ OVAL_CENTER_Z=41.
 REAR_Y=5.712128
 CAMERA_T=np.array([[1,0,0,-.0290536247],[0,0,-1,REAR_Y-25],[0,1,0,38.]])
 DATUMS=json.loads((I/'datums.json').read_text(encoding='utf-8-sig'))
+PRINT_SLOPE=(68.-55.2)/(DATUMS['terminal_reach_y']+12.)
+PRINT_INTERCEPT=68.-12.*PRINT_SLOPE
+PRINT_ROTATION=180.+math.degrees(math.atan(PRINT_SLOPE))
 
 def box(lo,hi):
     lo=np.array(lo); return M.cube(tuple(np.array(hi)-lo)).translate(tuple(lo))
@@ -45,8 +48,12 @@ def dimensions(x):
     q=abs(x)
     front=-23.8+2.4*(min(q,46)/46)**2
     if q>46:front+=.5*smooth((q-46)/24)
-    return front,6.8,23.4+1.6*(q/70)**2,68.4-3.6*(q/70)**2
+    return front,6.8,23.4+1.6*(q/70)**2,68.4
 def front_y(x): return dimensions(x)[0]
+def print_top(y):return PRINT_INTERCEPT-PRINT_SLOPE*y
+def below_print_plane(offset=0):
+    cap=PRINT_INTERCEPT-offset*math.sqrt(1+PRINT_SLOPE**2)
+    return box([-200,-100,-100],[200,200,cap]).transform([[1,0,0,0],[0,1,0,0],[0,-PRINT_SLOPE,1,0]])
 def profile(x,inside=False):
     front,back,low,top=dimensions(x)
     if inside:
@@ -81,6 +88,10 @@ def shoulder(t,side,inside=False):
     center=np.array([side*(70+11.5*math.sin(u)),-7.05+50.05*(1-math.cos(u)),44.9-3.9*hs])
     theta=math.atan2(50.05*math.sin(u),11.5*math.cos(u))
     width=27.7*(1-s)+4.4*s;height=39.8*(1-hs)+12*hs
+    low=center[2]-height/2
+    target=max(center[2]+height/2,print_top(center[1])+PRINT_SLOPE*width*abs(math.cos(theta))/2+.7)
+    top=68.4*(1-smooth(t/.12))+target*smooth(t/.12)
+    height=top-low;center[2]=(top+low)/2
     radii=[8*(1-s)+2.18*s,2*(1-s)+2.18*s,2*(1-s)+2.18*s,3.5*(1-s)+2.18*s]
     if inside:
         width-=2*WALL;height-=2*WALL;radii=[max(.2,r-WALL) for r in radii]
@@ -88,7 +99,7 @@ def shoulder(t,side,inside=False):
     local=section(width,height,radii)
     return [[center[0]-side*a*math.sin(theta),center[1]+a*math.cos(theta),center[2]+z] for a,z in local]
 
-def arm_rows(side,head):
+def arm_sections(side,head):
     keys=[43,60,80,95,110,125,140,150,159.0703299]
     heights=[12,12,12,12,13,17,28,32,32]
     widths=[4.4,3.6,3.4,3.4,3.4,3.4,3.4,3.3,3.3]
@@ -100,7 +111,7 @@ def arm_rows(side,head):
         # Sample the whole adjacent ear region before constructing one smooth
         # guide. Raw per-row clamping would imprint skin-mesh corrugation.
         ya=keys[max(0,i-1)];yb=keys[min(len(keys)-1,i+1)]
-        skin=[abs(head.lateral_x(yy,zz,side)) for yy in np.linspace(ya,yb,25) for zz in np.linspace(23.2,55.2,25)]
+        skin=[abs(head.lateral_x(yy,zz,side)) for yy in np.linspace(ya,yb,25) for zz in np.linspace(23.2,68.4,31)]
         skin=[a for a in skin if np.isfinite(a)]
         xguide.append(max(base,max(skin)+w/2+.65) if skin and y<145 else base)
     rows=[]
@@ -108,11 +119,25 @@ def arm_rows(side,head):
         h=cubic(keys,heights,y);w=cubic(keys,widths,y);z=cubic(keys,centers,y);x=cubic(keys,xguide,y)
         terminal=smooth((y-143)/7)
         w=w*(1-terminal)+(tab[1]-tab[0])*terminal
-        r=min(w/2-.01,h/2-.01)
-        # The same 68-point section topology continues from the shoulder.
+        low=z-h/2;oldtop=z+h/2;top=print_top(y)+.7
+        rows.append((y,x,w,low,oldtop,top))
+    return rows
+def arm_rows(side,head):
+    rows=[]
+    for y,x,w,low,oldtop,top in arm_sections(side,head):
+        h=top-low;z=(top+low)/2;r=min(w/2-.01,h/2-.01)
         local=section(w,h,[r,r,r,r])
         rows.append([[side*x-side*a,y,z+b] for a,b in local])
     return rows
+def arm_upper_pocket(side,head):
+    rows=[]
+    for y,x,w,low,oldtop,top in arm_sections(side,head):
+        if y>140:break
+        inside=side*(x-w/2-2);web=side*(x+w/2-WALL)
+        x0,x1=sorted([inside,web]);z0=oldtop-.2;z1=print_top(y)-WALL*math.sqrt(1+PRINT_SLOPE**2)
+        assert z1>z0,(y,z0,z1)
+        rows.append([[x0,y,z0],[x1,y,z0],[x1,y,z1],[x0,y,z1]])
+    return loft(rows)
 def loft(rows):
     rows=np.array(rows);n=len(rows[0]);v=rows.reshape(-1,3).tolist();f=[]
     for k in range(len(rows)-1):
@@ -192,30 +217,34 @@ def build():
     left=[shoulder(t,-1) for t in np.linspace(1,0,81)[:-1]]
     right=[shoulder(t,1) for t in np.linspace(0,1,81)[1:]]
     larm=arm_rows(-1,head)[::-1][:-1]
-    outer=loft(larm+left+mid+right+arm_rows(1,head)[1:])
+    outer=loft(larm+left+mid+right+arm_rows(1,head)[1:])^below_print_plane()
     il=[shoulder(t,-1,True) for t in np.linspace(1,0,81)[:-1]]
-    inner=loft(il+[profile(x,True) for x in np.linspace(-70,70,281)]+[shoulder(t,1,True) for t in np.linspace(0,1,81)[1:]])
+    inner=loft(il+[profile(x,True) for x in np.linspace(-70,70,281)]+[shoulder(t,1,True) for t in np.linspace(0,1,81)[1:]])^below_print_plane(WALL)
     front_skin=skin_cutter(head)
     hood=outer-inner-(front_skin^box([-100,-100,0],[100,43,100]))-lateral_skin_cutter(head)
     # Explicit face-side opening removes every rear wall patch. Top, bottom
     # and end walls remain around the camera; no rear cover exists.
     hood-=xz_prism(rounded(143.5,41.2,1.0,(0,45.4)),REAR_Y-.8,100)
+    hood-=union([arm_upper_pocket(-1,head),arm_upper_pocket(1,head)])
     # Thin cheek returns reach the true skin boundary, hiding the camera from
     # rear-side views while leaving the central face side entirely open.
     # Compensate 0.25 mm surface interpolation by 0.02 mm at the plastic
     # contact edges. The camera itself retains exact forehead contact.
-    contact_skin=skin_cutter(head,.02,np.linspace(-48,48,385),np.linspace(24,60,145))
+    contact_x=np.linspace(-48,48,385);contact_z=np.linspace(24,72,193)
+    contact_skin=skin_cutter(head,.02,contact_x,contact_z)
     returns=[]
     for side in (-1,1):
         returns.append(xz_prism(rounded(1.4,32.5,.68,(side*46.95,41.05)),-1,45)-contact_skin)
-    # A thin inner ceiling closes upward sightlines at the skin boundary.
-    # Its open rear edge is not a rear cover; camera rear contact is retained.
-    ceiling_rows=[]
+    # One outer roof reaches the forehead. A near-vertical upper lip replaces
+    # the former floating inner ceiling; the camera-height back remains open.
+    roof_rows=[]
     for x in np.linspace(-47,47,189):
-        y=front_y(x)+.8
-        ceiling_rows.append([[x,y,57],[x,45,57],[x,45,58.2],[x,y,58.2]])
-    ceiling=loft(ceiling_rows)-contact_skin
-    hood=union([hood,*returns,ceiling])
+        roof_rows.append([[x,2,print_top(2)-WALL*math.sqrt(1+PRINT_SLOPE**2)],
+                          [x,45,print_top(45)-WALL*math.sqrt(1+PRINT_SLOPE**2)],
+                          [x,45,print_top(45)],[x,2,print_top(2)]])
+    roof=loft(roof_rows)-contact_skin
+    lip=(skin_cutter(head,1.22,contact_x,contact_z)-contact_skin)^box([-47,-100,57],[47,45,80])^below_print_plane()
+    hood=union([hood,*returns,roof,lip])
     # Broad generic seating stops contact the real front/bottom, without a
     # fitted cavity or hooks. Adjustable webbing supplies the clamping force.
     stops=[]
@@ -272,7 +301,8 @@ def build():
             'camera_rear_y_mm':REAR_Y,'camera_bottom_z_mm':25.49995,'shell_wall_mm':WALL,
             'optics':optics,'geometry':geometry,'head_audit_parts':['front_body','camera','retention_band'],
             'nominal_clearance_mm':{'front_center':3.112128,'front_at_camera_ends':1.0,'camera_ceiling':1.5,'camera_end_to_cheek':1.28,'bottom_seat':0,'rear_to_skin':0},
-            'internal_ceiling_mm':{'underside_z':57,'thickness':1.2,'width':94,'rear_edge':'Nominal contact with registered head surface; face side remains open.'},
+            'internal_ceiling_mm':{'underside_z':57,'thickness':1.2,'width':94,'rear_edge':'Upper lip ends at Z57; camera-height back remains open. Single outer roof, no floating inner ceiling.'},
+            'print_bearing_plane':{'z_intercept_mm':PRINT_INTERCEPT,'z_y_slope':-PRINT_SLOPE,'rotation_about_wearing_x_deg':PRINT_ROTATION,'temple_upper_web_mm':WALL,'roof_normal_thickness_mm':WALL},
             'front_design_dimensions_mm':{'broad_frontal_width':140,'central_height':45,'integral_long_oval':[90,28],'oval_center_z':OVAL_CENTER_Z,'groove_width':1,'groove_depth':.28},
             'rear_opening_mm':{'width':143.5,'height':41.2,'center_z':45.4,'front_y':REAR_Y-.8},
             'fixing':'One 15 mm hook-loop cinch band; 40 mm parallel folded overlap; generic broad front/floor stops. No camera hole, rear cover or fitted snap.',

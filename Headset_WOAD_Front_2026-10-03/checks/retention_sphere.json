@@ -1,9 +1,9 @@
 {
   "source_sha256": {
-    "geometry/front_body.npz": "493c824ce85a3fd90b0d0038897a32624c745236af971fcfce094f39e7ba26e4",
+    "geometry/front_body.npz": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
     "geometry/camera.npz": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
     "geometry/retention_band.npz": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
-    "geometry/geometry_values.json": "187dcb6abd8069d553977628e572289d68cda1e9fcff1b774a389f5e7109aa00"
+    "geometry/geometry_values.json": "294adf2566e91ae94af60db683756f634754de3241129808afa07c7cc17f931c"
   },
   "source_changed_during_run": false,
   "sphere_center_wearing_mm": [
@@ -28,7 +28,7 @@
   "center_free": true,
   "center_obstacle_distance_mm": 12.49999999847126,
   "radius_contact_tolerance_mm": 0.0001,
-  "reachable_center_samples": 246,
+  "reachable_center_samples": 516,
   "reachable_bounds_xyz_mm": [
     [
       -34.0290536247,
@@ -37,8 +37,8 @@
     ],
     [
       33.9709463753,
-      -6.787872,
-      44.0
+      -4.787872,
+      52.0
     ]
   ],
   "reachable_grid_boundary_samples": 0,
@@ -48,5 +48,5 @@
     "A lattice flood is corroborating evidence, not continuous configuration-space topology or a proof of arbitrary camera motion.",
     "The textile reference is treated as rigid and correctly cinched; closure strength, stretch and physical hand flips are untested."
   ],
-  "runtime_seconds": 5.845502853393555
+  "runtime_seconds": 12.436211585998535
 }

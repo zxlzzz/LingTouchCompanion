@@ -42,7 +42,8 @@ def closed_ray_parity(v,f,points):
     """Deterministic exact triangle rays for a watertight material mesh.
 
     VTK supplies a conservative cell broadphase; NumPy evaluates the actual
-    triangle intersections. Shared-edge hits are counted once. This avoids
+    triangle intersections. Shared-edge hits are counted once, and coincident
+    opposite-facing entry/exit hits cancel. This avoids
     vtkSelectEnclosedPoints' scale-relative default ray tolerance.
     """
     import vtk
@@ -68,9 +69,21 @@ def closed_ray_parity(v,f,points):
         u=np.einsum('ij,ij->i',relative,cross1)/determinant
         w=np.einsum('ij,j->i',cross2,direction)/determinant
         distance=np.einsum('ij,ij->i',edge2,cross2)/determinant
-        hits=np.sort(distance[(u>=-1e-10)&(w>=-1e-10)&(u+w<=1+1e-10)&(distance>1e-8)&(distance<=length)])
-        count=int(len(hits)>0)+int((np.diff(hits)>1e-7).sum())
-        inside[index]=bool(count%2)
+        valid=(u>=-1e-10)&(w>=-1e-10)&(u+w<=1+1e-10)&(distance>1e-8)&(distance<=length)
+        order=np.argsort(distance[valid]);hits=distance[valid][order]
+        # determinant is the negative of (outward normal dot ray). An
+        # ordinary outside traversal has one entry and one exit, summing to
+        # zero; a ray starting inside has one unmatched exit. At a touching
+        # internal roof/web seam both signs can occur at the same position.
+        # Collapsing that pair to one hit would give a false odd parity.
+        signs=-np.sign(determinant[valid][order]);crossings=0;start=0
+        while start<len(hits):
+            end=start+1
+            while end<len(hits) and hits[end]-hits[start]<=1e-7:end+=1
+            unique=np.unique(signs[start:end])
+            crossings+=int(unique.sum())
+            start=end
+        inside[index]=crossings!=0
     return inside
 
 def distances():
