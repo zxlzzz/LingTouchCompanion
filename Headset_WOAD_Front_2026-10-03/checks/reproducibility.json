@@ -1,5 +1,5 @@
 {
-  "tested_commit": "6dedbf34cb5f11003adc1968cb7cb8877372c55a",
+  "tested_commit": "f44f7423e85282f8a4199250109d36c65e2542c4",
   "initial_git_status_clean": true,
   "clone_method": "Independent local git clone --no-local --single-branch, using the existing named branch. No source files copied into clone.",
   "command": "python Headset_WOAD_Front_2026-10-03/regenerate.py --geometry-only",
@@ -9,21 +9,23 @@
     "Headset_Inputs/Medium_Trial_Registered.npz": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
     "Headset_WOAD_Front_2026-10-03/inputs/camera_physical_native.npz": "3ab286dd328bb1206bd967502e1b652c3e76c502bd2efd0a262ae312ce8b81dd",
     "Headset_WOAD_Front_2026-10-03/inputs/camera_optics_native.npz": "10c2637273777175e156b064b42671fa2b7dd7f93e188d09ce4266b0c4e75844",
-    "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz": "493c824ce85a3fd90b0d0038897a32624c745236af971fcfce094f39e7ba26e4",
+    "Headset_WOAD_Front_2026-10-03/geometry/front_body.npz": "90d18af7d176ae74dbadb29e3bfa14bf88de3bab99808a691cec5ccae1029bd2",
     "Headset_WOAD_Front_2026-10-03/geometry/camera.npz": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
     "Headset_WOAD_Front_2026-10-03/geometry/retention_band.npz": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
     "Headset_WOAD_Front_2026-10-03/geometry/connection_straps.npz": "01ee5af075bd9f8ba30ce40039c9aabd0c3119e3c7ebef369c3bd7a8b0d601ce",
-    "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "187dcb6abd8069d553977628e572289d68cda1e9fcff1b774a389f5e7109aa00",
-    "Headset_WOAD_Front_2026-10-03/Front_Wearing.3mf": "8dff0638e5fca54d1ea3014eb142d4d0b96480c66b55b2e59f82921d9fcead67",
+    "Headset_WOAD_Front_2026-10-03/geometry/geometry_values.json": "294adf2566e91ae94af60db683756f634754de3241129808afa07c7cc17f931c",
+    "Headset_WOAD_Front_2026-10-03/Front_Wearing.3mf": "b63e4455998856f359897a6b3eefe6df65579f86fc9f47ed09ebba5b3628013e",
     "Headset_Rear/geometry/rear_body.npz": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
     "Headset_Rear/geometry/battery.npz": "068b1ebdf9b050b2d77bfeb9153cca0a51812e4d7172872c9cd3733978c37ac1",
     "Headset_Rear/geometry/straps.npz": "e5573dbf2e83f1a01eefd22e4acfbb982562c9a9d3ab89bee52986f5585b7169",
     "Headset_Rear/Rear_Wearing.3mf": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296",
     "Headset_Rear/checks/export.json": "6f8a2bfef397f87f3fbdf4102e9004e334830075a7c9ada3c5f8a8e5f7cb0883",
-    "Headset_Rear/geometry/geometry_values.json": "de8355a6f224c8b807baca0ca8607b1d6beafac63bf232216666f37637622c3a"
+    "Headset_Rear/geometry/geometry_values.json": "de8355a6f224c8b807baca0ca8607b1d6beafac63bf232216666f37637622c3a",
+    "Headset_WOAD_Front_2026-10-03/Front_Print_Ready.3mf": "627c1154b59fea7c2acd2454d77179bef886255bfac16f6fba591c8d8cc34f04",
+    "Headset_WOAD_Front_2026-10-03/checks/export.json": "4480ccc9f9d072f86aff0a43fbfab39cc442696b71551eed6d3d429a03d9151f"
   },
   "all_regenerated_outputs_byte_identical": true,
-  "audit_scope": "Clean clone regenerated source caches, registered head, current rear, front geometry and 3MF. Independent camera/head/retention/render/slice checks were run on the delivered tree; hashes link those checks to the identical regenerated artifacts.",
+  "audit_scope": "Clean clone regenerated original-source caches, registered head, current rear, front geometry, wearing and bed-oriented single-material 3MF files. Independent camera/head/retention/render/slice checks were run on the delivered tree; hashes link those checks to the identical regenerated artifacts.",
   "python": "3.11.15 | packaged by conda-forge | (main, Jun 11 2026, 03:27:10) [MSC v.1944 64 bit (AMD64)]",
   "dependencies": {
     "numpy": "1.26.4",
@@ -35,6 +37,5 @@
     "Pillow": "12.3.0",
     "scipy": "1.15.3"
   },
-  "pass": true,
-  "generated_rear_metadata_semantically_identical_before_line_ending_normalization": true
+  "pass": true
 }
