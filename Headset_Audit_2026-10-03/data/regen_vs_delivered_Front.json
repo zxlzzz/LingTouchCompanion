@@ -1,0 +1,134 @@
+{
+ "objects_regenerated": [
+  "Front_Compact_Review_shell",
+  "Head_reference_do_not_print",
+  "Front_Compact_Review_occupant_reference_do_not_print"
+ ],
+ "objects_delivered": [
+  "Front_Compact_Review_shell",
+  "Head_reference_do_not_print",
+  "Front_Compact_Review_occupant_reference_do_not_print"
+ ],
+ "per_object": {
+  "Front_Compact_Review_shell": {
+   "vertices": [
+    112660,
+    112660
+   ],
+   "triangles": [
+    225360,
+    225360
+   ],
+   "volume_mm3": [
+    69283.71504654617,
+    69283.71504654617
+   ],
+   "bbox_regen": [
+    [
+     -71.1566506415,
+     -33.8172641013,
+     0.0
+    ],
+    [
+     71.1566506415,
+     159.0703299,
+     57.1400000006
+    ]
+   ],
+   "bbox_deliv": [
+    [
+     -71.1566506415,
+     -33.8172641013,
+     0.0
+    ],
+    [
+     71.1566506415,
+     159.0703299,
+     57.1400000006
+    ]
+   ],
+   "max_vertex_diff_mm": 0.0,
+   "faces_identical": true
+  },
+  "Head_reference_do_not_print": {
+   "vertices": [
+    156195,
+    156195
+   ],
+   "triangles": [
+    306692,
+    306692
+   ],
+   "volume_mm3": [
+    4144851.814315432,
+    4144851.814315432
+   ],
+   "bbox_regen": [
+    [
+     -86.21714,
+     -12.7351519348,
+     -147.26303892
+    ],
+    [
+     86.47004,
+     220.194148065,
+     138.31916108
+    ]
+   ],
+   "bbox_deliv": [
+    [
+     -86.21714,
+     -12.7351519348,
+     -147.26303892
+    ],
+    [
+     86.47004,
+     220.194148065,
+     138.31916108
+    ]
+   ],
+   "max_vertex_diff_mm": 0.0,
+   "faces_identical": true
+  },
+  "Front_Compact_Review_occupant_reference_do_not_print": {
+   "vertices": [
+    8,
+    8
+   ],
+   "triangles": [
+    12,
+    12
+   ],
+   "volume_mm3": [
+    67455.00000003954,
+    67455.00000003954
+   ],
+   "bbox_regen": [
+    [
+     -44.97,
+     -31.1512325322,
+     16.2876093357
+    ],
+    [
+     44.97,
+     2.60168728724,
+     53.0288915424
+    ]
+   ],
+   "bbox_deliv": [
+    [
+     -44.97,
+     -31.1512325322,
+     16.2876093357
+    ],
+    [
+     44.97,
+     2.60168728724,
+     53.0288915424
+    ]
+   ],
+   "max_vertex_diff_mm": 0.0,
+   "faces_identical": true
+  }
+ }
+}

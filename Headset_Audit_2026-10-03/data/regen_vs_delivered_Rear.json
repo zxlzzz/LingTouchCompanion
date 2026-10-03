@@ -1,0 +1,134 @@
+{
+ "objects_regenerated": [
+  "Rear_Carbon6K_top_open_flat_base_shell",
+  "Head_reference_do_not_print",
+  "Rear_Carbon6K_top_open_flat_base_occupant_reference_do_not_print"
+ ],
+ "objects_delivered": [
+  "Rear_Carbon6K_top_open_flat_base_shell",
+  "Head_reference_do_not_print",
+  "Rear_Carbon6K_top_open_flat_base_occupant_reference_do_not_print"
+ ],
+ "per_object": {
+  "Rear_Carbon6K_top_open_flat_base_shell": {
+   "vertices": [
+    10931,
+    10931
+   ],
+   "triangles": [
+    21894,
+    21894
+   ],
+   "volume_mm3": [
+    19988.331926138995,
+    19988.331926138995
+   ],
+   "bbox_regen": [
+    [
+     -47.5,
+     195.3,
+     25.499999997
+    ],
+    [
+     47.5,
+     230.700000003,
+     57.5
+    ]
+   ],
+   "bbox_deliv": [
+    [
+     -47.5,
+     195.3,
+     25.499999997
+    ],
+    [
+     47.5,
+     230.700000003,
+     57.5
+    ]
+   ],
+   "max_vertex_diff_mm": 0.0,
+   "faces_identical": true
+  },
+  "Head_reference_do_not_print": {
+   "vertices": [
+    156195,
+    156195
+   ],
+   "triangles": [
+    306692,
+    306692
+   ],
+   "volume_mm3": [
+    4144851.814315432,
+    4144851.814315432
+   ],
+   "bbox_regen": [
+    [
+     -86.21714,
+     -12.7351519348,
+     -147.26303892
+    ],
+    [
+     86.47004,
+     220.194148065,
+     138.31916108
+    ]
+   ],
+   "bbox_deliv": [
+    [
+     -86.21714,
+     -12.7351519348,
+     -147.26303892
+    ],
+    [
+     86.47004,
+     220.194148065,
+     138.31916108
+    ]
+   ],
+   "max_vertex_diff_mm": 0.0,
+   "faces_identical": true
+  },
+  "Rear_Carbon6K_top_open_flat_base_occupant_reference_do_not_print": {
+   "vertices": [
+    384,
+    384
+   ],
+   "triangles": [
+    764,
+    764
+   ],
+   "volume_mm3": [
+    36902.049515152605,
+    36902.049515152605
+   ],
+   "bbox_regen": [
+    [
+     -45.2,
+     205.6,
+     27.8
+    ],
+    [
+     45.2,
+     228.4,
+     50.6
+    ]
+   ],
+   "bbox_deliv": [
+    [
+     -45.2,
+     205.6,
+     27.8
+    ],
+    [
+     45.2,
+     228.4,
+     50.6
+    ]
+   ],
+   "max_vertex_diff_mm": 0.0,
+   "faces_identical": true
+  }
+ }
+}

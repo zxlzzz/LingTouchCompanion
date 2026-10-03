@@ -1,0 +1,169 @@
+{
+ "as_modelled_h15": {
+  "RGB": {
+   "lens_centre_wearing_xyz": [
+    -22.025,
+    -24.959,
+    30.769
+   ],
+   "aperture_share_blocked_straight_ahead": 0.0,
+   "fov_dirs_blocked_from_centre_share": 0.0,
+   "fov_blocked_from_centre_extent_deg": null,
+   "fov_rays_blocked_from_whole_aperture_share": 0.02860014619883041,
+   "directions_blocked_for_any_aperture_point_share": 0.5098684210526315
+  },
+  "TX": {
+   "lens_centre_wearing_xyz": [
+    6.975,
+    -24.423,
+    30.964
+   ],
+   "aperture_share_blocked_straight_ahead": 0.0,
+   "fov_dirs_blocked_from_centre_share": 0.0,
+   "fov_blocked_from_centre_extent_deg": null,
+   "fov_rays_blocked_from_whole_aperture_share": 6.4699792960662525e-06,
+   "directions_blocked_for_any_aperture_point_share": 0.00038819875776397513
+  },
+  "RX": {
+   "lens_centre_wearing_xyz": [
+    21.975,
+    -24.142,
+    31.067
+   ],
+   "aperture_share_blocked_straight_ahead": 0.0,
+   "fov_dirs_blocked_from_centre_share": 0.0,
+   "fov_blocked_from_centre_extent_deg": null,
+   "fov_rays_blocked_from_whole_aperture_share": 0.05620915032679739,
+   "directions_blocked_for_any_aperture_point_share": 0.6904024767801857
+  }
+ },
+ "actual_upright_h12.5": {
+  "RGB": {
+   "lens_centre_wearing_xyz": [
+    -22.025,
+    -24.104,
+    28.42
+   ],
+   "aperture_share_blocked_straight_ahead": 0.23358228174092197,
+   "fov_dirs_blocked_from_centre_share": 0.0,
+   "fov_blocked_from_centre_extent_deg": null,
+   "fov_rays_blocked_from_whole_aperture_share": 0.2418859649122807,
+   "directions_blocked_for_any_aperture_point_share": 1.0
+  },
+  "TX": {
+   "lens_centre_wearing_xyz": [
+    6.975,
+    -23.568,
+    28.615
+   ],
+   "aperture_share_blocked_straight_ahead": 0.0,
+   "fov_dirs_blocked_from_centre_share": 0.00038819875776397513,
+   "fov_blocked_from_centre_extent_deg": {
+    "h_deg_range": [
+     -55.0,
+     -55.0
+    ],
+    "v_deg_range": [
+     -45.0,
+     -45.0
+    ]
+   },
+   "fov_rays_blocked_from_whole_aperture_share": 0.005570652173913043,
+   "directions_blocked_for_any_aperture_point_share": 0.04619565217391304
+  },
+  "RX": {
+   "lens_centre_wearing_xyz": [
+    21.975,
+    -23.286,
+    28.718
+   ],
+   "aperture_share_blocked_straight_ahead": 0.17651831247102456,
+   "fov_dirs_blocked_from_centre_share": 0.0,
+   "fov_blocked_from_centre_extent_deg": null,
+   "fov_rays_blocked_from_whole_aperture_share": 0.22782077743378054,
+   "directions_blocked_for_any_aperture_point_share": 1.0
+  }
+ },
+ "front_face_exposure_lenses_at_h12.5": {
+  "straight_on_optical_axis": {
+   "exposed_front_face_mm2": 370.59000000000003,
+   "of_which_lens_mm2": 138.85,
+   "non_lens_exposed_mm2": 231.74,
+   "lens_area_total_mm2": 172.37,
+   "lens_area_hidden_mm2": 33.52,
+   "exposed_x_range": [
+    -27.46999999999975,
+    27.630000000001033
+   ],
+   "exposed_h_range": [
+    9.3,
+    20.700000000000003
+   ]
+  },
+  "straight_front_-Y": {
+   "exposed_front_face_mm2": 370.59000000000003,
+   "of_which_lens_mm2": 138.85,
+   "non_lens_exposed_mm2": 231.74,
+   "lens_area_total_mm2": 172.37,
+   "lens_area_hidden_mm2": 33.52,
+   "exposed_x_range": [
+    -27.46999999999975,
+    27.630000000001033
+   ],
+   "exposed_h_range": [
+    9.3,
+    20.700000000000003
+   ]
+  },
+  "cone_30deg": {
+   "exposed_front_face_mm2": 370.59000000000003,
+   "of_which_lens_mm2": 138.85,
+   "non_lens_exposed_mm2": 231.74,
+   "lens_area_total_mm2": 172.37,
+   "lens_area_hidden_mm2": 33.52,
+   "exposed_x_range": [
+    -27.46999999999975,
+    27.630000000001033
+   ],
+   "exposed_h_range": [
+    9.3,
+    20.700000000000003
+   ]
+  }
+ },
+ "lenses": {
+  "RGB": {
+   "x": -22.025000000000002,
+   "d": 9.95,
+   "t_front": 23.87,
+   "fov": [
+    112,
+    63
+   ],
+   "note": "ring opening dia 9.95 (glass 8.8), front of glass Z=-1.13"
+  },
+  "TX": {
+   "x": 6.974999999999998,
+   "rect": [
+    2.79,
+    2.84
+   ],
+   "t_front": 23.3,
+   "fov": [
+    110,
+    90
+   ],
+   "note": "diffuser top 2.79x2.84 at Z=-1.7"
+  },
+  "RX": {
+   "x": 21.974999999999998,
+   "d": 10.5,
+   "t_front": 23.0,
+   "fov": [
+    100,
+    75
+   ],
+   "note": "lens front ring dia 10.5 at Z=-2.0/-2.05"
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "horizontal_push_full_width": {
+  "collision_volume_mm3": 10.80198318991793,
+  "pieces": [
+   {
+    "volume_mm3": 5.400991594958967,
+    "bbox_min": [
+     27.0,
+     2.422,
+     24.838
+    ],
+    "bbox_max": [
+     33.0,
+     3.666,
+     25.932
+    ]
+   },
+   {
+    "volume_mm3": 5.400991594958964,
+    "bbox_min": [
+     -33.0,
+     2.422,
+     24.838
+    ],
+    "bbox_max": [
+     -27.0,
+     3.666,
+     25.932
+    ]
+   }
+  ]
+ },
+ "horizontal_push_x_-44.97_-40": {
+  "collision_volume_mm3": 0.0
+ },
+ "horizontal_push_x_40_44.97": {
+  "collision_volume_mm3": 0.0
+ },
+ "horizontal_push_x_-5_5": {
+  "collision_volume_mm3": 0.0
+ },
+ "rotation_0_to_20_full_width": {
+  "collision_volume_mm3": 0.6024943571021626,
+  "pieces": [
+   {
+    "volume_mm3": 0.3012471785510811,
+    "bbox_min": [
+     -33.0,
+     2.422,
+     25.13
+    ],
+    "bbox_max": [
+     -27.0,
+     2.602,
+     25.689
+    ]
+   },
+   {
+    "volume_mm3": 0.30124717855108096,
+    "bbox_min": [
+     27.0,
+     2.422,
+     25.13
+    ],
+    "bbox_max": [
+     33.0,
+     2.602,
+     25.689
+    ]
+   }
+  ]
+ },
+ "final_pose_overlap": {
+  "collision_volume_mm3": 0.0
+ },
+ "seated_free_travel_mm": {
+  "lift_perpendicular_to_floor_+h": 0.3900000000000002,
+  "straight_back_along_axis_-t": 0.09999999999999999,
+  "straight_back_+Y": 0.09999999999999999,
+  "sideways_+X": 0.3000000000000001,
+  "sideways_-X": 0.3000000000000001
+ }
+}
