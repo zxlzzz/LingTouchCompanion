@@ -1,0 +1,165 @@
+{
+  "mesh_inputs": {
+    "front": {
+      "path": "Headset_WOAD_Front_2026-10-03/revised/geometry/front_body.npz",
+      "sha256": "ba1aedfd1d97eaca959103c0d2d12874f425de007b1eac7266244227e146c551",
+      "vertices": 117767,
+      "faces": 235566,
+      "blue_groove_faces": 2884
+    },
+    "camera": {
+      "path": "Headset_WOAD_Front_2026-10-03/revised/geometry/camera.npz",
+      "sha256": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
+      "vertices": 270032,
+      "faces": 351968
+    },
+    "retention_band": {
+      "path": "Headset_WOAD_Front_2026-10-03/revised/geometry/retention_band.npz",
+      "sha256": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
+      "vertices": 24,
+      "faces": 44
+    },
+    "rear": {
+      "path": "Headset_Rear/revised/geometry/rear_body.npz",
+      "sha256": "6e59bd88f5fb86c00cea6c103b508d2f6fc78455332106bc3641d4c84e7e463c",
+      "vertices": 7210,
+      "faces": 14440
+    },
+    "battery": {
+      "path": "Headset_Rear/geometry/battery.npz",
+      "sha256": "068b1ebdf9b050b2d77bfeb9153cca0a51812e4d7172872c9cd3733978c37ac1",
+      "vertices": 384,
+      "faces": 764
+    },
+    "straps": {
+      "path": "Headset_WOAD_Front_2026-10-03/revised/geometry/connection_straps.npz",
+      "sha256": "01ee5af075bd9f8ba30ce40039c9aabd0c3119e3c7ebef369c3bd7a8b0d601ce",
+      "vertices": 24,
+      "faces": 40
+    },
+    "head": {
+      "path": "Headset_Inputs/Medium_Trial_Registered.npz",
+      "sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+      "vertices": 156195,
+      "faces": 306692
+    }
+  },
+  "context_inputs": {
+    "camera_materials.json": "d651adfa5c8a9ee5ceb35cfe849b32473ba46c5853055db0b340394edc50ea86"
+  },
+  "cover_sha256": "aa6eac3d86a768ef994f274378fad2376af7e926ceccf374166edb2460c8319a",
+  "renderer_sha256": "3ff0862d97ec1fa66beb042dfe9fd6d4e34efa3ccc709e0b72199256a4c2e758",
+  "blender_version": "4.5.3 LTS",
+  "engine": "CYCLES",
+  "samples": 32,
+  "width_px": 1200,
+  "rendered_views": [
+    "woad_front_angle",
+    "woad_inside_angle",
+    "worn_side",
+    "nose_support",
+    "straight_legs"
+  ],
+  "comparison_plates": [
+    "comparison_front",
+    "comparison_inside",
+    "comparison_worn_side"
+  ],
+  "inputs_unchanged_on_completion": true,
+  "changed_inputs": [],
+  "view_directions": {
+    "woad_front_angle": [
+      0.8,
+      -0.54,
+      -0.3
+    ],
+    "woad_inside_angle": [
+      -0.61,
+      0.82,
+      0.53
+    ],
+    "worn_side": [
+      -1,
+      0,
+      0.035
+    ],
+    "nose_support": [
+      0.35,
+      0.9,
+      -0.55
+    ],
+    "straight_legs": [
+      0,
+      0,
+      1
+    ]
+  },
+  "view_projection": {
+    "woad_front_angle": {
+      "ortho_width_mm": 297.5406799316406,
+      "rgb_rx_baseline_mm": 44.0,
+      "projected_rgb_rx_baseline_px": 108.45541938977732
+    },
+    "woad_inside_angle": {
+      "ortho_width_mm": 282.35382080078125,
+      "rgb_rx_baseline_mm": 44.0,
+      "projected_rgb_rx_baseline_px": 158.59211807775276
+    },
+    "worn_side": {
+      "ortho_width_mm": 341.9293212890625,
+      "rgb_rx_baseline_mm": 44.0,
+      "projected_rgb_rx_baseline_px": 5.4012846703027355
+    },
+    "nose_support": {
+      "ortho_width_mm": 104.89247131347656,
+      "rgb_rx_baseline_mm": 44.0,
+      "projected_rgb_rx_baseline_px": 477.7559824263115
+    },
+    "straight_legs": {
+      "ortho_width_mm": 241.3888397216797,
+      "rgb_rx_baseline_mm": 44.0,
+      "projected_rgb_rx_baseline_px": 218.73422176799133
+    }
+  },
+  "comparison_scaling": {
+    "comparison_front": {
+      "method": "equal_projected_rgb_rx_baseline",
+      "source_centres_pixels": [
+        [
+          407,
+          166
+        ],
+        [
+          475,
+          134
+        ]
+      ],
+      "source_baseline_px": 75.15317691222374,
+      "actual_baseline_px": 108.45541938977732,
+      "common_baseline_px": 140.0,
+      "image_scales": [
+        1.8628620339432231,
+        1.2908529678618899
+      ]
+    }
+  },
+  "outputs": {
+    "comparison_front.png": "f99cee2fc930c603534380090d982b6ba9eb4ad08f409f8392af8ee0cd8f767a",
+    "comparison_inside.png": "0b68e44b151a7a8fb14907bf91fac0029b9e82440ebea93cb28a66d9506ff11f",
+    "comparison_worn_side.png": "0cb3b1a646c394f19e01e81eecb8cfd035b8d91c6ef0134053a010b4b975da1a",
+    "inspection_details.png": "2c6cc989115dbccf1cf0ae0fe670e390864e42a165b622e0a6853db60b4a45c7"
+  },
+  "renderer_wrapper": {
+    "path": "Headset_WOAD_Front_2026-10-03/revised/render.py",
+    "sha256": "406af7c7f391b39fe3064ccb78826fc8070d963b5715233790b158a6528c12f0"
+  },
+  "renderer_template": {
+    "path": "Headset_WOAD_Front_2026-10-03/render.py",
+    "sha256": "3ff0862d97ec1fa66beb042dfe9fd6d4e34efa3ccc709e0b72199256a4c2e758"
+  },
+  "inspection_framing": {
+    "nose_support": "Viewport frames delivered front vertices abs(X)<44, Y<45, Z<44 mm; mesh unchanged.",
+    "straight_legs": "Full delivered front, orthographic top view."
+  },
+  "temporary_raw_views_removed": true
+}

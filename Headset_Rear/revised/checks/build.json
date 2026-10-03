@@ -1,0 +1,67 @@
+{
+  "rear_redesigned": true,
+  "decisions": {
+    "connector_windows": "Filled across the entire existing 40 mm anatomical tray width and 27.4 mm height.",
+    "nominal_unmeasured_usb_hole": "Closed using the original rounded battery envelope.",
+    "preserved": "Genuine curved head-contact tray, outer envelope, battery mouth and cavity, spring release cuts, all strap slot coordinates.",
+    "previous_files": "No previously finished 3MF or base script is overwritten."
+  },
+  "old_volume_cm3": 19.988331926224784,
+  "new_volume_cm3": 21.4863028526734,
+  "added_plastic_cm3": 1.4979709264486163,
+  "connector_added_plastic_cm3": 1.3539709264486144,
+  "usb_patch_added_plastic_cm3": 0.144,
+  "bounds_xyz_mm": [
+    [
+      -47.5,
+      195.3,
+      25.49999999701977
+    ],
+    [
+      47.5,
+      230.70000000298023,
+      57.5
+    ]
+  ],
+  "dimensions_xyz_mm": [
+    95.0,
+    35.40000000298022,
+    32.00000000298023
+  ],
+  "connector_x_mm": [
+    -20,
+    20
+  ],
+  "connector_z_mm": [
+    25.5,
+    52.9
+  ],
+  "connector_minimum_y_mm": 197.3635813008767,
+  "closed_connected_manifold": true,
+  "components": 1,
+  "vertices": 7210,
+  "triangles": 14440,
+  "added_material_in_preserved_regions_mm3": {
+    "battery_loading_mouth": 0.0,
+    "battery_body": 0.0,
+    "left_strap_slot": 0.0,
+    "right_strap_slot": 0.0,
+    "spring_working_wall": 0.0
+  },
+  "head_contact_surface_check": {
+    "first_head_side_hits": 1120,
+    "maximum_old_new_difference_mm": 0.0
+  },
+  "previous_deliverable_sha256": {
+    "Headset_Inputs/BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
+    "Headset_Rear/Rear_Wearing.3mf": "80b98bf40cd65d8a1613ab18851018e801a0b9b55c65ed978c753cad5c951398",
+    "Headset_WOAD_Front_2026-10-03/Front_Print_Ready.3mf": "0fe7f6a783f947105a515f02eb674ced53de7970107c4170ba01333b3ae091fa",
+    "Headset_WOAD_Front_2026-10-03/Front_Wearing.3mf": "07f04229106105e4274fc23980ab69ec360cd6db0561dda79f7331e4cfa39459"
+  },
+  "sources": [
+    "Headset_Rear/geometry/rear_body.npz",
+    "Headset_Rear/inputs/rear_fill.npz",
+    "Headset_Rear/build.py"
+  ],
+  "physical_fit_unverified": true
+}

@@ -1,0 +1,36 @@
+{
+  "mode": "Actual hidden Bambu --info import, no UI or slicing",
+  "files": [
+    {
+      "file": "Front_Revised_Print_Ready.3mf",
+      "sha256": "089ca8ce9ec9b6f60a6cfdea168affe7d0e0565e4fdedd349254e0d722a10793",
+      "engine_report": {
+        "error_string": "Success.",
+        "export_time": 1,
+        "layer_height": 0.0,
+        "plate_index": 0,
+        "prepare_time": 509,
+        "return_code": 0,
+        "sparse_infill_density": 0.0,
+        "wall_loops": 0
+      },
+      "process_exit_code": 0
+    },
+    {
+      "file": "Front_Revised_Wearing.3mf",
+      "sha256": "0d03b258e2505def723b20a3f944090aa59e665e8185b0b11e8f3b7e9d1f1ceb",
+      "engine_report": {
+        "error_string": "Success.",
+        "export_time": 0,
+        "layer_height": 0.0,
+        "plate_index": 0,
+        "prepare_time": 2141,
+        "return_code": 0,
+        "sparse_infill_density": 0.0,
+        "wall_loops": 0
+      },
+      "process_exit_code": 0
+    }
+  ],
+  "pass": true
+}

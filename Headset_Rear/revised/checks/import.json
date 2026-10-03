@@ -1,0 +1,39 @@
+{
+  "engine": "D:\\Bambu Studio\\bambu-studio.exe",
+  "mode": "Hidden --info import only; no GUI, no slicing.",
+  "files": [
+    {
+      "file": "Rear_Revised_Print_Ready.3mf",
+      "sha256": "b1c833283760338db752add8a31bb6bafae478754169908218c16be63a17a8b3",
+      "process_exit_code": 0,
+      "engine_report": {
+        "error_string": "Success.",
+        "export_time": 0,
+        "layer_height": 0.0,
+        "plate_index": 0,
+        "prepare_time": 37,
+        "return_code": 0,
+        "sparse_infill_density": 0.0,
+        "wall_loops": 0
+      },
+      "file_unchanged_during_check": true
+    },
+    {
+      "file": "Rear_Revised_Wearing.3mf",
+      "sha256": "2882bd44110c3d0fea3b1d3c4fb004a20640ed9b9ce8aa9b0cb4dbd6970994f8",
+      "process_exit_code": 0,
+      "engine_report": {
+        "error_string": "Success.",
+        "export_time": 0,
+        "layer_height": 0.0,
+        "plate_index": 0,
+        "prepare_time": 749,
+        "return_code": 0,
+        "sparse_infill_density": 0.0,
+        "wall_loops": 0
+      },
+      "file_unchanged_during_check": true
+    }
+  ],
+  "pass": true
+}

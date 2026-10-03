@@ -1,0 +1,265 @@
+{
+  "file": "Front_Revised_Wearing.3mf",
+  "sha256": "0d03b258e2505def723b20a3f944090aa59e665e8185b0b11e8f3b7e9d1f1ceb",
+  "wearing_coordinates_preserved_exactly": true,
+  "single_printable_body": true,
+  "objects": [
+    {
+      "name": "PRINT_Front_shell",
+      "printable": true,
+      "source": "Headset_WOAD_Front_2026-10-03/revised/geometry/front_body.npz",
+      "source_sha256": "ba1aedfd1d97eaca959103c0d2d12874f425de007b1eac7266244227e146c551",
+      "vertices": 117767,
+      "triangles": 235566,
+      "source_unused_vertices_removed": 0,
+      "used_vertex_bounds_xyz_mm": [
+        [
+          -90.60000000000001,
+          -23.8,
+          16.100000001490116
+        ],
+        [
+          90.60000000000001,
+          159.0703299,
+          68.3491947767463
+        ]
+      ],
+      "triangle_index_min_max": [
+        0,
+        117766
+      ],
+      "volume_cm3": 51.19622625782956,
+      "closed_connected_manifold": true,
+      "material_triangle_counts": {
+        "0": 232682,
+        "1": 2884
+      },
+      "readback_coordinates_and_indices_exact": true
+    },
+    {
+      "name": "REFERENCE_Head_do_not_print",
+      "printable": false,
+      "source": "Headset_Inputs/Medium_Trial_Registered.npz",
+      "source_sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+      "vertices": 156195,
+      "triangles": 306692,
+      "source_unused_vertices_removed": 0,
+      "used_vertex_bounds_xyz_mm": [
+        [
+          -86.21714,
+          -12.73515193477283,
+          -147.26303891999999
+        ],
+        [
+          86.47004,
+          220.19414806522718,
+          138.31916108000001
+        ]
+      ],
+      "triangle_index_min_max": [
+        0,
+        156194
+      ],
+      "readback_coordinates_and_indices_exact": true
+    },
+    {
+      "name": "REFERENCE_Actual_CS30_customer_STEP_do_not_print",
+      "printable": false,
+      "source": "Headset_WOAD_Front_2026-10-03/revised/geometry/camera.npz",
+      "source_sha256": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
+      "vertices": 269712,
+      "triangles": 351968,
+      "source_unused_vertices_removed": 320,
+      "used_vertex_bounds_xyz_mm": [
+        [
+          -44.96450837015203,
+          -19.28787200000003,
+          25.49994999548
+        ],
+        [
+          44.966903987705244,
+          5.712128000015717,
+          55.49998418600424
+        ]
+      ],
+      "triangle_index_min_max": [
+        0,
+        269711
+      ],
+      "readback_coordinates_and_indices_exact": true
+    },
+    {
+      "name": "REFERENCE_Textile_cinch_band_do_not_print",
+      "printable": false,
+      "source": "Headset_WOAD_Front_2026-10-03/revised/geometry/retention_band.npz",
+      "source_sha256": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
+      "vertices": 24,
+      "triangles": 44,
+      "source_unused_vertices_removed": 0,
+      "used_vertex_bounds_xyz_mm": [
+        [
+          -54.5,
+          1.862127996981144,
+          29.0
+        ],
+        [
+          54.5,
+          6.412128001451492,
+          44.0
+        ]
+      ],
+      "triangle_index_min_max": [
+        0,
+        23
+      ],
+      "readback_coordinates_and_indices_exact": true
+    }
+  ],
+  "print_ready": {
+    "file": "Front_Revised_Print_Ready.3mf",
+    "sha256": "089ca8ce9ec9b6f60a6cfdea168affe7d0e0565e4fdedd349254e0d722a10793",
+    "printable_objects": 1,
+    "reference_objects": 0,
+    "base_materials": 1,
+    "only_black_material": true,
+    "blue_face_assignments": 0,
+    "wearing_to_print_rotation_about_x_deg": 184.27907013619713,
+    "rotation_matrix": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -0.9972124563487513,
+        0.07461445505322531
+      ],
+      [
+        0.0,
+        -0.07461445505322531,
+        -0.9972124563487513
+      ]
+    ],
+    "translation_mm": [
+      128.0,
+      192.3176981742442,
+      66.9150735710764
+    ],
+    "placement_center_xy_mm": [
+      128,
+      128
+    ],
+    "used_vertex_bounds_xyz_mm": [
+      [
+        37.39999999999999,
+        35.42183911969383,
+        0.0
+      ],
+      [
+        218.60000000000002,
+        220.57816088030614,
+        51.08716840450748
+      ]
+    ],
+    "triangle_indices_unchanged": true,
+    "vertices": 117767,
+    "triangles": 235566,
+    "volume_cm3": 51.19622625782963,
+    "source_volume_delta_mm3": 7.275957614183426e-11,
+    "closed_connected_manifold": true,
+    "coordinates_and_indices_readback_exact": true,
+    "physical_groove_preserved": true,
+    "bed_fit": {
+      "256x256": {
+        "bed_xy_mm": [
+          256,
+          256
+        ],
+        "support_envelope_allowance_mm": 10,
+        "brim_allowance_mm": 5,
+        "combined_envelope_allowance_mm": 15.0,
+        "fits_body_support_envelope_and_brim": true,
+        "body_to_bed_edge_margins_minxy_maxxy_mm": [
+          [
+            37.39999999999999,
+            35.42183911969383
+          ],
+          [
+            37.39999999999998,
+            35.42183911969386
+          ]
+        ]
+      },
+      "H2C_330x320": {
+        "bed_xy_mm": [
+          330,
+          320
+        ],
+        "support_envelope_allowance_mm": 10,
+        "brim_allowance_mm": 5,
+        "combined_envelope_allowance_mm": 15.0,
+        "fits_body_support_envelope_and_brim": true,
+        "body_to_bed_edge_margins_minxy_maxxy_mm": [
+          [
+            37.39999999999999,
+            35.42183911969383
+          ],
+          [
+            111.39999999999998,
+            99.42183911969386
+          ]
+        ]
+      }
+    },
+    "bed_contact": {
+      "plane_z_mm": 0,
+      "triangle_z_tolerance_mm": 1e-07,
+      "total_area_mm2": 5084.80970372151,
+      "triangles": 19174,
+      "edge_connected_patches": 1,
+      "patches": [
+        {
+          "area_mm2": 5084.80970372151,
+          "triangles": 19174,
+          "bounds_xyz_mm": [
+            [
+              37.98277340723823,
+              37.80950168139705,
+              0.0
+            ],
+            [
+              218.01722659276177,
+              214.03801889520557,
+              7.105427357601002e-14
+            ]
+          ]
+        }
+      ],
+      "method": "Unmodified mesh triangles coplanar with the bed; connectivity only through shared full mesh edges."
+    },
+    "pass": true
+  },
+  "source_sha256": {
+    "Headset_WOAD_Front_2026-10-03/revised/geometry/front_body.npz": "ba1aedfd1d97eaca959103c0d2d12874f425de007b1eac7266244227e146c551",
+    "Headset_Inputs/Medium_Trial_Registered.npz": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+    "Headset_WOAD_Front_2026-10-03/revised/geometry/camera.npz": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
+    "Headset_WOAD_Front_2026-10-03/revised/geometry/retention_band.npz": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
+    "Headset_WOAD_Front_2026-10-03/revised/geometry/geometry_values.json": "aded6b556772ee5ca8539f497b1cabc9a2a2a57a1c15bf59636674a41609d672",
+    "Headset_Inputs/CS30_customer.stp": "6ca6a7366083cdc55d1f1ecbaac5d0dacb1b0811861912300d585f8f19c289b8",
+    "Headset_Inputs/BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
+    "Headset_Rear/Rear_Wearing.3mf": "80b98bf40cd65d8a1613ab18851018e801a0b9b55c65ed978c753cad5c951398"
+  },
+  "source_changed_during_run": false,
+  "rear_3mf_sha256": "80b98bf40cd65d8a1613ab18851018e801a0b9b55c65ed978c753cad5c951398",
+  "pass": true,
+  "previous_finished_3mf_sha256": {
+    "Headset_Inputs/BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
+    "Headset_Rear/Rear_Wearing.3mf": "80b98bf40cd65d8a1613ab18851018e801a0b9b55c65ed978c753cad5c951398",
+    "Headset_WOAD_Front_2026-10-03/Front_Print_Ready.3mf": "0fe7f6a783f947105a515f02eb674ced53de7970107c4170ba01333b3ae091fa",
+    "Headset_WOAD_Front_2026-10-03/Front_Wearing.3mf": "07f04229106105e4274fc23980ab69ec360cd6db0561dda79f7331e4cfa39459"
+  },
+  "previous_finished_3mf_untouched": true,
+  "revision_exporter_sha256": "51b17decb8aaa049092dc2f2bf2e1aeca6c78f59c19198044b11ed440190ccb8",
+  "unchanged_exporter_template_sha256": "b8d41f400750bb35184cb12feda64cfe834911e3260f8947d68a99e32facd7bf"
+}

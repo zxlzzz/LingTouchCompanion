@@ -1,0 +1,43 @@
+{
+  "wearing": {
+    "file": "Rear_Revised_Wearing.3mf",
+    "sha256": "2882bd44110c3d0fea3b1d3c4fb004a20640ed9b9ce8aa9b0cb4dbd6970994f8",
+    "printable_objects": 1,
+    "reference_objects": 2,
+    "coordinates_and_indices_readback_exact": true
+  },
+  "print_ready": {
+    "file": "Rear_Revised_Print_Ready.3mf",
+    "sha256": "b1c833283760338db752add8a31bb6bafae478754169908218c16be63a17a8b3",
+    "printable_objects": 1,
+    "reference_objects": 0,
+    "coordinates_and_indices_readback_exact": true,
+    "translation_mm": [
+      128.0,
+      -85.00000000149012,
+      -25.49999999701977
+    ],
+    "rotation": "None; original flat bottom on bed, open mouth up.",
+    "bounds_xyz_mm": [
+      [
+        80.5,
+        110.29999999850989,
+        0.0
+      ],
+      [
+        175.5,
+        145.7000000014901,
+        32.00000000298023
+      ]
+    ],
+    "bed_contact_area_mm2": 2391.193621520484,
+    "volume_cm3": 21.486302852673422
+  },
+  "previous_finished_3mf_untouched": true,
+  "previous_deliverable_sha256": {
+    "Headset_Inputs/BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
+    "Headset_Rear/Rear_Wearing.3mf": "80b98bf40cd65d8a1613ab18851018e801a0b9b55c65ed978c753cad5c951398",
+    "Headset_WOAD_Front_2026-10-03/Front_Print_Ready.3mf": "0fe7f6a783f947105a515f02eb674ced53de7970107c4170ba01333b3ae091fa"
+  },
+  "pass": true
+}

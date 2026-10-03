@@ -1,0 +1,215 @@
+{
+  "camera_transform_native_to_wearing": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      -0.0290536247
+    ],
+    [
+      0.0,
+      0.0,
+      -1.0,
+      -19.287872
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      38.0
+    ]
+  ],
+  "camera_orientation": "Level forward, actual bottom down, optical centers Z38 mm; unpowered prop.",
+  "camera_rear_y_mm": 5.712128,
+  "camera_bottom_z_mm": 25.49995,
+  "shell_wall_mm": 1.4,
+  "optics": [
+    {
+      "name": "RGB",
+      "x": -22.0290536247,
+      "z": 38,
+      "opening_mm": [
+        15.5,
+        15.5
+      ],
+      "radial_allowance_mm": 1.5
+    },
+    {
+      "name": "TX",
+      "x": 6.9709463753,
+      "z": 38,
+      "opening_mm": [
+        9,
+        6.5
+      ],
+      "edge_allowance_mm": 1
+    },
+    {
+      "name": "RX",
+      "x": 21.9709463753,
+      "z": 38,
+      "opening_mm": [
+        16.5,
+        16.5
+      ],
+      "radial_allowance_mm": 1.5
+    }
+  ],
+  "geometry": {
+    "front_body": {
+      "volume_cm3": 51.19622625782956,
+      "components": 1,
+      "vertices": 117767,
+      "faces": 235566,
+      "bounds_xyz_mm": [
+        [
+          -90.60000000000001,
+          -23.8,
+          16.100000001490116
+        ],
+        [
+          90.60000000000001,
+          159.0703299,
+          68.3491947767463
+        ]
+      ]
+    },
+    "retention_band": {
+      "volume_cm3": 1.1445000048726797,
+      "components": 1,
+      "vertices": 24,
+      "faces": 44,
+      "bounds_xyz_mm": [
+        [
+          -54.5,
+          1.862127996981144,
+          29.0
+        ],
+        [
+          54.5,
+          6.412128001451492,
+          44.0
+        ]
+      ]
+    }
+  },
+  "head_audit_parts": [
+    "front_body",
+    "camera",
+    "retention_band"
+  ],
+  "nominal_clearance_mm": {
+    "front_center": 3.112128,
+    "front_at_camera_ends": 1.0,
+    "camera_ceiling": 1.5,
+    "camera_end_to_cheek": 1.28,
+    "bottom_seat": 0,
+    "rear_to_skin": 0
+  },
+  "internal_ceiling_mm": {
+    "underside_z": 57,
+    "thickness": 1.2,
+    "width": 94,
+    "rear_edge": "Upper lip ends at Z57; camera-height back remains open. Single outer roof, no floating inner ceiling."
+  },
+  "print_bearing_plane": {
+    "z_intercept_mm": 67.10212366989771,
+    "z_y_slope": -0.07482302750852413,
+    "rotation_about_wearing_x_deg": 184.27907013619713,
+    "temple_upper_web_mm": 1.4,
+    "roof_normal_thickness_mm": 1.4
+  },
+  "front_design_dimensions_mm": {
+    "broad_frontal_width": 132.0,
+    "central_height": 45,
+    "integral_long_oval": [
+      90,
+      28
+    ],
+    "oval_center_z": 41.0,
+    "groove_width": 1,
+    "groove_depth": 0.28
+  },
+  "front_side_shape_mm": {
+    "camera_zone_half_width": 46.0,
+    "wing_front_additional_retreat": 6.0,
+    "wing_start_depth": 21.700000000000003,
+    "note": "Only blank wings and shoulder turn are compacted; central face, camera pose and common print plane remain unchanged."
+  },
+  "rear_opening_mm": {
+    "width": 143.5,
+    "height": 41.2,
+    "center_z": 45.4,
+    "front_y": 4.912128
+  },
+  "fixing": "One 15 mm hook-loop cinch band; 40 mm parallel folded overlap; generic broad front/floor stops. No camera hole, rear cover or fitted snap.",
+  "retention_band_mm": {
+    "width": 15,
+    "suggested_purchase_length": 220,
+    "folded_overlap_min": 40,
+    "reference_thickness": 0.7,
+    "eyes": [
+      2.2,
+      16.5
+    ]
+  },
+  "unchanged_slots_y_mm": [
+    151.5703299,
+    154.5703299
+  ],
+  "unchanged_slots_z_mm": [
+    26.2,
+    52.2
+  ],
+  "unchanged_reach_y_mm": 159.0703299,
+  "source_hashes": {
+    "Headset_Inputs/CS30_customer.stp": "6ca6a7366083cdc55d1f1ecbaac5d0dacb1b0811861912300d585f8f19c289b8",
+    "Headset_Inputs/BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
+    "Headset_Inputs/Medium_Trial_Registered.npz": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+    "Headset_Inputs/datums.json": "efeedc53ed4ec8809969332b2a1627f00753ade2cafaf3128ac1dad7b760c3a2",
+    "Headset_WOAD_Front_2026-10-03/inputs/camera_physical_native.npz": "3ab286dd328bb1206bd967502e1b652c3e76c502bd2efd0a262ae312ce8b81dd"
+  },
+  "nose_support": {
+    "width_mm": 26,
+    "height_mm": 9,
+    "front_to_back_sheet_mm": 2.2,
+    "skin_tessellation_compensation_mm": 0.02,
+    "bounds_xyz_mm": [
+      [
+        -13.0,
+        -3.045192543051492,
+        16.100000001490116
+      ],
+      [
+        13.0,
+        20.360986311212418,
+        25.200000002980232
+      ]
+    ],
+    "additional_union_volume_cm3": 0.721939257336048,
+    "construction": "Broad curved integral saddle and short floor extension, wholly below the actual camera."
+  },
+  "temple_revision": {
+    "straight_main_span_y_mm": [
+      43,
+      130
+    ],
+    "straight_center_abs_x_mm": 88.4,
+    "terminal_return_y_mm": [
+      130,
+      150
+    ],
+    "terminal_slot_xyz_preserved": true,
+    "note": "Parallel straight main spans; only one smooth inward terminal return. No lateral ripple follows the ears."
+  },
+  "previous_finished_3mf_sha256": {
+    "Headset_Inputs/BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
+    "Headset_Rear/Rear_Wearing.3mf": "80b98bf40cd65d8a1613ab18851018e801a0b9b55c65ed978c753cad5c951398",
+    "Headset_WOAD_Front_2026-10-03/Front_Print_Ready.3mf": "0fe7f6a783f947105a515f02eb674ced53de7970107c4170ba01333b3ae091fa",
+    "Headset_WOAD_Front_2026-10-03/Front_Wearing.3mf": "07f04229106105e4274fc23980ab69ec360cd6db0561dda79f7331e4cfa39459"
+  },
+  "generator_sha256": {
+    "revision": "cdad2af6d1f06a540e36dcdb5dc0095595878760fc0488e7847d71ecb529f3dc",
+    "unchanged_template": "0be0b5d69f0bedb3e24459ff59229a94e2a56966190e5e6dd2ba1a6db399c4e0"
+  }
+}

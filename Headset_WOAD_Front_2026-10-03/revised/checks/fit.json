@@ -1,0 +1,331 @@
+{
+  "head_source": "Headset_Inputs\\Medium_Trial_Registered.npz",
+  "head_sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+  "head_pose_unchanged": true,
+  "build_source_sha256": "0be0b5d69f0bedb3e24459ff59229a94e2a56966190e5e6dd2ba1a6db399c4e0",
+  "geometry_values_sha256": "aded6b556772ee5ca8539f497b1cabc9a2a2a57a1c15bf59636674a41609d672",
+  "audit_source_sha256": {
+    "head_fit.py": "5025ce059735db0b6a58d44f6befa9127c5d46d8d77dc14292eafc8fca1a45da",
+    "mesh_distance.py": "1a05116565e9e078230a04030037b9a523c70f413e1e30ef71e6e7cdf06aaf79"
+  },
+  "head_audit_parts": [
+    "front_body",
+    "camera",
+    "retention_band"
+  ],
+  "source_geometry_sha256": {
+    "front_body": "ba1aedfd1d97eaca959103c0d2d12874f425de007b1eac7266244227e146c551",
+    "camera": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
+    "retention_band": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838"
+  },
+  "skin_contact_allowed": true,
+  "intentional_skin_clearance_added_mm": 0,
+  "basis": "Actual unchanged registered triangular head; all current material parts and actual camera checked. Contact is allowed and does not by itself fail fit. No old BTTF collision exception or earlier clearance threshold is imposed.",
+  "parts": {
+    "front_body": {
+      "continuous_triangle_clearance": {
+        "distance_mm": 0.0,
+        "head_witness_xyz_mm": [
+          6.131456418081856,
+          9.475679721876116,
+          25.200000002980232
+        ],
+        "case_witness_xyz_mm": [
+          6.131456418081856,
+          9.475679721876116,
+          25.200000002980232
+        ],
+        "head_face_index": 286261,
+        "case_face_index": 206260,
+        "broadphase_pairs": 22233261,
+        "exact_pairs_tested": 174046,
+        "method": "Conservative enclosing-sphere and AABB broadphase; every vertex-face and interior edge-edge minimum plus all six edge-face intersection tests per possibly closer triangle pair. Exterior/penetration classification is checked separately.",
+        "excluded_head_triangle_distance_lower_bound_mm": 0.015812739130727775,
+        "head_triangles_checked": 47175
+      },
+      "part_points_against_skin": {
+        "points_checked": 706682,
+        "closest_normal_signs_corrected_by_closed_surface_parity": 0,
+        "points_strictly_inside": 2,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": -0.0010274819310034905,
+        "maximum_sampled_penetration_mm": 0.0010274819310034905,
+        "minimum_witness_xyz_mm": [
+          6.1500000059604645,
+          9.50092485246517,
+          25.200000002980232
+        ]
+      },
+      "skin_points_against_part": {
+        "points_checked": 71976,
+        "closest_normal_signs_corrected_by_closed_surface_parity": 2,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": 0.001125490073500498,
+        "maximum_sampled_penetration_mm": 0.0,
+        "minimum_witness_xyz_mm": [
+          9.134105,
+          14.275958065227172,
+          24.122286080000006
+        ]
+      },
+      "penetration_within_contact_epsilon": true
+    },
+    "camera": {
+      "continuous_triangle_clearance": {
+        "distance_mm": 0.0,
+        "head_witness_xyz_mm": [
+          -4.661518181382455,
+          5.712128000005863,
+          52.39106740345
+        ],
+        "case_witness_xyz_mm": [
+          -4.661518181382455,
+          5.712128000005863,
+          52.39106740345
+        ],
+        "head_face_index": 304800,
+        "case_face_index": 316257,
+        "broadphase_pairs": 1890505,
+        "exact_pairs_tested": 8355,
+        "method": "Conservative enclosing-sphere and AABB broadphase; every vertex-face and interior edge-edge minimum plus all six edge-face intersection tests per possibly closer triangle pair. Exterior/penetration classification is checked separately.",
+        "excluded_head_triangle_distance_lower_bound_mm": 3.7227401049858146,
+        "head_triangles_checked": 2390
+      },
+      "part_points_against_skin": {
+        "points_checked": 621680,
+        "closest_normal_signs_corrected_by_closed_surface_parity": 0,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": 0.06680641662851139,
+        "maximum_sampled_penetration_mm": 0.0,
+        "minimum_witness_xyz_mm": [
+          8.921330491530158,
+          5.710127235896881,
+          52.454293388299014
+        ]
+      },
+      "skin_points_against_part": {
+        "points_checked": 0,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": null,
+        "maximum_sampled_penetration_mm": 0.0,
+        "minimum_witness_xyz_mm": null,
+        "method": "Not classified against open STEP face seams. Actual surface collision bisection below establishes first skin contact."
+      },
+      "penetration_within_contact_epsilon": true
+    },
+    "retention_band": {
+      "continuous_triangle_clearance": {
+        "distance_mm": 0.2172004282867077,
+        "head_witness_xyz_mm": [
+          0.05125816132652852,
+          6.625404941454316,
+          44.04109711560391
+        ],
+        "case_witness_xyz_mm": [
+          0.051258161326529716,
+          6.412128001451492,
+          44.0
+        ],
+        "head_face_index": 101826,
+        "case_face_index": 20,
+        "broadphase_pairs": 50784,
+        "exact_pairs_tested": 29627,
+        "method": "Conservative enclosing-sphere and AABB broadphase; every vertex-face and interior edge-edge minimum plus all six edge-face intersection tests per possibly closer triangle pair. Exterior/penetration classification is checked separately.",
+        "excluded_head_triangle_distance_lower_bound_mm": 11.472497321264187,
+        "head_triangles_checked": 5298
+      },
+      "part_points_against_skin": {
+        "points_checked": 134,
+        "closest_normal_signs_corrected_by_closed_surface_parity": 0,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": 0.2175575913127427,
+        "maximum_sampled_penetration_mm": 0.0,
+        "minimum_witness_xyz_mm": [
+          0.0,
+          6.412128001451492,
+          44.0
+        ]
+      },
+      "skin_points_against_part": {
+        "points_checked": 6,
+        "closest_normal_signs_corrected_by_closed_surface_parity": 0,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": 0.2278900637756749,
+        "maximum_sampled_penetration_mm": 0.0,
+        "minimum_witness_xyz_mm": [
+          0.07309055000000006,
+          6.640018065227167,
+          43.965261080000005
+        ]
+      },
+      "penetration_within_contact_epsilon": true
+    }
+  },
+  "camera_first_skin_contact": {
+    "method": "Exact VTK triangle surface collision, bisection along wearing +Y at unchanged level optical height.",
+    "additional_y_before_contact_mm": -1.52587890625e-05,
+    "additional_y_at_contact_mm": -1.430511474609375e-05,
+    "bisection_resolution_mm": 9.5367431640625e-07,
+    "pose_posterior_of_first_contact_upper_bound_mm": 1.52587890625e-05,
+    "nominal_contact_within_epsilon": true,
+    "reused_for_identical_head_and_camera_hashes": true,
+    "source_head_sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+    "source_camera_sha256": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4"
+  },
+  "classification_controls_mm": {
+    "interior_center": -71.30316940674055,
+    "anterior_exterior": 56.04596733915428,
+    "lateral_exterior": 13.896908066790223
+  },
+  "classification_contact_epsilon_mm": 0.05,
+  "classification_contact_epsilon_note": "Numerical reporting tolerance for nominal contact, not a design gap. Exact sampled penetration depths and witnesses are retained; this is not a physical fit certification.",
+  "all_parts_sampled_penetration_within_contact_epsilon": true,
+  "classification_limit": "Every referenced vertex and face centroid is classified against the head; material edge midpoints are additionally checked. Reverse material classification uses watertight ray parity to correct concave closest-normal sign artifacts. Camera STEP normals do not supply a valid containment sign, so exact triangle collision bisection verifies its nominal first skin contact. Negative sample depths are not an exact continuous maximum penetration.",
+  "terminal_slots": {
+    "datums_source": "Headset_Inputs/datums.json",
+    "datums_sha256": "efeedc53ed4ec8809969332b2a1627f00753ade2cafaf3128ac1dad7b760c3a2",
+    "sides": {
+      "left": {
+        "expected_slot_x_center_mm": -74.56794765000001,
+        "expected_slot_yz_bounds_mm": [
+          [
+            151.5703299,
+            26.2
+          ],
+          [
+            154.5703299,
+            52.2
+          ]
+        ],
+        "matching_hole_loops": 1,
+        "actual_slot_wall_x_extent_mm": [
+          -76.1974706,
+          -72.93842470000001
+        ],
+        "slot_lateral_center_error_mm": 0.0,
+        "preserved": true
+      },
+      "right": {
+        "expected_slot_x_center_mm": 74.49832244999999,
+        "expected_slot_yz_bounds_mm": [
+          [
+            151.5703299,
+            26.2
+          ],
+          [
+            154.5703299,
+            52.2
+          ]
+        ],
+        "matching_hole_loops": 1,
+        "actual_slot_wall_x_extent_mm": [
+          72.7905112,
+          76.20613369999998
+        ],
+        "slot_lateral_center_error_mm": 0.0,
+        "preserved": true
+      }
+    },
+    "expected_terminal_reach_y_mm": 159.0703299,
+    "actual_terminal_reach_y_mm": 159.0703299,
+    "reach_unchanged": true,
+    "all_slot_locations_and_reach_preserved": true
+  },
+  "revision_build_source_sha256": "cdad2af6d1f06a540e36dcdb5dc0095595878760fc0488e7847d71ecb529f3dc",
+  "unchanged_template_source_sha256": "0be0b5d69f0bedb3e24459ff59229a94e2a56966190e5e6dd2ba1a6db399c4e0",
+  "source_sha256": {
+    "Headset_WOAD_Front_2026-10-03/revised/build.py": "cdad2af6d1f06a540e36dcdb5dc0095595878760fc0488e7847d71ecb529f3dc",
+    "Headset_WOAD_Front_2026-10-03/revised/verify.py": "d14e93520dcacc8af267db42e1594752d9cd48a608d0637b99a5a0006ebfd8ed",
+    "Headset_WOAD_Front_2026-10-03/build.py": "0be0b5d69f0bedb3e24459ff59229a94e2a56966190e5e6dd2ba1a6db399c4e0",
+    "Headset_WOAD_Front_2026-10-03/checks/head_fit.py": "5025ce059735db0b6a58d44f6befa9127c5d46d8d77dc14292eafc8fca1a45da",
+    "Headset_WOAD_Front_2026-10-03/checks/mesh_distance.py": "1a05116565e9e078230a04030037b9a523c70f413e1e30ef71e6e7cdf06aaf79",
+    "Headset_WOAD_Front_2026-10-03/revised/geometry/geometry_values.json": "aded6b556772ee5ca8539f497b1cabc9a2a2a57a1c15bf59636674a41609d672",
+    "Headset_WOAD_Front_2026-10-03/revised/geometry/front_body.npz": "ba1aedfd1d97eaca959103c0d2d12874f425de007b1eac7266244227e146c551",
+    "Headset_WOAD_Front_2026-10-03/revised/geometry/nose_support.npz": "333184c551e2551a76c1fb6205ba43e44fb22e99b368badf99197b11e4225738",
+    "Headset_WOAD_Front_2026-10-03/revised/geometry/camera.npz": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
+    "Headset_WOAD_Front_2026-10-03/revised/geometry/retention_band.npz": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
+    "Headset_Inputs/Medium_Trial_Registered.npz": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+    "Headset_Inputs/datums.json": "efeedc53ed4ec8809969332b2a1627f00753ade2cafaf3128ac1dad7b760c3a2"
+  },
+  "nose_support": {
+    "nose_source_sha256": "333184c551e2551a76c1fb6205ba43e44fb22e99b368badf99197b11e4225738",
+    "whole_nose_piece_bounds_xyz_mm": [
+      [
+        -13.0,
+        -3.045192543051492,
+        16.100000001490116
+      ],
+      [
+        13.0,
+        20.360986311212418,
+        25.200000002980232
+      ]
+    ],
+    "nominal_width_mm": 26,
+    "nominal_height_mm": 9,
+    "head_facing_bearing_area_mm2": 427.5588495186464,
+    "bearing_projected_xz_area_mm2": 233.65429710413656,
+    "bearing_bounds_xyz_mm": [
+      [
+        -13.0,
+        -0.8451925430514916,
+        16.100000001490116
+      ],
+      [
+        13.0,
+        20.360986311212418,
+        25.200000002980232
+      ]
+    ],
+    "bearing_width_x_mm": 26.0,
+    "centroid_skin_gap_signed_range_mm": [
+      0.0011746724077096023,
+      0.025668633416092688
+    ],
+    "bearing_vertex_skin_gap_signed_range_mm": [
+      -0.0010274819310034905,
+      0.021041283198089105
+    ],
+    "area_weighted_head_reaction_normal_xyz": [
+      -0.00014327522721362438,
+      -0.5464845304153775,
+      0.423521702655775
+    ],
+    "upward_reaction_projected_area_mm2": 181.0804519336818,
+    "fraction_bearing_area_with_upward_normal": 1.0,
+    "camera_bottom_to_nose_top_z_mm": 0.2999499924997693,
+    "camera_conservative_hull_overlap_mm3": 0.0,
+    "method": "All +Y-facing saddle facets with signed head gap within 0.06 mm of nominal contact; actual triangle areas and outward normals. Negative gaps reported as sampled penetration, not hidden by a comfort stand-off.",
+    "limitation": "Contact area and upward-facing reaction support geometric bearing; real wearing stability, comfort and retention are not physically certified."
+  },
+  "original_camera_and_band_identity": {
+    "camera": {
+      "all_arrays_identical": true,
+      "old_sha256": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
+      "revised_sha256": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4"
+    },
+    "retention_band": {
+      "all_arrays_identical": true,
+      "old_sha256": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838",
+      "revised_sha256": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838"
+    }
+  },
+  "camera_body_overlap": {
+    "old_conservative_hull_mm3": 0.0004936754246014619,
+    "revised_conservative_hull_mm3": 0.0004936754246014619,
+    "overlap_not_increased": true
+  },
+  "body_manifold": {
+    "closed_connected_manifold": true,
+    "components": 1,
+    "volume_cm3": 51.19622625782956,
+    "vertices": 117767,
+    "triangles": 235566
+  },
+  "pass": true
+}
