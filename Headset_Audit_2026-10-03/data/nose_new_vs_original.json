@@ -1,0 +1,21 @@
+{
+ "centre_zone_points_within_3.5mm": 21840,
+ "backed_by_original_material": {
+  "n": 19084,
+  "min_distance_to_head_mm": 6.509482431542524e-06,
+  "at": [
+   7.747,
+   3.679,
+   14.696
+  ]
+ },
+ "backed_by_new_material": {
+  "n": 2756,
+  "min_distance_to_head_mm": 2.833042294450904,
+  "at": [
+   -15.537,
+   3.667,
+   55.14
+  ]
+ }
+}
