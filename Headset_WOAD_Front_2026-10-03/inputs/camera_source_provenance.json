@@ -1,5 +1,5 @@
 {
-  "source": "Headset_Repro/raw/CS30_customer.stp",
+  "source": "Headset_Inputs/CS30_customer.stp",
   "source_sha256": "6ca6a7366083cdc55d1f1ecbaac5d0dacb1b0811861912300d585f8f19c289b8",
   "housing_immediate_path": [
     1,

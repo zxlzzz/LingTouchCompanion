@@ -1,7 +1,0 @@
-{
-  "scope": "new shell including preserved wings and two hooks; excludes original BTTF and preserved ear tabs",
-  "method": "Morphological erosion by inscribed radius1.5 sphere polyhedron32triangles. Empty is a conservative maximum-inscribed-sphere diameter<=3 certificate. This metric is distinct from normal wall measurement.",
-  "eroded_volume_mm3": 0.0,
-  "eroded_empty": true,
-  "status": "Error.NoError"
-}

@@ -1,0 +1,117 @@
+{
+  "migration_only": true,
+  "unchanged_rear_3mf_byte_copy_sha256": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296",
+  "generator_rebuilt_all_current_mesh_arrays_exactly": {
+    "rear_body": {
+      "v": true,
+      "f": true,
+      "copied_source_sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
+      "regenerated_file_sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9"
+    },
+    "battery": {
+      "v": true,
+      "f": true,
+      "copied_source_sha256": "068b1ebdf9b050b2d77bfeb9153cca0a51812e4d7172872c9cd3733978c37ac1",
+      "regenerated_file_sha256": "068b1ebdf9b050b2d77bfeb9153cca0a51812e4d7172872c9cd3733978c37ac1"
+    },
+    "straps": {
+      "v": true,
+      "f": true,
+      "copied_source_sha256": "e5573dbf2e83f1a01eefd22e4acfbb982562c9a9d3ab89bee52986f5585b7169",
+      "regenerated_file_sha256": "e5573dbf2e83f1a01eefd22e4acfbb982562c9a9d3ab89bee52986f5585b7169"
+    }
+  },
+  "independent_regenerated_container": {
+    "file": "Rear_Rebuilt_Verification.3mf",
+    "sha256": "edc6ec9d21a10bc8ac026fe4d72b457bfdd45dae3836cf49a06844d0c32359fd",
+    "wearing_coordinates_preserved": true,
+    "rear_body_arrays_unchanged": true,
+    "original_rear_3mf_sha256": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296",
+    "original_3mf_byte_copy_preserved": false,
+    "objects": [
+      {
+        "name": "PRINT_Rear_shell",
+        "printable": true,
+        "source": "Headset_Rear/geometry/rear_body.npz",
+        "source_sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
+        "array_sha256": {
+          "v": "68ab314d25a1620dc906c320dd3bdc00bb2a72b490faef82e768903fedf20cb7",
+          "f": "9cedad54adfa8082f3e8ceb78aa470f66cd685288745a6e597df6b737f422ba8"
+        },
+        "vertices": 10931,
+        "triangles": 21894,
+        "maximum_container_coordinate_roundoff_mm": 0.0,
+        "bounds_xyz_mm": [
+          [
+            -47.5,
+            195.3,
+            25.49999999701977
+          ],
+          [
+            47.5,
+            230.70000000298023,
+            57.5
+          ]
+        ],
+        "single_closed_connected_solid": true,
+        "volume_cm3": 19.988331926224784
+      },
+      {
+        "name": "REFERENCE_Head_do_not_print",
+        "printable": false,
+        "source": "Headset_Inputs/Medium_Trial_Registered.npz",
+        "source_sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+        "array_sha256": {
+          "v": "607b620c9d8bcbeb193de4507fe5657629a4d8b6f14e81a99d8f7195eda1b8eb",
+          "f": "e650d1bdc293226dcd37347538cedee82b50f159571f9203c97221db498afc59"
+        },
+        "vertices": 156195,
+        "triangles": 306692,
+        "maximum_container_coordinate_roundoff_mm": 0.0,
+        "bounds_xyz_mm": [
+          [
+            -86.21714,
+            -12.73515193477283,
+            -147.26303891999999
+          ],
+          [
+            86.47004,
+            220.19414806522718,
+            138.31916108000001
+          ]
+        ]
+      },
+      {
+        "name": "REFERENCE_Battery_do_not_print",
+        "printable": false,
+        "source": "Headset_Rear/geometry/battery.npz",
+        "source_sha256": "068b1ebdf9b050b2d77bfeb9153cca0a51812e4d7172872c9cd3733978c37ac1",
+        "array_sha256": {
+          "v": "55d80c5c8eaed72936c91e4455577a10e40ebc6d281f54c436ccee290f36ea6c",
+          "f": "3704c0775580790e7e3dc1183b4e2c0940685cfa3f47e52dc2f20faf03419858"
+        },
+        "vertices": 384,
+        "triangles": 764,
+        "maximum_container_coordinate_roundoff_mm": 0.0,
+        "bounds_xyz_mm": [
+          [
+            -45.2,
+            205.6,
+            27.800000000000004
+          ],
+          [
+            45.2,
+            228.4,
+            50.6
+          ]
+        ]
+      }
+    ]
+  },
+  "old_folder_runtime_dependency": false,
+  "emitted_mesh_files": [
+    "battery.npz",
+    "rear_body.npz",
+    "straps.npz"
+  ]
+}

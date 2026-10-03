@@ -1,8 +1,0 @@
-{
-  "rear_source_sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
-  "scope": "box+rear clip+two strap plates; curved tray and joining ribs excluded",
-  "method": "Morphological erosion by an inscribed radius1.5 sphere polyhedron. Empty erosion conservatively excludes any larger diameter3 inscribed ball; this is not a global normal-thickness measurement.",
-  "eroded_empty": true,
-  "volume_mm3": 0.0,
-  "maximum_inscribed_ball_diameter_bound_mm": 3
-}

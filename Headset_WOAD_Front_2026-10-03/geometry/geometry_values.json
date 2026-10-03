@@ -10,53 +10,136 @@
       0.0,
       0.0,
       -1.0,
-      -30.0
+      -19.287872
     ],
     [
       0.0,
       1.0,
       0.0,
-      35.5
+      38.0
     ]
   ],
-  "camera_orientation": "Level, forward; physical bottom down; RGB at left in wearer coordinates.",
-  "shell_wall_mm": 2.4,
-  "optic_panel_wall_mm": 1.2,
-  "camera_rear_y_mm": -5,
-  "camera_bottom_z_mm": 23,
+  "camera_orientation": "Level forward, actual bottom down, optical centers Z38 mm; unpowered prop.",
+  "camera_rear_y_mm": 5.712128,
+  "camera_bottom_z_mm": 25.49995,
+  "shell_wall_mm": 1.4,
+  "optics": [
+    {
+      "name": "RGB",
+      "x": -22.0290536247,
+      "z": 38,
+      "opening_mm": [
+        15.5,
+        15.5
+      ],
+      "radial_allowance_mm": 1.5
+    },
+    {
+      "name": "TX",
+      "x": 6.9709463753,
+      "z": 38,
+      "opening_mm": [
+        9,
+        6.5
+      ],
+      "edge_allowance_mm": 1
+    },
+    {
+      "name": "RX",
+      "x": 21.9709463753,
+      "z": 38,
+      "opening_mm": [
+        16.5,
+        16.5
+      ],
+      "radial_allowance_mm": 1.5
+    }
+  ],
+  "geometry": {
+    "front_body": {
+      "volume_cm3": 49.50991062645787,
+      "components": 1,
+      "vertices": 89668,
+      "faces": 179380,
+      "bounds_xyz_mm": [
+        [
+          -92.11673507285427,
+          -23.8,
+          23.200000000000003
+        ],
+        [
+          92.26721475995697,
+          159.0703299,
+          68.4
+        ]
+      ]
+    },
+    "retention_band": {
+      "volume_cm3": 1.1445000048726797,
+      "components": 1,
+      "vertices": 24,
+      "faces": 44,
+      "bounds_xyz_mm": [
+        [
+          -54.5,
+          1.862127996981144,
+          29.0
+        ],
+        [
+          54.5,
+          6.412128001451492,
+          44.0
+        ]
+      ]
+    }
+  },
+  "head_audit_parts": [
+    "front_body",
+    "camera",
+    "retention_band"
+  ],
   "nominal_clearance_mm": {
-    "front_body_to_camera": 2,
-    "panel_to_camera_front": 0.8,
-    "back_to_lid": 3.4,
-    "bottom_to_support_ribs": 1.0,
-    "roof": 2.6,
-    "side": 3.0
+    "front_center": 3.112128,
+    "front_at_camera_ends": 1.0,
+    "camera_ceiling": 1.5,
+    "camera_end_to_cheek": 1.28,
+    "bottom_seat": 0,
+    "rear_to_skin": 0
   },
-  "fixing": "Closed main shell and four M3x12 screws, four M3 nuts in captive hex seats; soft adjustable pads. Bottom camera hole unused.",
-  "lid_seam_clearance_mm": 0.25,
-  "bolt_clearance_diameter_mm": 3.4,
-  "nut_pocket_across_flats_mm": 5.9,
-  "usb_plug_design_envelope_mm": {
-    "metal_nose": [
-      3.2,
-      8.2,
-      2.4
+  "internal_ceiling_mm": {
+    "underside_z": 57,
+    "thickness": 1.2,
+    "width": 94,
+    "rear_edge": "Nominal contact with registered head surface; face side remains open."
+  },
+  "front_design_dimensions_mm": {
+    "broad_frontal_width": 140,
+    "central_height": 45,
+    "integral_long_oval": [
+      90,
+      28
     ],
-    "molded_body": [
-      13,
-      10,
-      8
-    ],
-    "rebate_relief_allowance": 0.5
+    "oval_center_z": 41.0,
+    "groove_width": 1,
+    "groove_depth": 0.28
   },
-  "cable_gland_mm": {
-    "wire_bore_diameter": 4.5,
-    "split_width": 0.4,
-    "core_radius": 3.25,
-    "shell_recess_radius": 3.2
+  "rear_opening_mm": {
+    "width": 143.5,
+    "height": 41.2,
+    "center_z": 45.4,
+    "front_y": 4.912128
   },
-  "original_temple_preserved_from_y_mm": 43,
-  "slot_shift_each_side_mm": 5.1,
+  "fixing": "One 15 mm hook-loop cinch band; 40 mm parallel folded overlap; generic broad front/floor stops. No camera hole, rear cover or fitted snap.",
+  "retention_band_mm": {
+    "width": 15,
+    "suggested_purchase_length": 220,
+    "folded_overlap_min": 40,
+    "reference_thickness": 0.7,
+    "eyes": [
+      2.2,
+      16.5
+    ]
+  },
   "unchanged_slots_y_mm": [
     151.5703299,
     154.5703299
@@ -65,371 +148,12 @@
     26.2,
     52.2
   ],
-  "optics": [
-    {
-      "name": "RGB",
-      "x": -22.0290536247,
-      "z": 35.5,
-      "inner_wh": [
-        15.5,
-        15.5
-      ],
-      "fov": [
-        112,
-        63
-      ],
-      "outer_wh_at_panel_mm": [
-        19.058146324430577,
-        16.970721891535838
-      ]
-    },
-    {
-      "name": "TX",
-      "x": 6.9709463753,
-      "z": 35.5,
-      "inner_wh": [
-        12,
-        9
-      ],
-      "fov": [
-        110,
-        90
-      ],
-      "outer_wh_at_panel_mm": [
-        15.427555216181075,
-        11.399999999999999
-      ]
-    },
-    {
-      "name": "RX",
-      "x": 21.9709463753,
-      "z": 35.5,
-      "inner_wh": [
-        16.5,
-        16.5
-      ],
-      "fov": [
-        110,
-        110
-      ],
-      "outer_wh_at_panel_mm": [
-        19.927555216181073,
-        19.927555216181073
-      ]
-    }
-  ],
-  "geometry": {
-    "front_body": {
-      "volume_cm3": 63.55027498695458,
-      "components": 1,
-      "vertices": 115673,
-      "faces": 231378,
-      "bounds_xyz_mm": [
-        [
-          -76.2,
-          -34.4,
-          5.0000000013803305
-        ],
-        [
-          76.2061337,
-          159.0703299,
-          58.0
-        ]
-      ]
-    },
-    "service_lid": {
-      "volume_cm3": 7.3481179569832165,
-      "components": 1,
-      "vertices": 782,
-      "faces": 1576,
-      "bounds_xyz_mm": [
-        [
-          -51.0,
-          -1.6,
-          19.899999998509884
-        ],
-        [
-          51.0,
-          0.4,
-          56.899999998509884
-        ]
-      ]
-    },
-    "visor": {
-      "volume_cm3": 44.63628722380953,
-      "components": 1,
-      "vertices": 41239,
-      "faces": 82502,
-      "bounds_xyz_mm": [
-        [
-          -72.0,
-          -34.4,
-          5.0000000013803305
-        ],
-        [
-          72.0,
-          44.0,
-          58.0
-        ]
-      ]
-    },
-    "outer_envelope": {
-      "volume_cm3": 200.62776271096786,
-      "components": 1,
-      "vertices": 21966,
-      "faces": 43928,
-      "bounds_xyz_mm": [
-        [
-          -72.0,
-          -34.4,
-          5.0000000013803305
-        ],
-        [
-          72.0,
-          44.0,
-          58.0
-        ]
-      ]
-    },
-    "inner_void": {
-      "volume_cm3": 149.91274027873828,
-      "components": 1,
-      "vertices": 21206,
-      "faces": 42408,
-      "bounds_xyz_mm": [
-        [
-          -69.60000000000004,
-          -32.0,
-          7.400000006250886
-        ],
-        [
-          69.60000000000004,
-          41.12253736945439,
-          55.6
-        ]
-      ]
-    },
-    "original_normal": {
-      "volume_cm3": 44.288789442820644,
-      "components": 1,
-      "vertices": 122159,
-      "faces": 244314,
-      "bounds_xyz_mm": [
-        [
-          -71.15665064153818,
-          0.0,
-          0.0
-        ],
-        [
-          71.15665064153818,
-          147.0703299,
-          55.17567495
-        ]
-      ]
-    },
-    "original_temples": {
-      "volume_cm3": 15.383198340510841,
-      "components": 2,
-      "vertices": 75758,
-      "faces": 151508,
-      "bounds_xyz_mm": [
-        [
-          -71.15665064153818,
-          43.0,
-          11.89016733452976
-        ],
-        [
-          71.15665064153818,
-          147.0703299,
-          55.17567495
-        ]
-      ]
-    },
-    "shifted_tabs": {
-      "volume_cm3": 3.5525959723553555,
-      "components": 2,
-      "vertices": 32,
-      "faces": 64,
-      "bounds_xyz_mm": [
-        [
-          -76.19747059999999,
-          140.0,
-          23.2
-        ],
-        [
-          76.2061337,
-          159.0703299,
-          55.2
-        ]
-      ]
-    },
-    "tab_bridges": {
-      "volume_cm3": 0.2086892539199997,
-      "components": 2,
-      "vertices": 16,
-      "faces": 24,
-      "bounds_xyz_mm": [
-        [
-          -76.2,
-          145.0,
-          43.0
-        ],
-        [
-          76.2,
-          147.0703299,
-          52.0
-        ]
-      ]
-    },
-    "cradle_ribs": {
-      "volume_cm3": 4.284257789701224,
-      "components": 2,
-      "vertices": 332,
-      "faces": 656,
-      "bounds_xyz_mm": [
-        [
-          -30.0,
-          -22.0,
-          7.156418941915035
-        ],
-        [
-          30.0,
-          -11.0,
-          22.0
-        ]
-      ]
-    },
-    "service_lip": {
-      "volume_cm3": 1.8505643096629116,
-      "components": 1,
-      "vertices": 660,
-      "faces": 1320,
-      "bounds_xyz_mm": [
-        [
-          -51.25,
-          -5.0,
-          19.649999998509884
-        ],
-        [
-          51.25,
-          -1.85,
-          57.149999998509884
-        ]
-      ]
-    },
-    "bezel_trim": {
-      "volume_cm3": 0.2635252507569231,
-      "components": 1,
-      "vertices": 392,
-      "faces": 784,
-      "bounds_xyz_mm": [
-        [
-          -37.0,
-          -34.25,
-          20.5
-        ],
-        [
-          37.0,
-          -32.0,
-          50.5
-        ]
-      ]
-    },
-    "pads": {
-      "volume_cm3": 1.8176000000000003,
-      "components": 9,
-      "vertices": 72,
-      "faces": 108,
-      "bounds_xyz_mm": [
-        [
-          -34.5,
-          -30.8,
-          22.0
-        ],
-        [
-          34.5,
-          -1.6,
-          55.6
-        ]
-      ]
-    },
-    "fasteners": {
-      "volume_cm3": 0.6897072401769747,
-      "components": 4,
-      "vertices": 1584,
-      "faces": 3152,
-      "bounds_xyz_mm": [
-        [
-          -51.1754264831543,
-          -11.6,
-          22.2
-        ],
-        [
-          51.1754264831543,
-          2.1,
-          54.599999999999994
-        ]
-      ]
-    },
-    "cable_gland": {
-      "volume_cm3": 0.07359293311752095,
-      "components": 1,
-      "vertices": 409,
-      "faces": 818,
-      "bounds_xyz_mm": [
-        [
-          -44.8,
-          -1.6,
-          18.7
-        ],
-        [
-          -37.2,
-          1.5,
-          26.3
-        ]
-      ]
-    },
-    "service_opening": {
-      "volume_cm3": 304.38795674423824,
-      "components": 1,
-      "vertices": 200,
-      "faces": 396,
-      "bounds_xyz_mm": [
-        [
-          -48.0,
-          -15.0,
-          21.600000001490116
-        ],
-        [
-          48.0,
-          80.0,
-          55.20000000298023
-        ]
-      ]
-    },
-    "optical_cuts": {
-      "volume_cm3": 5.213875585604068,
-      "components": 2,
-      "vertices": 1056,
-      "faces": 2104,
-      "bounds_xyz_mm": [
-        [
-          -37.488370664417744,
-          -36.0001,
-          19.8236303627491
-        ],
-        [
-          37.64731600880623,
-          -30.7998,
-          51.1763696372509
-        ]
-      ]
-    }
-  },
+  "unchanged_reach_y_mm": 159.0703299,
   "source_hashes": {
-    "Headset_Repro\\raw\\BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
-    "Headset_Repro\\raw\\CS30_customer.stp": "6ca6a7366083cdc55d1f1ecbaac5d0dacb1b0811861912300d585f8f19c289b8",
-    "Headset_Carbon6K_FlatBase_Review_2026-10-02\\geometry\\rear_unified_preview.npz": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
-    "Headset_WOAD_Front_2026-10-03\\inputs\\camera_physical_native.npz": "3ab286dd328bb1206bd967502e1b652c3e76c502bd2efd0a262ae312ce8b81dd"
+    "Headset_Inputs/CS30_customer.stp": "6ca6a7366083cdc55d1f1ecbaac5d0dacb1b0811861912300d585f8f19c289b8",
+    "Headset_Inputs/BTTF_Glasses.3mf": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
+    "Headset_Inputs/Medium_Trial_Registered.npz": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+    "Headset_Inputs/datums.json": "efeedc53ed4ec8809969332b2a1627f00753ade2cafaf3128ac1dad7b760c3a2",
+    "Headset_WOAD_Front_2026-10-03/inputs/camera_physical_native.npz": "3ab286dd328bb1206bd967502e1b652c3e76c502bd2efd0a262ae312ce8b81dd"
   }
 }

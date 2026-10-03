@@ -20,7 +20,7 @@ from OCP.Bnd import Bnd_Box
 from OCP.BRepBndLib import BRepBndLib
 
 P=Path(__file__).resolve().parent
-SOURCE=P.parent/'Headset_Repro/raw/CS30_customer.stp'
+SOURCE=P.parent/'Headset_Inputs/CS30_customer.stp'
 INPUT=P/'inputs'
 EXCLUDED_FOV_PARTS={23,62,63}
 def children(shape):
@@ -80,7 +80,7 @@ def main():
     np.savez_compressed(INPUT/'camera_optics_native.npz',v=v,f=f[opt],part=pid[opt])
     materials={str(i):('lens' if i<=3 else 'metal' if i in [120,121] else 'camera_glass' if i==124 else 'camera') for i in np.unique(pid)}
     (INPUT/'camera_materials.json').write_text(json.dumps(materials,indent=2),encoding='utf8')
-    provenance={'source':'Headset_Repro/raw/CS30_customer.stp','source_sha256':hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
+    provenance={'source':'Headset_Inputs/CS30_customer.stp','source_sha256':hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
                 'housing_immediate_path':[1,115],'housing_part_id':123,'housing_bounds_native_xyz_mm':housing_bounds,
                 'excluded_fov_part_ids':sorted(EXCLUDED_FOV_PARTS),'material_only_split_glass_id':124,
                 'linear_deflection_mm':.035,'angular_deflection_radians':.13,

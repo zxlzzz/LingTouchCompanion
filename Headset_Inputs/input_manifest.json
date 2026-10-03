@@ -1,0 +1,22 @@
+{
+  "BTTF_Glasses.3mf": {
+    "bytes": 4042998,
+    "sha256": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073"
+  },
+  "CS30_customer.stp": {
+    "bytes": 15123721,
+    "sha256": "6ca6a7366083cdc55d1f1ecbaac5d0dacb1b0811861912300d585f8f19c289b8"
+  },
+  "CS30_official.stp": {
+    "bytes": 22531376,
+    "sha256": "4b1783b2b05fd9154b771b50cef2402c06f7cecd1fe5a89550cd1a76a4a1b1ec"
+  },
+  "Medium_Symmetry.stl": {
+    "bytes": 71069238,
+    "sha256": "3f138e3dad709ffb7e923349fa55d26caecf38e3ada3ee62b426fd3e0df4e34e"
+  },
+  "MaterialsMethodsISODigitalHeadforms.pdf": {
+    "bytes": 591408,
+    "sha256": "43ef4fc67faac232ab1d980e1bbde6aff6984ab7de70d90e0b668940584cfe05"
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "rear_redesigned": false,
+  "wearing_coordinates_preserved": true,
+  "rear_body": {
+    "bounds_xyz_mm": [
+      [
+        -47.5,
+        195.3,
+        25.49999999701977
+      ],
+      [
+        47.5,
+        230.70000000298023,
+        57.5
+      ]
+    ],
+    "volume_mm3": 19988.331926224786,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 10931,
+    "triangles": 21894
+  },
+  "battery": {
+    "bounds_xyz_mm": [
+      [
+        -45.2,
+        205.6,
+        27.800000000000004
+      ],
+      [
+        45.2,
+        228.4,
+        50.6
+      ]
+    ],
+    "volume_mm3": 36902.049515330844,
+    "components": 1,
+    "mesh_status": "Error.NoError",
+    "vertices": 384,
+    "triangles": 764
+  },
+  "battery_dimensions_mm": {
+    "diameter": 22.8,
+    "length": 90.4,
+    "mass_g_user": 88
+  },
+  "battery_axis_endpoints_mm": [
+    [
+      -45.2,
+      217,
+      39.2
+    ],
+    [
+      45.2,
+      217,
+      39.2
+    ]
+  ],
+  "box_dimensions_mm": {
+    "outer": [
+      95,
+      27.4,
+      27.4
+    ],
+    "inner": [
+      91,
+      23.4,
+      25.4
+    ],
+    "original_battery_fit_envelope": [
+      91,
+      23.4,
+      23.4
+    ],
+    "top_wall_removed_depth_increase_mm": 2,
+    "wall": 2,
+    "outer_corner_radius": 3,
+    "inner_corner_radius": 1,
+    "closed_outer_ends_x": [
+      -47.5,
+      47.5
+    ],
+    "inner_ends_x": [
+      -45.5,
+      45.5
+    ],
+    "top_open_z": 52.9,
+    "top_open_xy_bounds": [
+      [
+        -45.5,
+        205.3
+      ],
+      [
+        45.5,
+        228.7
+      ]
+    ],
+    "center_y": 217,
+    "center_z": 39.2,
+    "front_y": 203.3,
+    "back_y": 230.7
+  },
+  "spring": {
+    "centers_x_mm": [
+      -29,
+      29
+    ],
+    "u_slit_mm": 0.6,
+    "tongue_width_mm": 28,
+    "tongue_length_mm": 12,
+    "tongue_thickness_mm": 1,
+    "root_z_mm": 33.65,
+    "tip_z_mm": 45.65,
+    "hook_inward_projection_mm": 1.4,
+    "capture_after_full_lateral_clearance_mm": 0.8,
+    "hook_z_range_mm": [
+      44.85,
+      45.65
+    ],
+    "maximum_required_deflection_mm": 1.4,
+    "strain_formula_value": 0.01458333333333333,
+    "physical_deflection_not_checked": true
+  },
+  "strap_plate": {
+    "thickness_mm": 3,
+    "height_mm": 32,
+    "base_z_mm": 25.5,
+    "bottom_slot_margin_mm": 3,
+    "upper_slot_margin_mm": 3,
+    "y_range_mm": [
+      195.3,
+      203.5
+    ],
+    "slot_y_mm": [
+      198.3,
+      201.3
+    ],
+    "slot_z_mm": [
+      28.5,
+      54.5
+    ],
+    "slot_center_z_mm": 41.5,
+    "front_slot_center_z_difference_mm": 2.3,
+    "slot_mm": [
+      26,
+      3
+    ],
+    "x_ranges_mm": [
+      [
+        -46.5,
+        -43.5
+      ],
+      [
+        43.5,
+        46.5
+      ]
+    ]
+  },
+  "strap_paths": {
+    "left": {
+      "front_slot_exit_xyz_mm": [
+        -71.0974706,
+        154.5703299,
+        39.2
+      ],
+      "free_start_xyz_mm": [
+        -71.0974706,
+        159.0703299,
+        39.2
+      ],
+      "free_end_xyz_mm": [
+        -46.5,
+        198.3,
+        41.5
+      ],
+      "free_length_mm": 46.360463501486905,
+      "slot_to_slot_centerline_length_mm": 50.860463501486905,
+      "band_width_mm": 25,
+      "illustrative_thickness_mm": 0.8,
+      "front_arm_shortening_mm": 0
+    },
+    "right": {
+      "front_slot_exit_xyz_mm": [
+        71.1061337,
+        154.5703299,
+        39.2
+      ],
+      "free_start_xyz_mm": [
+        71.1061337,
+        159.0703299,
+        39.2
+      ],
+      "free_end_xyz_mm": [
+        46.5,
+        198.3,
+        41.5
+      ],
+      "free_length_mm": 46.365060463856956,
+      "slot_to_slot_centerline_length_mm": 50.865060463856956,
+      "band_width_mm": 25,
+      "illustrative_thickness_mm": 0.8,
+      "front_arm_shortening_mm": 0
+    }
+  },
+  "thin_wall_construction": "Empty cylindrical-battery cavity. Thin tray2.5, box2 with concentric corner radii3/1, plates3, ribs3, lower central tongue2. No bulk fill between box and tray. Local junction thickness and physical spring behavior require independent audit.",
+  "sources": {
+    "rear_tray": "inputs/rear_tray.npz",
+    "rear_fill": "inputs/rear_fill.npz",
+    "rear_inner_surface": "inputs/rear_inner_surface.npz",
+    "rear_outer_surface": "inputs/rear_outer_surface.npz"
+  },
+  "registered_head_source": "Headset_Inputs/Medium_Trial_Registered.npz",
+  "source_rear_3mf_sha256": "b786a192b642e1033f714312ab586344c2e1e2dc1d369b98e77fd77401f96296",
+  "source_rear_body_sha256": "44d97fbd659a1ab29e5b1fa7e14e22998d18dffec643a92855d24a29322ad9b9",
+  "all_output_arrays_equal_original": true
+}

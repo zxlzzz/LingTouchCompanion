@@ -1,0 +1,451 @@
+{
+  "status": "passed",
+  "body_sha256": "493c824ce85a3fd90b0d0038897a32624c745236af971fcfce094f39e7ba26e4",
+  "verifier_sha256": "8ae87970a155e3a0c65f49d2c41c57889746422d2f1bc383541ccc33866fbcaa",
+  "bambu_executable": "D:\\Bambu Studio\\bambu-studio.exe",
+  "bambu_executable_sha256": "a2bc15b74006abbdb5e8c9ff53f335c173bc39ade25424b8a92da953bfe1f319",
+  "body_vertices": 89668,
+  "body_faces": 179380,
+  "printer_profile": "Bambu Lab H2C 0.2 nozzle",
+  "process_profile": "0.10mm Standard @BBL H2C 0.2 nozzle",
+  "filament_profile": "Bambu PLA Basic @BBL H2C 0.2 nozzle",
+  "configured_preset_source": "Bambu Studio selected preset names read on 2026-10-03; no account data retained.",
+  "profile_sources": {
+    "machine": [
+      {
+        "name": "Bambu Lab H2C 0.2 nozzle",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\machine\\Bambu Lab H2C 0.2 nozzle.json",
+        "sha256": "c9d8b2052450448f3903c28424a44b52340bb6436fe0fd2cd25a0eeea139f26c"
+      },
+      {
+        "name": "Bambu Lab H2C 0.4 nozzle",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\machine\\Bambu Lab H2C 0.4 nozzle.json",
+        "sha256": "51332a5d36b77765b2b9a8773a4cbd6cca185cca777e3f2ab08360c179cbd2ef"
+      },
+      {
+        "name": "fdm_bbl_3dp_002_common",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\machine\\fdm_bbl_3dp_002_common.json",
+        "sha256": "8775ce18655536667a6c588676afef924f5d9574fafe36f0c63e0918363918f6"
+      },
+      {
+        "name": "fdm_machine_common",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\machine\\fdm_machine_common.json",
+        "sha256": "aef949f605e74bd7370dab061d9cb9f6b7fde5ae92e7fe3b34d98c0a7746c514"
+      }
+    ],
+    "process": [
+      {
+        "name": "0.10mm Standard @BBL H2C 0.2 nozzle",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\process\\0.10mm Standard @BBL H2C 0.2 nozzle.json",
+        "sha256": "3ab565c85dd35b4c93a7d409b1b0c1f55903fe977482cc0df8e024d22948fc94"
+      },
+      {
+        "name": "fdm_process_dual_0.10_nozzle_0.2",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\process\\fdm_process_dual_0.10_nozzle_0.2.json",
+        "sha256": "76b0e83383e6be3499dc7e5b70ec42d7a1d51947718d5b6321a7f80edf8b685d"
+      },
+      {
+        "name": "fdm_process_dual_common",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\process\\fdm_process_dual_common.json",
+        "sha256": "e02c298ecf4c3b501a59ebc73c05deda82b539e158cd65fe12949475099fc9ab"
+      },
+      {
+        "name": "fdm_process_common",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\process\\fdm_process_common.json",
+        "sha256": "ff2c0e49a424f70319e52eff6e84c57604b5b86deb883bb4d5614ff448d0c107"
+      }
+    ],
+    "filament": [
+      {
+        "name": "Bambu PLA Basic @BBL H2C 0.2 nozzle",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\filament\\Bambu PLA Basic @BBL H2C 0.2 nozzle.json",
+        "sha256": "cd34ed47a54af2a4b15871c0e9dde70fae4bac26e58fba5d865f3cae72061e7f"
+      },
+      {
+        "name": "Bambu PLA Basic @base",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\filament\\Bambu PLA Basic @base.json",
+        "sha256": "1c609c65fc72995e544dc7919d8bd5cb555c6b1abe60c6718d685bf02654bd01"
+      },
+      {
+        "name": "fdm_filament_pla",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\filament\\fdm_filament_pla.json",
+        "sha256": "1fb8e60457aeda25a5c1b16944188aaa4925267828a194993ddfbcbb727100fe"
+      },
+      {
+        "name": "fdm_filament_common",
+        "path": "D:\\Bambu Studio\\resources\\profiles\\BBL\\filament\\fdm_filament_common.json",
+        "sha256": "55573eb37c4031a58e939c4a2c281d62e234192509cac525d4f8d911e8a85c09"
+      }
+    ]
+  },
+  "full_config_sha256": {
+    "machine": "69c5942c4c6821019a16eba2cfe12d495a63cf07a28b3f181e8e5d41fd548137",
+    "process": "6bfb54f3d9cfc75c382a7b995eb2145d3ebb6d51e6322403afb9539b123dd6da",
+    "filament": "9bec6f1f973d53bf317db0a1995541ea656f570e4dab519f4157243b6061a80a"
+  },
+  "print_orientation": {
+    "wearing_z_up": true,
+    "rotate_about_wearing_x_deg": 0.0,
+    "rotation_matrix": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "translation_mm": [
+      164.92476015644866,
+      92.36483505000001,
+      -23.200000000000003
+    ]
+  },
+  "print_bounds_xyz_mm": [
+    [
+      72.80802508359439,
+      68.56483505000001,
+      0.0
+    ],
+    [
+      257.1919749164056,
+      251.43516495,
+      45.2
+    ]
+  ],
+  "printable_area_xy_mm": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      330.0,
+      0.0
+    ],
+    [
+      330.0,
+      320.0
+    ],
+    [
+      0.0,
+      320.0
+    ]
+  ],
+  "printable_height_mm": 325.0,
+  "fits_bed_with_5mm_brim": true,
+  "support": {
+    "enable_support": "1",
+    "support_type": "tree(auto)",
+    "support_on_build_plate_only": "0",
+    "support_threshold_angle": "35.0",
+    "support_top_z_distance": "0.2",
+    "support_bottom_z_distance": "0.2",
+    "brim_width": "5"
+  },
+  "bed_type_for_slice_check": "Textured PEI Plate",
+  "printed_objects": [
+    "front_body"
+  ],
+  "references_excluded": [
+    "head",
+    "camera",
+    "retention_band",
+    "rear",
+    "battery",
+    "straps"
+  ],
+  "wearing_3mf_modified": false,
+  "limitations": [
+    "Slicing validates toolpaths and supports for the chosen profile; it does not prove printed strength, fit, support removal or physical retention."
+  ],
+  "cli_exit_code": 0,
+  "diagnostics": [],
+  "cli_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "engine_report": {
+    "error_string": "Success.",
+    "export_time": 1,
+    "layer_height": 0.10000000149011612,
+    "plate_index": 0,
+    "prepare_time": 174,
+    "return_code": 0,
+    "sliced_plates": [
+      {
+        "feature_type_times": {
+          "Bridge": 1656.755615234375,
+          "Brim": 33.33082580566406,
+          "Custom": 34.79972839355469,
+          "Gap infill": 2831.874267578125,
+          "Inner wall": 9718.5693359375,
+          "Internal solid infill": 7672.67626953125,
+          "Outer wall": 4909.97412109375,
+          "Overhang wall": 1589.5927734375,
+          "Sparse infill": 823.1541137695312,
+          "Support": 12100.3974609375,
+          "Support interface": 788.9712524414062,
+          "Top surface": 898.0814208984375,
+          "Travel": 10037.8515625,
+          "Undefined": 10022.2373046875
+        },
+        "filament_change_times": 0,
+        "filaments": [
+          {
+            "filament_id": "GFA00",
+            "id": 1,
+            "main_used_g": 56.35016632080078,
+            "total_used_g": 72.65162658691406
+          }
+        ],
+        "generate_support_material_time": 52272,
+        "id": 1,
+        "infill_time": 417,
+        "layer_filament_change": 0,
+        "main_predication": 52988.9375,
+        "make_perimeters_time": 1235,
+        "obj_cached_cnt": 0,
+        "sliced_time": 81467,
+        "sliced_time_with_cache": 26175,
+        "total_predication": 53008.09375,
+        "triangle_count": 179380,
+        "warning_message": ""
+      }
+    ],
+    "sparse_infill_density": 15.0,
+    "wall_loops": 4
+  },
+  "gcode_evidence": {
+    "plate_1.gcode": {
+      "statistics": [
+        "; model printing time: 14h 43m 8s; total estimated time: 14h 43m 28s",
+        "; total layer number: 452",
+        "; total filament length [mm] : 23972.25",
+        "; total filament volume [cm^3] : 57660.02",
+        "; total filament weight [g] : 72.65"
+      ],
+      "feature_sections": {
+        "Custom": 2,
+        "Support interface": 807,
+        "Support": 1200,
+        "Brim": 1,
+        "Outer wall": 4097,
+        "Gap infill": 3594,
+        "Inner wall": 4014,
+        "Overhang wall": 1148,
+        "Bridge": 175,
+        "Internal solid infill": 2768,
+        "Sparse infill": 709,
+        "Top surface": 286,
+        "Floating vertical shell": 140
+      },
+      "layer_markers": 452,
+      "generator_comments": [],
+      "extruded_paths_by_feature": {
+        "Support interface": {
+          "extrusion_mm": 343.215,
+          "segments": 24954,
+          "min_xyz_mm": [
+            73.576,
+            68.41839320338897,
+            0.1
+          ],
+          "max_xyz_mm": [
+            256.273,
+            246.684,
+            43.6
+          ],
+          "volume_cm3": 0.8255,
+          "mass_g": 1.04
+        },
+        "Support": {
+          "extrusion_mm": 5035.64,
+          "segments": 437907,
+          "min_xyz_mm": [
+            68.65853008518224,
+            58.875,
+            0.1
+          ],
+          "max_xyz_mm": [
+            261.41,
+            250.81131130676823,
+            43.3
+          ],
+          "volume_cm3": 12.1121,
+          "mass_g": 15.261
+        },
+        "Brim": {
+          "extrusion_mm": 9.677,
+          "segments": 1448,
+          "min_xyz_mm": [
+            85.181,
+            236.512,
+            0.1
+          ],
+          "max_xyz_mm": [
+            244.604,
+            255.992,
+            0.1
+          ],
+          "volume_cm3": 0.0233,
+          "mass_g": 0.029
+        },
+        "Outer wall": {
+          "extrusion_mm": 3206.564,
+          "segments": 115370,
+          "min_xyz_mm": [
+            72.91205732593194,
+            68.67256002594752,
+            0.1
+          ],
+          "max_xyz_mm": [
+            257.0918551142696,
+            251.325,
+            45.2
+          ],
+          "volume_cm3": 7.7127,
+          "mass_g": 9.718
+        },
+        "Gap infill": {
+          "extrusion_mm": 919.305,
+          "segments": 42444,
+          "min_xyz_mm": [
+            73.975,
+            69.02563566570603,
+            0.1
+          ],
+          "max_xyz_mm": [
+            255.773,
+            251.046,
+            45.1
+          ],
+          "volume_cm3": 2.2112,
+          "mass_g": 2.786
+        },
+        "Inner wall": {
+          "extrusion_mm": 7292.107,
+          "segments": 201233,
+          "min_xyz_mm": [
+            73.10877164818035,
+            68.87061271409789,
+            0.2
+          ],
+          "max_xyz_mm": [
+            256.893097528886,
+            251.127,
+            45.1
+          ],
+          "volume_cm3": 17.5396,
+          "mass_g": 22.1
+        },
+        "Overhang wall": {
+          "extrusion_mm": 130.244,
+          "segments": 4645,
+          "min_xyz_mm": [
+            74.19,
+            68.6748687268082,
+            0.2
+          ],
+          "max_xyz_mm": [
+            255.773,
+            251.325,
+            43.8
+          ],
+          "volume_cm3": 0.3133,
+          "mass_g": 0.395
+        },
+        "Bridge": {
+          "extrusion_mm": 749.399,
+          "segments": 13613,
+          "min_xyz_mm": [
+            73.733,
+            69.429,
+            0.3
+          ],
+          "max_xyz_mm": [
+            256.2883236868385,
+            250.648,
+            44.5
+          ],
+          "volume_cm3": 1.8025,
+          "mass_g": 2.271
+        },
+        "Internal solid infill": {
+          "extrusion_mm": 5221.982,
+          "segments": 142244,
+          "min_xyz_mm": [
+            73.714,
+            69.439,
+            0.4
+          ],
+          "max_xyz_mm": [
+            256.277,
+            250.531,
+            45.1
+          ],
+          "volume_cm3": 12.5603,
+          "mass_g": 15.826
+        },
+        "Sparse infill": {
+          "extrusion_mm": 407.721,
+          "segments": 30439,
+          "min_xyz_mm": [
+            73.67753549196877,
+            69.43938565190419,
+            0.8
+          ],
+          "max_xyz_mm": [
+            256.31971062140167,
+            250.561,
+            44.4
+          ],
+          "volume_cm3": 0.9807,
+          "mass_g": 1.236
+        },
+        "Top surface": {
+          "extrusion_mm": 541.121,
+          "segments": 14918,
+          "min_xyz_mm": [
+            74.063,
+            68.793,
+            1.6
+          ],
+          "max_xyz_mm": [
+            255.818,
+            251.216,
+            45.2
+          ],
+          "volume_cm3": 1.3015,
+          "mass_g": 1.64
+        },
+        "Floating vertical shell": {
+          "extrusion_mm": 85.276,
+          "segments": 7469,
+          "min_xyz_mm": [
+            73.692,
+            92.266,
+            2.2
+          ],
+          "max_xyz_mm": [
+            256.2853011048694,
+            250.546,
+            30.4
+          ],
+          "volume_cm3": 0.2051,
+          "mass_g": 0.258
+        }
+      },
+      "arc_bounds_method": "G2_G3_IJ_sector_cardinal_extrema_and_endpoints",
+      "gcode_bytes": 59918492,
+      "sha256": "8e43ae05474635cc9a45b6ec3910e4f3709f778a135b54659a9c45963e418574"
+    }
+  },
+  "inputs_unchanged_on_completion": true,
+  "elapsed_seconds": 91.14,
+  "temporary_files_removed": true
+}

@@ -1,453 +1,438 @@
 {
-  "head_source": "Headset_Carbon6K_FlatBase_Review_2026-10-02\\inputs\\Medium_Trial_Registered.npz",
+  "head_source": "Headset_Inputs\\Medium_Trial_Registered.npz",
   "head_sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
   "head_pose_unchanged": true,
-  "build_source_sha256": "416f528ce383a00aa75ee061e78fcdca8c7f5b38a3afa0ede1f4141217c54ca3",
-  "geometry_values_sha256": "04e8d75cca28594f90066565329e1a2138926de632608c296cbab11cd34745dd",
-  "source_geometry_sha256": {
-    "visor": "5c93d5fa43900eb2bd46d045011d9d5606ddd555d3e950fcc104fb226563eeaf",
-    "service_lid": "37963ca1528f7eb702e6e76a0040429abb24ae40db8c70a40cf6cee7612c6134",
-    "service_lip": "0136d02e9a72fba7c053c93f400d8341c6815851110a1f5d238ee62152b846c0",
-    "fasteners": "8d99669ca91ac0b5d10a5f7c7e741992ff117c960d1cff9e01b5872ca3f6f9d5",
-    "tab_bridges": "339875e6889dc9797d6aebadf289945992dd3af1ea14284c1d20a228ea14c3c9",
-    "shifted_tabs": "d401162037350daf098bb51bc7c25da3b11ddce8a048589177130388603e2fe4",
-    "cradle_ribs": "0085839638e23d210bdbe5fb062b105d5c4da81f798d450bfda7ebc8a7fa5510",
-    "bezel_trim": "9f0c2da8d9185815c235ce1e4647d6a62c04cdc9687902cc293f5c63dd1c05a7",
-    "pads": "38f96158bd330701900fc45e16b18ad5e5833bd8a2eea256808a6dc487543537",
-    "cable_gland": "ecee5cebad38e31a52d3ca3d10ebd6b1890132afefb0f9b970e76151b94419b5",
-    "camera": "9d688c3e74073e1fbac6ca8c87ce372d829fd467e884a617c9d488d073297a53"
+  "build_source_sha256": "be92ff11d97296996a98117a7615c8a0b3c4630e79ebbd42dd22cc6378f9542e",
+  "geometry_values_sha256": "187dcb6abd8069d553977628e572289d68cda1e9fcff1b774a389f5e7109aa00",
+  "audit_source_sha256": {
+    "head_fit.py": "a3fe3a9dcf16d9b489a70abfbbc90310ab51ba7642719df1604a9a7e026eb7c9",
+    "mesh_distance.py": "1a05116565e9e078230a04030037b9a523c70f413e1e30ef71e6e7cdf06aaf79"
   },
+  "head_audit_parts": [
+    "front_body",
+    "camera",
+    "retention_band"
+  ],
+  "source_geometry_sha256": {
+    "front_body": "493c824ce85a3fd90b0d0038897a32624c745236af971fcfce094f39e7ba26e4",
+    "camera": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4",
+    "retention_band": "276f3029f3ff7bce90be228fba1a28d3db1f6f1a527c492d2d3848476a49c838"
+  },
+  "skin_contact_allowed": true,
+  "intentional_skin_clearance_added_mm": 0,
+  "basis": "Actual unchanged registered triangular head; all current material parts and actual camera checked. Contact is allowed and does not by itself fail fit. No old BTTF collision exception or earlier clearance threshold is imposed.",
   "parts": {
-    "visor": {
+    "front_body": {
       "continuous_triangle_clearance": {
-        "distance_mm": 1.6296730938611175,
+        "distance_mm": 0.0047424368547390175,
         "head_witness_xyz_mm": [
-          -0.39240938403763087,
-          0.9409303011817162,
-          18.735375606847526
+          47.105117605884594,
+          25.2442186355569,
+          34.36015114767921
         ],
         "case_witness_xyz_mm": [
-          -0.4381522818522199,
-          -0.40710686433148147,
-          19.650000000000002
+          47.1074267753619,
+          25.24109834083958,
+          34.3574267753619
         ],
-        "head_face_index": 101516,
-        "case_face_index": 8430,
-        "broadphase_pairs": 4661854,
-        "exact_pairs_tested": 5065,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 1.6438038901013878,
-        "head_triangles_checked": 19398,
-        "surface_intersection_absent": true
+        "head_face_index": 302529,
+        "case_face_index": 170154,
+        "broadphase_pairs": 5482661,
+        "exact_pairs_tested": 37482,
+        "method": "Conservative enclosing-sphere and AABB broadphase; every vertex-face and interior edge-edge minimum plus all six edge-face intersection tests per possibly closer triangle pair. Exterior/penetration classification is checked separately.",
+        "excluded_head_triangle_distance_lower_bound_mm": 0.015812739130727775,
+        "head_triangles_checked": 40055
       },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 123741,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 1.6308470918217834,
+      "part_points_against_skin": {
+        "points_checked": 538118,
+        "closest_normal_signs_corrected_by_closed_surface_parity": 0,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": 0.005517186104268004,
+        "maximum_sampled_penetration_mm": 0.0,
         "minimum_witness_xyz_mm": [
-          -0.5,
-          -0.4050081878827336,
-          19.650000000000002
-        ],
-        "all_checked_points_exterior": true
+          47.125,
+          25.238759955065557,
+          34.375
+        ]
       },
-      "pass": true
-    },
-    "service_lid": {
-      "continuous_triangle_clearance": {
-        "distance_mm": 1.101894247209346,
-        "head_witness_xyz_mm": [
-          -0.39335654179531565,
-          1.3055195399217363,
-          19.272142295799327
-        ],
-        "case_witness_xyz_mm": [
-          -0.3933565417953133,
-          0.4,
-          19.899999998509884
-        ],
-        "head_face_index": 101512,
-        "case_face_index": 383,
-        "broadphase_pairs": 3460016,
-        "exact_pairs_tested": 25147,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 17.10432223599011,
-        "head_triangles_checked": 10008,
-        "surface_intersection_absent": true
-      },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 2358,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 5.733670303962307,
+      "skin_points_against_part": {
+        "points_checked": 61030,
+        "closest_normal_signs_corrected_by_closed_surface_parity": 0,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": 0.004744240099319974,
+        "maximum_sampled_penetration_mm": 0.0,
         "minimum_witness_xyz_mm": [
-          -8.411390808588317,
-          0.4000000000000001,
-          22.85330756807399
-        ],
-        "all_checked_points_exterior": true
+          47.2033,
+          25.329198065227175,
+          34.346041080000006
+        ]
       },
-      "pass": true
-    },
-    "service_lip": {
-      "continuous_triangle_clearance": {
-        "distance_mm": 2.8254162093378277,
-        "head_witness_xyz_mm": [
-          -0.38576432283354106,
-          0.49671097423639665,
-          18.07649297298143
-        ],
-        "case_witness_xyz_mm": [
-          -0.3857643228335448,
-          -1.85,
-          19.649999998509884
-        ],
-        "head_face_index": 101520,
-        "case_face_index": 493,
-        "broadphase_pairs": 146713,
-        "exact_pairs_tested": 5129,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 17.81744283091568,
-        "head_triangles_checked": 9273,
-        "surface_intersection_absent": true
-      },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 1980,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 8.267028529164566,
-        "minimum_witness_xyz_mm": [
-          14.333333333333334,
-          -1.8500000000000003,
-          56.5
-        ],
-        "all_checked_points_exterior": true
-      },
-      "pass": true
-    },
-    "fasteners": {
-      "continuous_triangle_clearance": {
-        "distance_mm": 15.079300470341549,
-        "head_witness_xyz_mm": [
-          37.94336624564473,
-          15.259844213062674,
-          50.36086744619221
-        ],
-        "case_witness_xyz_mm": [
-          45.22600341798531,
-          2.1,
-          51.44114462303478
-        ],
-        "head_face_index": 292394,
-        "case_face_index": 3051,
-        "broadphase_pairs": 83995,
-        "exact_pairs_tested": 6093,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 15.087802049390877,
-        "head_triangles_checked": 8537,
-        "surface_intersection_absent": true
-      },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 4736,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 15.079455368538737,
-        "minimum_witness_xyz_mm": [
-          45.21348276531785,
-          2.1,
-          51.52555200707723
-        ],
-        "all_checked_points_exterior": true
-      },
-      "pass": true
-    },
-    "tab_bridges": {
-      "continuous_triangle_clearance": {
-        "distance_mm": 0.751125003489196,
-        "head_witness_xyz_mm": [
-          -69.8925603271037,
-          144.7528242275276,
-          52.05120564013563
-        ],
-        "case_witness_xyz_mm": [
-          -70.6,
-          145.0,
-          52.0
-        ],
-        "head_face_index": 234408,
-        "case_face_index": 2,
-        "broadphase_pairs": 1744,
-        "exact_pairs_tested": 114,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 0.8091878038347793,
-        "head_triangles_checked": 228,
-        "surface_intersection_absent": true
-      },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 40,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 0.751125003489196,
-        "minimum_witness_xyz_mm": [
-          -70.6,
-          145.0,
-          52.0
-        ],
-        "all_checked_points_exterior": true
-      },
-      "pass": true
-    },
-    "shifted_tabs": {
-      "continuous_triangle_clearance": {
-        "distance_mm": 1.0033589809231738,
-        "head_witness_xyz_mm": [
-          71.84225387218778,
-          139.6769431217547,
-          55.2563164120664
-        ],
-        "case_witness_xyz_mm": [
-          72.7905112,
-          140.0,
-          55.2
-        ],
-        "head_face_index": 256121,
-        "case_face_index": 0,
-        "broadphase_pairs": 54648,
-        "exact_pairs_tested": 198,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 1.0354447246999614,
-        "head_triangles_checked": 3314,
-        "surface_intersection_absent": true
-      },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 96,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 1.0033589809231738,
-        "minimum_witness_xyz_mm": [
-          72.7905112,
-          140.0,
-          55.2
-        ],
-        "all_checked_points_exterior": true
-      },
-      "pass": true
-    },
-    "cradle_ribs": {
-      "continuous_triangle_clearance": {
-        "distance_mm": 11.005786492247823,
-        "head_witness_xyz_mm": [
-          -2.240486031241493,
-          -2.245236606752956,
-          13.310322078784147
-        ],
-        "case_witness_xyz_mm": [
-          -5.704625502911885,
-          -11.0,
-          19.009549391501313
-        ],
-        "head_face_index": 164650,
-        "case_face_index": 465,
-        "broadphase_pairs": 174979,
-        "exact_pairs_tested": 6987,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 11.013726520714362,
-        "head_triangles_checked": 1216,
-        "surface_intersection_absent": true
-      },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 988,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 11.010123552027329,
-        "minimum_witness_xyz_mm": [
-          -6.0,
-          -11.0,
-          18.830013044178486
-        ],
-        "all_checked_points_exterior": true
-      },
-      "pass": true
-    },
-    "bezel_trim": {
-      "continuous_triangle_clearance": {
-        "distance_mm": 28.10353980268199,
-        "head_witness_xyz_mm": [
-          -0.6783799160901777,
-          -9.467343444216027,
-          3.7045143571251113
-        ],
-        "case_witness_xyz_mm": [
-          -0.6783799160901793,
-          -32.0,
-          20.5
-        ],
-        "head_face_index": 110053,
-        "case_face_index": 392,
-        "broadphase_pairs": 31529,
-        "exact_pairs_tested": 3396,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 34.09984985125151,
-        "head_triangles_checked": 2506,
-        "surface_intersection_absent": true
-      },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 1176,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 28.99259214098482,
-        "minimum_witness_xyz_mm": [
-          7.329787835478783,
-          -32.0,
-          20.71666666616996
-        ],
-        "all_checked_points_exterior": true
-      },
-      "pass": true
-    },
-    "pads": {
-      "continuous_triangle_clearance": {
-        "distance_mm": 9.96547067513688,
-        "head_witness_xyz_mm": [
-          -14.199375943975651,
-          7.58294210252909,
-          46.42665042388017
-        ],
-        "case_witness_xyz_mm": [
-          -16.0,
-          -1.6,
-          43.0
-        ],
-        "head_face_index": 101329,
-        "case_face_index": 65,
-        "broadphase_pairs": 24494,
-        "exact_pairs_tested": 594,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 9.97298294214216,
-        "head_triangles_checked": 2980,
-        "surface_intersection_absent": true
-      },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 180,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 9.96547067513688,
-        "minimum_witness_xyz_mm": [
-          -16.0,
-          -1.6,
-          43.0
-        ],
-        "all_checked_points_exterior": true
-      },
-      "pass": true
-    },
-    "cable_gland": {
-      "continuous_triangle_clearance": {
-        "distance_mm": 19.94774665134993,
-        "head_witness_xyz_mm": [
-          -35.136775056784955,
-          18.059557973375256,
-          36.221232376707924
-        ],
-        "case_witness_xyz_mm": [
-          -39.54580295701266,
-          1.5,
-          26.01074222354289
-        ],
-        "head_face_index": 162318,
-        "case_face_index": 528,
-        "broadphase_pairs": 52717,
-        "exact_pairs_tested": 4667,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 19.94782412018998,
-        "head_triangles_checked": 2137,
-        "surface_intersection_absent": true
-      },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 1227,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 19.94774665134993,
-        "minimum_witness_xyz_mm": [
-          -39.54580295701266,
-          1.5,
-          26.01074222354289
-        ],
-        "all_checked_points_exterior": true
-      },
-      "pass": true
+      "penetration_within_contact_epsilon": true
     },
     "camera": {
       "continuous_triangle_clearance": {
-        "distance_mm": 8.543771106165325,
+        "distance_mm": 0.0,
         "head_witness_xyz_mm": [
-          -0.39083130028366153,
-          1.4404719127943133,
-          19.466775586220642
+          -4.661518181382455,
+          5.712128000005863,
+          52.39106740345
         ],
         "case_witness_xyz_mm": [
-          -0.3908313002957584,
-          -5.580666187204793,
-          24.3350036514705
+          -4.661518181382455,
+          5.712128000005863,
+          52.39106740345
         ],
-        "head_face_index": 101512,
-        "case_face_index": 317698,
-        "broadphase_pairs": 1967599,
-        "exact_pairs_tested": 15367,
-        "method": "Conservative enclosing-sphere and AABB broadphase; all vertex-face and interior edge-edge minima plus all six edge-face intersection tests per potentially closer triangle pair. Positive minimum excludes continuous surface intersections; outside-solid classification checked separately.",
-        "excluded_head_triangle_distance_lower_bound_mm": 12.565695145054175,
-        "head_triangles_checked": 2568,
-        "surface_intersection_absent": true
+        "head_face_index": 304800,
+        "case_face_index": 316257,
+        "broadphase_pairs": 1890505,
+        "exact_pairs_tested": 8355,
+        "method": "Conservative enclosing-sphere and AABB broadphase; every vertex-face and interior edge-edge minimum plus all six edge-face intersection tests per possibly closer triangle pair. Exterior/penetration classification is checked separately.",
+        "excluded_head_triangle_distance_lower_bound_mm": 3.7227401049858146,
+        "head_triangles_checked": 2390
       },
-      "exterior_classification": {
-        "method": "Signed closest triangle feature with source head normals, at every candidate vertex and triangle centroid. Anatomical control points establish sign. Positive continuous surface separation plus exterior classification excludes penetration; source head neck remains open and no head-volume Boolean is used.",
-        "points_checked": 622000,
-        "negative_points": 0,
-        "minimum_signed_sample_distance_mm": 10.88679810641288,
+      "part_points_against_skin": {
+        "points_checked": 621680,
+        "closest_normal_signs_corrected_by_closed_surface_parity": 0,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": 0.06680641662851139,
+        "maximum_sampled_penetration_mm": 0.0,
         "minimum_witness_xyz_mm": [
-          8.921330491550716,
-          -5.011996578530063,
-          50.14371834228058
-        ],
-        "all_checked_points_exterior": true
+          8.921330491530158,
+          5.710127235896881,
+          52.454293388299014
+        ]
       },
-      "pass": true
+      "skin_points_against_part": {
+        "points_checked": 0,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": null,
+        "maximum_sampled_penetration_mm": 0.0,
+        "minimum_witness_xyz_mm": null,
+        "method": "Not classified against open STEP face seams. Actual surface collision bisection below establishes first skin contact."
+      },
+      "penetration_within_contact_epsilon": true
+    },
+    "retention_band": {
+      "continuous_triangle_clearance": {
+        "distance_mm": 0.2172004282867077,
+        "head_witness_xyz_mm": [
+          0.05125816132652852,
+          6.625404941454316,
+          44.04109711560391
+        ],
+        "case_witness_xyz_mm": [
+          0.051258161326529716,
+          6.412128001451492,
+          44.0
+        ],
+        "head_face_index": 101826,
+        "case_face_index": 20,
+        "broadphase_pairs": 50784,
+        "exact_pairs_tested": 29627,
+        "method": "Conservative enclosing-sphere and AABB broadphase; every vertex-face and interior edge-edge minimum plus all six edge-face intersection tests per possibly closer triangle pair. Exterior/penetration classification is checked separately.",
+        "excluded_head_triangle_distance_lower_bound_mm": 11.472497321264187,
+        "head_triangles_checked": 5298
+      },
+      "part_points_against_skin": {
+        "points_checked": 134,
+        "closest_normal_signs_corrected_by_closed_surface_parity": 0,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": 0.2175575913127427,
+        "maximum_sampled_penetration_mm": 0.0,
+        "minimum_witness_xyz_mm": [
+          0.0,
+          6.412128001451492,
+          44.0
+        ]
+      },
+      "skin_points_against_part": {
+        "points_checked": 6,
+        "closest_normal_signs_corrected_by_closed_surface_parity": 0,
+        "points_strictly_inside": 0,
+        "points_deeper_than_contact_epsilon": 0,
+        "minimum_signed_sample_distance_mm": 0.2278900637756749,
+        "maximum_sampled_penetration_mm": 0.0,
+        "minimum_witness_xyz_mm": [
+          0.07309055000000006,
+          6.640018065227167,
+          43.965261080000005
+        ]
+      },
+      "penetration_within_contact_epsilon": true
     }
   },
-  "exempt_original_parts": [
-    "original_normal",
-    "original_temples"
-  ],
-  "basis": "Original raw BTTF collision is excluded; all independently added printable parts, pad references, fasteners and actual physical camera are checked.",
-  "all_surface_intersections_absent": true,
+  "camera_first_skin_contact": {
+    "method": "Exact VTK triangle surface collision, bisection along wearing +Y at unchanged level optical height.",
+    "additional_y_before_contact_mm": -1.52587890625e-05,
+    "additional_y_at_contact_mm": -1.430511474609375e-05,
+    "bisection_resolution_mm": 9.5367431640625e-07,
+    "pose_posterior_of_first_contact_upper_bound_mm": 1.52587890625e-05,
+    "nominal_contact_within_epsilon": true,
+    "reused_for_identical_head_and_camera_hashes": true,
+    "source_head_sha256": "48f02241857b5e1f1c9acd3bd627641e898f412f9f2b0ba42538e7c86cea00d3",
+    "source_camera_sha256": "64fbdf4f60b247db68adb264ec9120a8d1e6be1771d19a028326cdb20e9b8eb4"
+  },
   "classification_controls_mm": {
     "interior_center": -71.30316940674055,
     "anterior_exterior": 56.04596733915428,
     "lateral_exterior": 13.896908066790223
   },
-  "all_added_parts_and_camera_pass": true,
-  "unchanged_source_geometry": {
-    "tab_baseline_source": "Headset_CompactFront_Review_2026-10-02\\inputs\\front_tabs.npz",
-    "tab_baseline_sha256": "cb4c51c84682f92c6f5237dbb8291cdcecb4891b51ce7d524760ab34e1a44732",
-    "symmetric_lateral_tab_translation_mm": 5.1,
-    "slot_y_mm": [
-      151.5703299,
-      154.5703299
+  "classification_contact_epsilon_mm": 0.05,
+  "classification_contact_epsilon_note": "Numerical reporting tolerance for nominal contact, not a design gap. Exact sampled penetration depths and witnesses are retained; this is not a physical fit certification.",
+  "all_parts_sampled_penetration_within_contact_epsilon": true,
+  "classification_limit": "Every referenced vertex and face centroid is classified against the head; material edge midpoints are additionally checked. Reverse material classification uses watertight ray parity to correct concave closest-normal sign artifacts. Camera STEP normals do not supply a valid containment sign, so exact triangle collision bisection verifies its nominal first skin contact. Negative sample depths are not an exact continuous maximum penetration.",
+  "terminal_slots": {
+    "datums_source": "Headset_Inputs/datums.json",
+    "datums_sha256": "efeedc53ed4ec8809969332b2a1627f00753ade2cafaf3128ac1dad7b760c3a2",
+    "sides": {
+      "left": {
+        "expected_slot_x_center_mm": -74.56794765000001,
+        "expected_slot_yz_bounds_mm": [
+          [
+            151.5703299,
+            26.2
+          ],
+          [
+            154.5703299,
+            52.2
+          ]
+        ],
+        "matching_hole_loops": 1,
+        "actual_slot_wall_x_extent_mm": [
+          -76.1974706,
+          -72.93842470000001
+        ],
+        "slot_lateral_center_error_mm": 0.0,
+        "preserved": true
+      },
+      "right": {
+        "expected_slot_x_center_mm": 74.49832244999999,
+        "expected_slot_yz_bounds_mm": [
+          [
+            151.5703299,
+            26.2
+          ],
+          [
+            154.5703299,
+            52.2
+          ]
+        ],
+        "matching_hole_loops": 1,
+        "actual_slot_wall_x_extent_mm": [
+          72.7905112,
+          76.20613369999998
+        ],
+        "slot_lateral_center_error_mm": 0.0,
+        "preserved": true
+      }
+    },
+    "expected_terminal_reach_y_mm": 159.0703299,
+    "actual_terminal_reach_y_mm": 159.0703299,
+    "reach_unchanged": true,
+    "all_slot_locations_and_reach_preserved": true
+  },
+  "measurements": {
+    "head_anterior_nose_tip_xyz_mm": [
+      -0.5607666999999998,
+      -12.73515193477283,
+      -4.1129289199999945
     ],
-    "slot_z_mm": [
-      26.2,
-      52.2
+    "nose_projection_note": "Anterior Y projection only; this does not compare points at the same height.",
+    "parts": {
+      "front_body": {
+        "referenced_bounds_xyz_mm": [
+          [
+            -92.11673507285427,
+            -23.8,
+            23.200000000000003
+          ],
+          [
+            92.26721475995697,
+            159.0703299,
+            68.4
+          ]
+        ],
+        "referenced_size_xyz_mm": [
+          184.38394983281125,
+          182.8703299,
+          45.2
+        ],
+        "signed_mesh_volume_cm3": 49.50991062645525,
+        "front_ahead_of_nose_tip_y_mm": 11.06484806522717
+      },
+      "camera": {
+        "referenced_bounds_xyz_mm": [
+          [
+            -44.96450837015203,
+            -19.28787200000003,
+            25.49994999548
+          ],
+          [
+            44.966903987705244,
+            5.712128000015717,
+            55.49998418600424
+          ]
+        ],
+        "referenced_size_xyz_mm": [
+          89.93141235785728,
+          25.000000000015746,
+          30.00003419052424
+        ],
+        "signed_mesh_volume_cm3": -30.429966442474367,
+        "front_ahead_of_nose_tip_y_mm": 6.552720065227199
+      },
+      "retention_band": {
+        "referenced_bounds_xyz_mm": [
+          [
+            -54.5,
+            1.862127996981144,
+            29.0
+          ],
+          [
+            54.5,
+            6.412128001451492,
+            44.0
+          ]
+        ],
+        "referenced_size_xyz_mm": [
+          109.0,
+          4.550000004470348,
+          15.0
+        ],
+        "signed_mesh_volume_cm3": 1.1445000048726797,
+        "front_ahead_of_nose_tip_y_mm": -14.597279931753974
+      }
+    },
+    "camera_actual_transform_max_residual_mm": 0.0,
+    "camera_native_source_sha256": "3ab286dd328bb1206bd967502e1b652c3e76c502bd2efd0a262ae312ce8b81dd",
+    "camera_transform_native_to_wearing": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        -0.0290536247
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0,
+        -19.287872
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        38.0
+      ]
     ],
-    "distal_tab_y_mm": 159.0703299,
-    "tab_expected_vs_actual_symmetric_difference_volume_mm3": 0.0,
-    "slot_blockage_volume_mm3": 0.0,
-    "original_temple_region_y_mm": [
-      43.0,
-      147.0703299
+    "optical_axis_in_wearing_xyz": [
+      0.0,
+      -1.0,
+      0.0
     ],
-    "temple_expected_vs_actual_symmetric_difference_volume_mm3": 0.0,
-    "temple_source_yz_and_length_unchanged": true,
-    "tabs_only_laterally_translated_and_slots_preserved": true
+    "bttf_normal_source": "Headset_Inputs/BTTF_Glasses.3mf build object 2",
+    "bttf_normal_source_sha256": "5b9ef0466563af4c28b19f4dabf78166c9800f8f3c909d04b9a4dd4614a24073",
+    "bttf_normal_material_volume_cm3": 44.28878944272184,
+    "body_volume_ratio_to_normal": 1.1178880987588478,
+    "body_volume_difference_to_normal_cm3": 5.221121183733409,
+    "actual_front_portions": [
+      {
+        "cut_y_le_mm": -21.4,
+        "bounds_xyz_mm": [
+          [
+            -46.000000000040544,
+            -23.8,
+            23.58076580422269
+          ],
+          [
+            46.000000000040544,
+            -21.399999999999995,
+            66.10838393756651
+          ]
+        ],
+        "size_xyz_mm": [
+          92.00000000008109,
+          2.4000000000000057,
+          42.52761813334382
+        ]
+      },
+      {
+        "cut_y_le_mm": 0,
+        "bounds_xyz_mm": [
+          [
+            -86.45439909716245,
+            -23.8,
+            23.4
+          ],
+          [
+            86.45439909716245,
+            3.552713678800501e-15,
+            68.4
+          ]
+        ],
+        "size_xyz_mm": [
+          172.9087981943249,
+          23.800000000000004,
+          45.00000000000001
+        ]
+      },
+      {
+        "cut_y_le_mm": 20,
+        "bounds_xyz_mm": [
+          [
+            -86.45439909716245,
+            -23.8,
+            23.4
+          ],
+          [
+            86.45439909716245,
+            20.000000000000004,
+            68.4
+          ]
+        ],
+        "size_xyz_mm": [
+          172.9087981943249,
+          43.800000000000004,
+          45.00000000000001
+        ]
+      },
+      {
+        "cut_y_le_mm": 43,
+        "bounds_xyz_mm": [
+          [
+            -86.45439909716245,
+            -23.8,
+            23.4
+          ],
+          [
+            86.45439909716245,
+            43.0,
+            68.4
+          ]
+        ],
+        "size_xyz_mm": [
+          172.9087981943249,
+          66.8,
+          45.00000000000001
+        ]
+      }
+    ],
+    "front_center_x0_cross_section_bounds_yz_mm": [
+      [
+        -23.8,
+        23.4
+      ],
+      [
+        6.8,
+        68.4
+      ]
+    ],
+    "front_center_x0_height_mm": 45.00000000000001,
+    "printed_body_plus_reference_band_cm3": 50.654410631327934
   }
 }

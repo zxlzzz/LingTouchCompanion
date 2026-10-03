@@ -1,64 +1,70 @@
-"""Export separate printable parts and actual references in wearing coordinates."""
+"""One connected printable prop body plus head, actual camera and band references."""
 from pathlib import Path
 import hashlib,json,zipfile
 import xml.etree.ElementTree as ET
 import numpy as np
 import manifold3d as md
-
 P=Path(__file__).resolve().parent;G=P/'geometry';R=P.parent
-NS='http://schemas.microsoft.com/3dmanufacturing/core/2015/02'
-ET.register_namespace('',NS)
+NS='http://schemas.microsoft.com/3dmanufacturing/core/2015/02';ET.register_namespace('',NS)
 def tag(s):return '{'+NS+'}'+s
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def compact(q):
+    v=np.asarray(q['v']);f=np.asarray(q['f'])
+    assert v.ndim==2 and v.shape[1]==3 and f.ndim==2 and f.shape[1]==3
+    assert np.isfinite(v).all() and np.issubdtype(f.dtype,np.integer)
+    assert f.min()>=0 and f.max()<len(v)
+    used=np.unique(f);return v[used],np.searchsorted(used,f),used
 
 def main():
-    paths=[('PRINT_Front_shell',G/'front_body.npz',True,'#23262BFF'),
-           ('PRINT_Removable_cover',G/'service_lid.npz',True,'#23262BFF'),
-           ('PRINT_Blue_bezel_optional',G/'bezel_trim.npz',True,'#3B80B8FF'),
-           ('PRINT_TPU_split_cable_gland',G/'cable_gland.npz',True,'#42464AFF'),
-           ('REFERENCE_Head_do_not_print',R/'Headset_Carbon6K_FlatBase_Review_2026-10-02/inputs/Medium_Trial_Registered.npz',False,'#BEC6C9FF'),
-           ('REFERENCE_Actual_CS30_customer_STEP_do_not_print',G/'camera.npz',False,'#D6A759FF'),
-           ('REFERENCE_Four_M3x12_screws_and_M3_nuts_do_not_print',G/'fasteners.npz',False,'#A7AFB8FF'),
-           ('REFERENCE_Compressed_soft_pads_do_not_print',G/'pads.npz',False,'#767D85FF')]
+    paths=[('PRINT_Front_shell',G/'front_body.npz',True,0),
+           ('REFERENCE_Head_do_not_print',R/'Headset_Inputs/Medium_Trial_Registered.npz',False,2),
+           ('REFERENCE_Actual_CS30_customer_STEP_do_not_print',G/'camera.npz',False,3),
+           ('REFERENCE_Textile_cinch_band_do_not_print',G/'retention_band.npz',False,4)]
+    sources=[p for _,p,_,_ in paths]+[G/'geometry_values.json',R/'Headset_Inputs/CS30_customer.stp',R/'Headset_Inputs/BTTF_Glasses.3mf',R/'Headset_Rear/Rear_Wearing.3mf']
+    hashes={str(p.relative_to(R)).replace('\\','/'):digest(p) for p in sources}
     model=ET.Element(tag('model'),unit='millimeter')
-    ET.SubElement(model,tag('metadata'),name='Title').text='WOAD-inspired front - wearing assembly'
-    ET.SubElement(model,tag('metadata'),name='Description').text='Wearing coordinates unchanged. Four independent printable parts; all named REFERENCE objects are inspection references, not printable parts. Camera is the actual customer STEP geometry. Original rear assembly remains unchanged in its existing directory.'
-    resources=ET.SubElement(model,tag('resources'));materials=ET.SubElement(resources,tag('basematerials'),id='1');build=ET.SubElement(model,tag('build'));rows=[]
-    for i,(name,path,printable,color) in enumerate(paths):
-        ET.SubElement(materials,tag('base'),name=name,displaycolor=color)
-        q=np.load(path);v=q['v'];f=q['f'];oid=str(i+2)
-        obj=ET.SubElement(resources,tag('object'),id=oid,type='model' if printable else 'other',name=name,pid='1',pindex=str(i))
+    ET.SubElement(model,tag('metadata'),name='Title').text='WOAD-inspired prop front - wearing assembly'
+    ET.SubElement(model,tag('metadata'),name='Description').text='One connected printable body with black and blue face colors. Camera is unpowered; head, actual camera and textile cinch band are nonprintable REFERENCE objects. Wearing coordinates preserved.'
+    resources=ET.SubElement(model,tag('resources'));materials=ET.SubElement(resources,tag('basematerials'),id='1');build=ET.SubElement(model,tag('build'))
+    for name,color in [('Body_black','#23262BFF'),('Body_blue','#3B80B8FF'),('Reference_head','#BEC6C9FF'),('Reference_camera','#D6A759FF'),('Reference_textile_band','#34383DFF')]:ET.SubElement(materials,tag('base'),name=name,displaycolor=color)
+    rows=[];exported=[]
+    for i,(name,path,printable,index) in enumerate(paths,2):
+        q=np.load(path);v,f,used=compact(q);material=None
+        if printable:
+            key='material' if 'material' in q.files else 'part';assert key in q.files,'Missing body face material IDs'
+            material=np.asarray(q[key]);assert material.shape==(len(f),) and np.isin(material,[0,1]).all()
+        obj=ET.SubElement(resources,tag('object'),id=str(i),type='model' if printable else 'other',name=name,pid='1',pindex=str(index))
         me=ET.SubElement(obj,tag('mesh'));vs=ET.SubElement(me,tag('vertices'));ts=ET.SubElement(me,tag('triangles'))
-        for p in v:ET.SubElement(vs,tag('vertex'),x=format(p[0],'.12g'),y=format(p[1],'.12g'),z=format(p[2],'.12g'))
-        for p in f:ET.SubElement(ts,tag('triangle'),v1=str(p[0]),v2=str(p[1]),v3=str(p[2]))
-        ET.SubElement(build,tag('item'),objectid=oid)
-        row={'name':name,'printable':printable,'source_sha256':digest(path),'vertices':len(v),'triangles':len(f),'bounds_xyz_mm':[v.min(0).tolist(),v.max(0).tolist()]}
+        for point in v:ET.SubElement(vs,tag('vertex'),x=format(point[0],'.17g'),y=format(point[1],'.17g'),z=format(point[2],'.17g'))
+        for j,face in enumerate(f):
+            attrs={'v1':str(face[0]),'v2':str(face[1]),'v3':str(face[2])}
+            if printable:attrs.update(pid='1',p1=str(material[j]),p2=str(material[j]),p3=str(material[j]))
+            ET.SubElement(ts,tag('triangle'),**attrs)
+        ET.SubElement(build,tag('item'),objectid=str(i))
+        row={'name':name,'printable':printable,'source':str(path.relative_to(R)).replace('\\','/'),'source_sha256':digest(path),'vertices':len(v),'triangles':len(f),'source_unused_vertices_removed':len(q['v'])-len(used),'used_vertex_bounds_xyz_mm':[v.min(0).tolist(),v.max(0).tolist()],'triangle_index_min_max':[int(f.min()),int(f.max())]}
         if printable:
             m=md.Manifold(md.Mesh64(vert_properties=np.ascontiguousarray(v,dtype=np.float64),tri_verts=np.ascontiguousarray(f,dtype=np.uint64)))
-            assert m.status()==md.Error.NoError and len(m.decompose())==1,(name,m.status(),len(m.decompose()))
-            # Independently inspect every undirected edge of the exported mesh.
-            e=np.sort(np.concatenate([f[:,[0,1]],f[:,[1,2]],f[:,[2,0]]]),axis=1)
-            _,n=np.unique(e,axis=0,return_counts=True);assert (n==2).all(),name
-            row.update(volume_cm3=float(m.volume())/1000,closed_connected_manifold=True)
-        rows.append(row)
-    out=P/'Front_WOAD_Wearing.3mf'
-    with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as ar:
-        ar.writestr('[Content_Types].xml','<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>')
-        ar.writestr('_rels/.rels','<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>')
-        ar.writestr('3D/3dmodel.model',ET.tostring(model,encoding='utf8',xml_declaration=True))
-    # Read the actual final container and compare coordinates/index arrays.
-    with zipfile.ZipFile(out) as ar:
-        back=ET.fromstring(ar.read('3D/3dmodel.model'))
-        obs=back.findall(tag('resources')+'/'+tag('object'));assert len(obs)==len(paths)
-        assert len(back.findall(tag('build')+'/'+tag('item')))==len(paths)
-        for ob,(_,path,_,_) in zip(obs,paths):
-            q=np.load(path)
-            v=np.array([[float(p.get(k)) for k in 'xyz'] for p in ob.findall('.//'+tag('vertex'))])
-            f=np.array([[int(p.get(k)) for k in ['v1','v2','v3']] for p in ob.findall('.//'+tag('triangle'))])
-            assert np.max(np.abs(v-q['v']))<1e-8 and np.array_equal(f,q['f'])
-    result={'file':out.name,'sha256':digest(out),'wearing_coordinates_preserved':True,'object_count':len(paths),'objects':rows,
-            'rear_assembly_unchanged_sha256':digest(R/'Headset_Carbon6K_FlatBase_Review_2026-10-02/Rear_Carbon6K_FlatBase_Review_Wearing.3mf')}
-    (P/'checks/export.json').write_text(json.dumps(result,indent=2),encoding='utf8')
-    print(out.name,result['sha256'],len(paths))
-
+            assert m.status()==md.Error.NoError and len(m.decompose())==1 and m.volume()>0
+            edges=np.sort(np.concatenate([f[:,[0,1]],f[:,[1,2]],f[:,[2,0]]]),axis=1);_,count=np.unique(edges,axis=0,return_counts=True);assert (count==2).all()
+            row.update(volume_cm3=float(m.volume())/1000,closed_connected_manifold=True,material_triangle_counts={str(k):int(np.sum(material==k)) for k in [0,1]})
+        rows.append(row);exported.append((v,f,material))
+    out=P/'Front_Wearing.3mf'
+    members={'[Content_Types].xml':b'<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>','_rels/.rels':b'<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>','3D/3dmodel.model':ET.tostring(model,encoding='utf8',xml_declaration=True)}
+    with zipfile.ZipFile(out,'w') as ar:
+        for name,data in members.items():
+            info=zipfile.ZipInfo(name,(1980,1,1,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;ar.writestr(info,data,compresslevel=6)
+    with zipfile.ZipFile(out) as ar:back=ET.fromstring(ar.read('3D/3dmodel.model'))
+    objects=back.findall(tag('resources')+'/'+tag('object'));items=back.findall(tag('build')+'/'+tag('item'))
+    assert len(objects)==len(items)==4 and sum(ob.get('type')=='model' for ob in objects)==1
+    assert all('transform' not in it.attrib for it in items)
+    for ob,(v,f,material),row in zip(objects,exported,rows):
+        rv=np.array([[float(pt.get(k)) for k in 'xyz'] for pt in ob.findall('.//'+tag('vertex'))]);tris=ob.findall('.//'+tag('triangle'));rf=np.array([[int(pt.get(k)) for k in ['v1','v2','v3']] for pt in tris])
+        assert np.array_equal(rv,v) and np.array_equal(rf,f) and np.unique(rf).size==len(rv)
+        if material is not None:assert all(pt.get('pid')=='1' and int(pt.get('p1'))==int(pt.get('p2'))==int(pt.get('p3'))==int(k) for pt,k in zip(tris,material))
+        row['readback_coordinates_and_indices_exact']=True
+    assert all(digest(R/name)==sha for name,sha in hashes.items()),'Inputs changed during export'
+    rear=json.loads((R/'Headset_Rear/source_provenance.json').read_text(encoding='utf8'));rear_hash=digest(R/'Headset_Rear/Rear_Wearing.3mf');assert rear_hash==rear['source_rear_3mf']['sha256']
+    result={'file':out.name,'sha256':digest(out),'wearing_coordinates_preserved_exactly':True,'single_printable_body':True,'objects':rows,'source_sha256':hashes,'source_changed_during_run':False,'rear_original_3mf_byte_copy_unchanged_sha256':rear_hash,'pass':True}
+    (P/'checks').mkdir(exist_ok=True);(P/'checks/export.json').write_text(json.dumps(result,indent=2),encoding='utf8')
+    print(json.dumps({k:result[k] for k in ['file','sha256','single_printable_body','pass']},indent=2))
 if __name__=='__main__':main()
