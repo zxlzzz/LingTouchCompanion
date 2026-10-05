@@ -260,6 +260,14 @@
       <button onclick="patternRandom()">随机</button>
       <button onclick="patternInvert()">反转</button>
     </div>
+    <div class="btn-row">
+      <button id="btnLayout" onclick="toggleLayout()">梯形排列</button>
+      <button onclick="exportPNG()">导出透明 PNG</button>
+      <label style="font-size:12px;color:var(--text-dim);margin-left:8px">底排间距</label>
+      <input type="range" min="30" max="100" value="58" style="width:100px;accent-color:var(--accent)"
+        oninput="setBottomPitch(this.value)">
+      <span class="mono" style="font-size:12px;color:var(--cyan)" id="bottomPitchLabel">58px</span>
+    </div>
     <div class="sep"></div>
     <!-- Hex预览 -->
     <div class="panel-title">发送预览 (FFE1 · 15字节)</div>
@@ -1007,6 +1015,85 @@ function log(msg, cls = '') {
 }
 
 function clearLog() { document.getElementById('log').innerHTML = ''; }
+
+// ═══════════════════════════════════════
+//  梯形排列（透视斜看）+ 透明 PNG 导出
+// ═══════════════════════════════════════
+
+const CELL = 28, PITCH = 30;   // 点径、矩形时的点距（与 CSS 一致）
+let bottomPitch = 58;          // 最后一排的横向点距，由滑条设定
+let layoutMode = 'rect';
+
+// 梯形：每排点距从首排 PITCH 线性增加到末排 bottomPitch，行距不变，点大小不变
+function computeLayout() {
+  const pts = [];
+  const maxPitch = Math.max(PITCH, bottomPitch);
+  for (let r = 0; r < 10; r++) {
+    const pitch = PITCH + (bottomPitch - PITCH) * r / 9;
+    for (let c = 0; c < 9; c++) {
+      pts.push({ r, c, cx: (c - 4) * pitch + 4 * maxPitch + CELL / 2, cy: r * PITCH + CELL / 2, w: CELL, h: CELL });
+    }
+  }
+  return { pts, width: 8 * maxPitch + CELL, height: 9 * PITCH + CELL };
+}
+
+function setBottomPitch(v) {
+  bottomPitch = parseInt(v);
+  document.getElementById('bottomPitchLabel').textContent = v + 'px';
+  if (layoutMode === 'trap') applyLayout();
+}
+
+function applyLayout() {
+  if (layoutMode === 'rect') {
+    gridEl.style.cssText = '';
+    gridEl.querySelectorAll('.cell').forEach(el => el.style.cssText = '');
+  } else {
+    const L = computeLayout();
+    gridEl.style.cssText = `display:block;position:relative;width:${L.width}px;height:${L.height}px`;
+    L.pts.forEach(p => {
+      const el = document.getElementById(`c${p.r}_${p.c}`);
+      el.style.cssText = `position:absolute;margin:0;left:${p.cx - p.w/2}px;top:${p.cy - p.h/2}px;width:${p.w}px;height:${p.h}px`;
+    });
+  }
+  document.getElementById('btnLayout').textContent = layoutMode === 'rect' ? '梯形排列' : '矩形排列';
+}
+
+function toggleLayout() {
+  layoutMode = layoutMode === 'rect' ? 'trap' : 'rect';
+  applyLayout();
+}
+
+// 导出当前触点：透明背景、黑色描边圆，亮的点实心；4 倍分辨率
+function exportPNG() {
+  const SCALE = 4, PAD = 4, LW = 2.5, R = 9;   // R: 圆半径，比界面点小，同参考图
+  let pts, width, height;
+  if (layoutMode === 'trap') ({ pts, width, height } = computeLayout());
+  else {
+    pts = []; for (let r = 0; r < 10; r++) for (let c = 0; c < 9; c++)
+      pts.push({ r, c, cx: c * PITCH + CELL / 2, cy: r * PITCH + CELL / 2 });
+    width = 8 * PITCH + CELL; height = 9 * PITCH + CELL;
+  }
+  const cv = document.createElement('canvas');
+  cv.width = Math.ceil((width + 2 * PAD) * SCALE);
+  cv.height = Math.ceil((height + 2 * PAD) * SCALE);
+  const ctx = cv.getContext('2d');
+  ctx.scale(SCALE, SCALE);
+  ctx.translate(PAD, PAD);
+  ctx.lineWidth = LW; ctx.strokeStyle = '#000'; ctx.fillStyle = '#000';
+  pts.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.cx, p.cy, R, 0, Math.PI * 2);
+    if (grid[p.r][p.c]) ctx.fill();
+    ctx.stroke();
+  });
+  cv.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `lingchu_grid_${layoutMode}_${Date.now()}.png`;
+    a.click();
+    log(`导出 PNG ${cv.width}×${cv.height}`, 'ok');
+  }, 'image/png');
+}
 
 // ═══════════════════════════════════════
 //  Init

@@ -7,6 +7,7 @@
 /tmp/
 
 # Dependencies and build outputs
+/.build/
 node_modules/
 dist/
 .venv/
@@ -55,3 +56,20 @@ __pycache__/
 .DS_Store
 Thumbs.db
 *.log
+
+glasses_refs
+
+sth
+
+# Reproducible headset intermediates; keep source inputs and final 3MF files.
+/Headset_Inputs/Medium_Trial_Registered.npz
+/Headset_Rear/geometry/
+/Headset_Rear/revised/geometry/
+/Headset_Rear/revised/checks/
+/Headset_WOAD_Front_2026-10-03/geometry/
+/Headset_WOAD_Front_2026-10-03/revised/geometry/
+/Headset_WOAD_Front_2026-10-03/structural/geometry/
+/Headset_WOAD_Front_2026-10-03/camera_mount/geometry/
+/Headset_WOAD_Front_2026-10-03/camera_mount/checks/
+/Headset_WOAD_Front_2026-10-03/camera_mount/views/
+/Headset_WOAD_Front_2026-10-03/checks/*.json
