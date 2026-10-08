@@ -1,0 +1,145 @@
+{
+  "pass": true,
+  "source": "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\PhotoStudy\\ReferenceStudy.blend",
+  "source_sha256": "7d46dd6b381360f00952f4cb2da472df6c7cf551fe68e208e69263ba4cc586e3",
+  "source_file_unchanged": true,
+  "output": "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\MotionPreview\\AppearanceStudy.blend",
+  "intent": "Six continuous round-headed cylindrical pins, with one neutral grey-white polymer palette.",
+  "changed_meshes": [
+    "Dot_1",
+    "Dot_2",
+    "Dot_3",
+    "Dot_4",
+    "Dot_5",
+    "Dot_6"
+  ],
+  "unchanged_module_meshes": [
+    "Housing",
+    "Base_Collar",
+    "Base_Insert",
+    "Orientation_Tab",
+    "Pin_01",
+    "Pin_02",
+    "Pin_03",
+    "Pin_04",
+    "Pin_05",
+    "Pin_06",
+    "Pin_07",
+    "Pin_08",
+    "Pin_09",
+    "Pin_10",
+    "Pin_11",
+    "Pin_12"
+  ],
+  "unchanged_mesh_count": 16,
+  "all_object_transforms_and_dot_apices_unchanged": true,
+  "other_materials_lights_cameras_world_and_render_settings_unchanged": true,
+  "rest_state": "All six apices flush; no motion or animation added.",
+  "profile_mm": {
+    "shaft_radius": 0.71,
+    "shaft_bottom": -0.85,
+    "straight_shaft_top": -0.5,
+    "transition_top": -0.4,
+    "transition_continuity": "C1 tangent; analytic smooth normals",
+    "original_spherical_crown_retained_above": -0.4,
+    "crown_sphere_radius": 0.7851111111111111,
+    "apex": 0,
+    "original_seam_radius_change": 0.005878792122519516
+  },
+  "shared_material": {
+    "name": "Unified grey white tactile pin polymer",
+    "base_colour_linear_rgb": [
+      0.105,
+      0.105,
+      0.105
+    ],
+    "roughness": 0.28,
+    "subsurface_weight": 0.1,
+    "subsurface_scale_mm": 0.3,
+    "physical_shader_emission": 0,
+    "camera_display_linear_rgb": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "camera_display_emission_strength": 1,
+    "camera_display_physical_shader_fraction": 0.12,
+    "secondary_rays": "Original physical polymer branch",
+    "intent": "Even grey-white cap and shaft with reduced received-shadow contrast; no added lighting."
+  },
+  "dot_geometry": {
+    "Dot_1": {
+      "vertices": 5762,
+      "faces": 5888,
+      "connected_components": 1,
+      "watertight": true,
+      "positive_volume_mm3": 1.0360728455738624,
+      "diameter_mm": 1.420000047702801,
+      "min_local_z_mm": -0.8500000112690032,
+      "max_local_z_mm": 0.0,
+      "shaft_radius_max_error_mm": 3.4567987472478023e-08,
+      "retained_crown_profile_max_error_mm": 3.2992794718467167e-08
+    },
+    "Dot_2": {
+      "vertices": 5762,
+      "faces": 5888,
+      "connected_components": 1,
+      "watertight": true,
+      "positive_volume_mm3": 1.0360728455738624,
+      "diameter_mm": 1.420000047702801,
+      "min_local_z_mm": -0.8500000112690032,
+      "max_local_z_mm": 0.0,
+      "shaft_radius_max_error_mm": 3.4567987472478023e-08,
+      "retained_crown_profile_max_error_mm": 3.2992794718467167e-08
+    },
+    "Dot_3": {
+      "vertices": 5762,
+      "faces": 5888,
+      "connected_components": 1,
+      "watertight": true,
+      "positive_volume_mm3": 1.0360728455738624,
+      "diameter_mm": 1.420000047702801,
+      "min_local_z_mm": -0.8500000112690032,
+      "max_local_z_mm": 0.0,
+      "shaft_radius_max_error_mm": 3.4567987472478023e-08,
+      "retained_crown_profile_max_error_mm": 3.2992794718467167e-08
+    },
+    "Dot_4": {
+      "vertices": 5762,
+      "faces": 5888,
+      "connected_components": 1,
+      "watertight": true,
+      "positive_volume_mm3": 1.0360728455738624,
+      "diameter_mm": 1.420000047702801,
+      "min_local_z_mm": -0.8500000112690032,
+      "max_local_z_mm": 0.0,
+      "shaft_radius_max_error_mm": 3.4567987472478023e-08,
+      "retained_crown_profile_max_error_mm": 3.2992794718467167e-08
+    },
+    "Dot_5": {
+      "vertices": 5762,
+      "faces": 5888,
+      "connected_components": 1,
+      "watertight": true,
+      "positive_volume_mm3": 1.0360728455738624,
+      "diameter_mm": 1.420000047702801,
+      "min_local_z_mm": -0.8500000112690032,
+      "max_local_z_mm": 0.0,
+      "shaft_radius_max_error_mm": 3.4567987472478023e-08,
+      "retained_crown_profile_max_error_mm": 3.2992794718467167e-08
+    },
+    "Dot_6": {
+      "vertices": 5762,
+      "faces": 5888,
+      "connected_components": 1,
+      "watertight": true,
+      "positive_volume_mm3": 1.0360728455738624,
+      "diameter_mm": 1.420000047702801,
+      "min_local_z_mm": -0.8500000112690032,
+      "max_local_z_mm": 0.0,
+      "shaft_radius_max_error_mm": 3.4567987472478023e-08,
+      "retained_crown_profile_max_error_mm": 3.2992794718467167e-08
+    }
+  },
+  "verification_scope": "Geometry, palette assignment, preservation and saved-file readback. No render was produced."
+}

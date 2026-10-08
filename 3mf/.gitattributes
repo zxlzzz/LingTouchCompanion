@@ -1,0 +1,6 @@
+*.3mf binary
+*.npz binary
+*.stl binary
+*.step binary
+*.py -text
+*.json -text

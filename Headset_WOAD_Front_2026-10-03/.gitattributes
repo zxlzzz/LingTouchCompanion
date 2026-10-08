@@ -1,6 +1,0 @@
-*.3mf binary
-*.npz binary
-*.png binary
-# These files are included in byte-level source provenance.
-*.py -text
-*.json -text

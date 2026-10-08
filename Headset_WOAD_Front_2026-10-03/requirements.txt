@@ -1,8 +1,0 @@
-numpy==1.26.4
-manifold3d==3.5.4
-trimesh==5.1.0
-cadquery-ocp==8.0.1.0.0
-bpy==4.5.3
-vtk==9.6.2
-Pillow==12.3.0
-scipy==1.15.3

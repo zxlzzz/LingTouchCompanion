@@ -1,0 +1,42 @@
+{
+  "rendered_levels_per_dot": 16,
+  "independent_dots": 6,
+  "combined_render_comparisons": [
+    {
+      "height_mm": 0.7,
+      "mean_channel_error_255": 0.116,
+      "p99_channel_error_255": 2.0,
+      "fraction_pixels_over_10": 2e-05
+    },
+    {
+      "height_mm": 0.45,
+      "mean_channel_error_255": 0.113,
+      "p99_channel_error_255": 1.991,
+      "fraction_pixels_over_10": 0.0
+    }
+  ],
+  "appearance_scene_sha256": "433c03d9a56435f20df698e10fc23902e4470e07b0a72c4bc8f2390b7a9e505b",
+  "approved_static_scene_sha256": "7d46dd6b381360f00952f4cb2da472df6c7cf551fe68e208e69263ba4cc586e3",
+  "peak_mm": 0.7,
+  "hold_mm": 0.45,
+  "bottom_stem_overlap_at_peak_mm": 0.15,
+  "motion_direction": "Each independent dot local +Z; no shape scaling",
+  "source_scene_not_modified": true,
+  "appearance_intent": "Round head and straight shaft share one even grey-white colour; no dark colour band separating them.",
+  "appearance_geometry_verified": {
+    "straight_shaft_diameter_mm": 1.42,
+    "round_head_and_shaft_single_component": true,
+    "only_six_pin_meshes_changed": true,
+    "static_parts_verified_unchanged": 16
+  },
+  "lighting_added": false,
+  "motion_profile_sha256": "87d1445dc48b3389c9cd8c422ef3a6140e9eef6d23d56807592c16bfc279df24",
+  "browser_qa": {
+    "fresh_assets_loaded": true,
+    "keys_1_4_6_independent_hold": true,
+    "all_retract_returns_zero": true,
+    "six_pose_atlases_loaded": true,
+    "colour_finish_verified_in_live_preview": true,
+    "console_errors_and_warnings": 0
+  }
+}

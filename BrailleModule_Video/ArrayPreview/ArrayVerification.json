@@ -1,0 +1,248 @@
+{
+  "modules": 15,
+  "independent_dots": 90,
+  "mesh_instances": 330,
+  "mesh_geometry_and_component_positions_preserved": true,
+  "photographic_finish": {
+    "revision": 4,
+    "reference_frames": [
+      45,
+      91
+    ],
+    "world_space_mould_texture": true,
+    "shared_pin_finish": "Photographic neutral grey-white complete pins",
+    "camera_pin_base_linear_rgb": [
+      0.52,
+      0.52,
+      0.52
+    ],
+    "pin_physical_fraction": 0.6,
+    "pin_cast_shadows": false,
+    "additive_glossy_highlight": false,
+    "pin_roughness_range": [
+      0.16,
+      0.34
+    ],
+    "stable_per_pin_surface_variation": true,
+    "key_position_mm": [
+      -30,
+      75,
+      190
+    ],
+    "key_size_mm": [
+      70,
+      35
+    ],
+    "wear": false,
+    "compositor_filters": false
+  },
+  "pin_subsurface_scattering": false,
+  "pin_cast_shadows": false,
+  "source_sha256": "433c03d9a56435f20df698e10fc23902e4470e07b0a72c4bc8f2390b7a9e505b",
+  "pcb_step": "../../3mf/PCB/inputs/3D_PCB1_5_2026-09-15.step",
+  "pcb_step_sha256": "bc137079b08c6e28868dd377544d98e749a99668405f34cabf4c29b9ed15f2aa",
+  "pcb_in_plane_rotation_degrees": -90,
+  "grid_columns": 9,
+  "grid_rows": 10,
+  "pitch_mm": [
+    11,
+    6.5
+  ],
+  "positions": [
+    {
+      "module": 1,
+      "pcb_designator": "U31",
+      "centre_mm": [
+        -10.99952,
+        13.127026,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        -13.127026,
+        -10.99952
+      ]
+    },
+    {
+      "module": 2,
+      "pcb_designator": "U32",
+      "centre_mm": [
+        0,
+        13.000025,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        -13.000025,
+        0
+      ]
+    },
+    {
+      "module": 3,
+      "pcb_designator": "U33",
+      "centre_mm": [
+        10.999522,
+        13.000025,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        -13.000025,
+        10.999522
+      ]
+    },
+    {
+      "module": 4,
+      "pcb_designator": "U34",
+      "centre_mm": [
+        -10.99952,
+        6.627013,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        -6.627013,
+        -10.99952
+      ]
+    },
+    {
+      "module": 5,
+      "pcb_designator": "U35",
+      "centre_mm": [
+        0,
+        6.500013,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        -6.500013,
+        0
+      ]
+    },
+    {
+      "module": 6,
+      "pcb_designator": "U36",
+      "centre_mm": [
+        10.999522,
+        6.500013,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        -6.500013,
+        10.999522
+      ]
+    },
+    {
+      "module": 7,
+      "pcb_designator": "U37",
+      "centre_mm": [
+        -10.99952,
+        0.127,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        -0.127,
+        -10.99952
+      ]
+    },
+    {
+      "module": 8,
+      "pcb_designator": "U38",
+      "centre_mm": [
+        0,
+        0,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        0,
+        0
+      ]
+    },
+    {
+      "module": 9,
+      "pcb_designator": "U39",
+      "centre_mm": [
+        10.999522,
+        0,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        0,
+        10.999522
+      ]
+    },
+    {
+      "module": 10,
+      "pcb_designator": "U40",
+      "centre_mm": [
+        -10.99952,
+        -6.373012,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        6.373012,
+        -10.99952
+      ]
+    },
+    {
+      "module": 11,
+      "pcb_designator": "U41",
+      "centre_mm": [
+        0,
+        -6.500013,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        6.500013,
+        0
+      ]
+    },
+    {
+      "module": 12,
+      "pcb_designator": "U42",
+      "centre_mm": [
+        10.999522,
+        -6.500013,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        6.500013,
+        10.999522
+      ]
+    },
+    {
+      "module": 13,
+      "pcb_designator": "U43",
+      "centre_mm": [
+        -10.99952,
+        -12.873025,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        12.873025,
+        -10.99952
+      ]
+    },
+    {
+      "module": 14,
+      "pcb_designator": "U44",
+      "centre_mm": [
+        0,
+        -13.000025,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        13.000025,
+        0
+      ]
+    },
+    {
+      "module": 15,
+      "pcb_designator": "U45",
+      "centre_mm": [
+        10.999522,
+        -12.999578,
+        3.8
+      ],
+      "pcb_relative_mm": [
+        12.999578,
+        10.999522
+      ]
+    }
+  ]
+}

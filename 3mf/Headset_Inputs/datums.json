@@ -1,0 +1,31 @@
+{
+  "units": "millimeter",
+  "wearing_axes": "X lateral, Y posterior, Z up",
+  "head_native_to_wearing": [
+    [
+      1,
+      0,
+      0,
+      5.551115123125783e-17
+    ],
+    [
+      0,
+      0,
+      -1,
+      105.16174806522717
+    ],
+    [
+      0,
+      1,
+      0,
+      14.958561080000006
+    ],
+    [
+      0,
+      0,
+      0,
+      1
+    ]
+  ],
+  "source_note": "Unchanged scale-1 registered head transform for the final rear reference assembly."
+}

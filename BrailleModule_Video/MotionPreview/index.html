@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>盲文模组 · 凸起预览</title>
+  <style>
+    :root { font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; color: #292b2b; background: #f3f2ee; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { width: min(1440px, 100%); margin: 0 auto; padding: 24px 24px 28px; }
+    header { display: flex; align-items: baseline; gap: 20px; margin-bottom: 16px; }
+    h1 { font-size: 20px; font-weight: 600; margin: 0; white-space: nowrap; }
+    .instruction { font-size: 14px; color: #656764; margin: 0; line-height: 1.6; }
+    .view { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #dfded8; border-radius: 10px; overflow: hidden; outline: none; }
+    .view:focus-visible { box-shadow: 0 0 0 3px #738977; }
+    canvas { display: block; width: 100%; height: 100%; }
+    .message { position: absolute; inset: 0; display: grid; place-content: center; padding: 25px; text-align: center; background: #e9e7e1; color: #525751; line-height: 1.7; }
+    .message[hidden] { display: none; }
+    .labels { position: absolute; inset: 0; pointer-events: none; }
+    .labels[hidden] { display: none; }
+    .label { position: absolute; transform: translate(-50%, -50%); width: 24px; height: 24px; display: grid; place-items: center; color: #fff; background: #2f443fc2; border: 1px solid #fff9; border-radius: 50%; font-size: 12px; }
+    .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; padding-top: 16px; }
+    .dots { display: flex; flex-wrap: wrap; gap: 9px; }
+    button { font: inherit; cursor: pointer; border: 1px solid #d3d5ce; background: #fafaf7; color: #343a33; border-radius: 7px; transition: background-color .12s, border-color .12s; }
+    button:hover { background: #eeeee7; }
+    button:focus-visible { outline: 3px solid #738977; outline-offset: 2px; }
+    button:disabled { opacity: .5; cursor: default; }
+    .dot { display: flex; align-items: center; gap: 10px; padding: 9px 12px; min-width: 111px; }
+    .dot .number { font-size: 17px; font-weight: 600; }
+    .dot .state { font-size: 12px; color: #747970; min-width: 48px; }
+    .dot[aria-pressed="true"] { border-color: #668176; background: #e4eee7; }
+    .dot[aria-pressed="true"] .state { color: #345b48; }
+    .tools { display: flex; align-items: center; gap: 15px; white-space: nowrap; }
+    .reset { padding: 9px 14px; font-size: 13px; }
+    .numbering { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #656b62; cursor: pointer; }
+    .numbering input { accent-color: #557564; width: 15px; height: 15px; }
+    .footnote { margin: 13px 0 0; font-size: 12px; color: #787b73; }
+    @media (min-width: 761px) {
+      .view { max-width: calc((100dvh - 205px) * 1.7777778); margin-inline: auto; }
+    }
+    @media (max-width: 760px) {
+      main { padding: 17px 12px 22px; }
+      header { display: block; }
+      h1 { font-size: 18px; margin-bottom: 8px; }
+      .instruction { font-size: 12px; }
+      .controls { align-items: flex-start; gap: 13px; }
+      .dots { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; gap: 7px; }
+      .dot { min-width: 0; justify-content: center; padding: 8px; }
+      .label { width: 20px; height: 20px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+<main id="preview">
+  <header>
+    <h1>盲文模组 · 凸起预览</h1>
+    <p class="instruction">按 1–6 控制六个点：未凸起 → 高位凸起 → 低位维持。再次按下收回。</p>
+  </header>
+  <div class="view" id="view" tabindex="0" role="region" aria-label="模组效果预览，按数字 1 到 6 控制触点">
+    <canvas id="canvas" width="1280" height="720" aria-label="盲文模组的实时凸起效果"></canvas>
+    <div class="labels" id="labels" hidden></div>
+    <div class="message" id="message" role="status">正在加载模组…</div>
+  </div>
+  <div class="controls">
+    <div class="dots" aria-label="触点控制">
+      <button class="dot" type="button" data-dot="1" aria-pressed="false" disabled><span class="number">1</span><span class="state">未凸起</span></button>
+      <button class="dot" type="button" data-dot="2" aria-pressed="false" disabled><span class="number">2</span><span class="state">未凸起</span></button>
+      <button class="dot" type="button" data-dot="3" aria-pressed="false" disabled><span class="number">3</span><span class="state">未凸起</span></button>
+      <button class="dot" type="button" data-dot="4" aria-pressed="false" disabled><span class="number">4</span><span class="state">未凸起</span></button>
+      <button class="dot" type="button" data-dot="5" aria-pressed="false" disabled><span class="number">5</span><span class="state">未凸起</span></button>
+      <button class="dot" type="button" data-dot="6" aria-pressed="false" disabled><span class="number">6</span><span class="state">未凸起</span></button>
+    </div>
+    <div class="tools">
+      <label class="numbering"><input type="checkbox" id="numbering" disabled>显示编号</label>
+      <button class="reset" id="reset" type="button" disabled>全部收回</button>
+    </div>
+  </div>
+  <p class="footnote">点击画面后可使用键盘；也可直接点击上方数字按钮。</p>
+</main>
+<script>
+"use strict";
+(() => {
+  const root = document.getElementById("preview");
+  const view = document.getElementById("view");
+  const canvas = document.getElementById("canvas");
+  const message = document.getElementById("message");
+  const numbering = document.getElementById("numbering");
+  const labels = document.getElementById("labels");
+  const buttons = Array.from(document.querySelectorAll("button[data-dot]"));
+  const resetButton = document.getElementById("reset");
+  const motionDefaults = { peak_mm: .70, hold_mm: .45, rise_ms: 100 / 3, peak_pause_ms: 200 / 3, settle_ms: 50, retract_ms: 50, curve: "linear", pose_sampling: "nearest" };
+  let manifest, motion, gl, program, states, uniforms, frameRequest = 0, ready = false;
+  const linear = t => Math.max(0, Math.min(1, t));
+
+  function updateMotion(state, now) {
+    if (state.phase === "idle" || state.phase === "hold") return;
+    const elapsed = Math.max(0, now - state.started);
+    if (!state.active) {
+      state.height = state.startHeight * (1 - linear(elapsed / motion.retract_ms));
+      if (elapsed >= motion.retract_ms) { state.phase = "idle"; state.height = 0; }
+      return;
+    }
+    const pauseEnd = motion.rise_ms + motion.peak_pause_ms;
+    const settleEnd = pauseEnd + motion.settle_ms;
+    if (elapsed < motion.rise_ms) {
+      state.phase = "rise";
+      state.height = state.startHeight + (motion.peak_mm - state.startHeight) * linear(elapsed / motion.rise_ms);
+    } else if (elapsed < pauseEnd) {
+      state.phase = "peak";
+      state.height = motion.peak_mm;
+    } else if (elapsed < settleEnd) {
+      state.phase = "settle";
+      state.height = motion.peak_mm + (motion.hold_mm - motion.peak_mm) * linear((elapsed - pauseEnd) / motion.settle_ms);
+    } else {
+      state.phase = "hold";
+      state.height = motion.hold_mm;
+    }
+  }
+
+  function refreshButton(index) {
+    const state = states[index];
+    const button = buttons[index];
+    const names = { idle: "未凸起", rise: "凸起中", peak: "高位凸起", settle: "回落中", hold: "低位维持", retract: "收回中" };
+    const label = names[state.phase];
+    button.setAttribute("aria-pressed", String(state.active));
+    button.setAttribute("aria-label", `触点 ${index + 1}，${label}，点击${state.active ? "收回" : "凸起"}`);
+    const span = button.querySelector(".state");
+    if (span.textContent !== label) span.textContent = label;
+    button.dataset.phase = state.phase;
+    button.dataset.height = state.height.toFixed(4);
+  }
+
+  function toggleDot(index) {
+    if (!ready || !Number.isInteger(index) || index < 0 || index > 5) return;
+    const now = performance.now();
+    const state = states[index];
+    updateMotion(state, now);
+    state.startHeight = state.height;
+    state.active = !state.active;
+    state.started = now;
+    state.phase = state.active ? "rise" : "retract";
+    refreshButton(index);
+    requestFrame();
+  }
+
+  function resetAll() {
+    if (!ready) return;
+    const now = performance.now();
+    for (let index = 0; index < 6; index++) {
+      const state = states[index];
+      updateMotion(state, now);
+      state.active = false;
+      state.startHeight = state.height;
+      state.started = now;
+      state.phase = state.height > 0 ? "retract" : "idle";
+      refreshButton(index);
+    }
+    requestFrame();
+  }
+
+  function levelForHeight(height) {
+    const values = manifest.heights_mm;
+    if (height <= values[0]) return 0;
+    for (let i = 1; i < values.length; i++) {
+      if (height <= values[i]) return height - values[i - 1] < values[i] - height ? i - 1 : i;
+    }
+    return values.length - 1;
+  }
+
+  function requestFrame() {
+    if (ready && !frameRequest) frameRequest = requestAnimationFrame(render);
+  }
+
+  function render(now) {
+    frameRequest = 0;
+    if (!ready) return;
+    let running = false;
+    const levels = new Float32Array(6);
+    states.forEach((state, index) => {
+      updateMotion(state, now);
+      levels[index] = levelForHeight(state.height);
+      refreshButton(index);
+      if (state.phase !== "idle" && state.phase !== "hold") running = true;
+    });
+    gl.useProgram(program);
+    gl.uniform1fv(uniforms.levels, levels);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (running) requestFrame();
+  }
+
+  function resize() {
+    if (!manifest) return;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const width = Math.max(1, Math.round(view.clientWidth * ratio));
+    canvas.width = Math.min(width, manifest.image.width * 2);
+    canvas.height = Math.max(1, Math.round(canvas.width * manifest.image.height / manifest.image.width));
+    requestFrame();
+  }
+
+  function compileShader(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const detail = gl.getShaderInfoLog(shader);
+      gl.deleteShader(shader);
+      throw new Error(`Shader: ${detail}`);
+    }
+    return shader;
+  }
+
+  function createRenderer(images) {
+    gl = canvas.getContext("webgl2", { alpha: false, antialias: false, premultipliedAlpha: false, preserveDrawingBuffer: true });
+    if (!gl) throw new Error("WEBGL_UNAVAILABLE");
+    const vertex = compileShader(gl.VERTEX_SHADER, `#version 300 es
+      precision highp float;
+      out vec2 uv;
+      void main() {
+        vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+        uv = vec2(p.x, 1.0 - p.y);
+        gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+      }`);
+    const fragment = compileShader(gl.FRAGMENT_SHADER, `#version 300 es
+      precision highp float;
+      in vec2 uv;
+      out vec4 color;
+      uniform sampler2D baseImage;
+      uniform sampler2D dot1;
+      uniform sampler2D dot2;
+      uniform sampler2D dot3;
+      uniform sampler2D dot4;
+      uniform sampler2D dot5;
+      uniform sampler2D dot6;
+      uniform vec2 imageSize;
+      uniform vec4 rectangles[6];
+      uniform vec2 tileSizes[6];
+      uniform vec2 atlasSizes[6];
+      uniform float levels[6];
+      uniform int columns;
+      vec3 linearize(vec3 c) {
+        return mix(c / 12.92, pow((c + .055) / 1.055, vec3(2.4)), step(vec3(.04045), c));
+      }
+      vec3 encode(vec3 c) {
+        c = max(c, vec3(0.0));
+        return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - .055, step(vec3(.0031308), c));
+      }
+      vec3 atlasPixel(int i, vec2 coord) {
+        if (i == 0) return texture(dot1, coord).rgb;
+        if (i == 1) return texture(dot2, coord).rgb;
+        if (i == 2) return texture(dot3, coord).rgb;
+        if (i == 3) return texture(dot4, coord).rgb;
+        if (i == 4) return texture(dot5, coord).rgb;
+        return texture(dot6, coord).rgb;
+      }
+      vec3 atLevel(int i, int level, vec2 localPixel) {
+        vec2 tile = vec2(level % columns, level / columns);
+        vec2 coord = (tile * tileSizes[i] + vec2(2.0) + localPixel) / atlasSizes[i];
+        return linearize(atlasPixel(i, coord));
+      }
+      void main() {
+        vec3 base = linearize(texture(baseImage, uv).rgb);
+        vec3 result = base;
+        vec2 pixel = uv * imageSize;
+        for (int i = 0; i < 6; i++) {
+          vec2 localPixel = pixel - rectangles[i].xy;
+          vec2 size = rectangles[i].zw;
+          if (levels[i] > 0.0 && all(greaterThanEqual(localPixel, vec2(0.0))) && all(lessThan(localPixel, size))) {
+            int level = int(levels[i]);
+            vec3 raised = atLevel(i, level, localPixel);
+            vec3 reference = atLevel(i, 0, localPixel);
+            vec2 edge = min(localPixel, size - localPixel);
+            float fade = smoothstep(0.0, 2.0, min(edge.x, edge.y));
+            result += (raised - reference) * fade;
+          }
+        }
+        color = vec4(clamp(encode(result), 0.0, 1.0), 1.0);
+      }`);
+    program = gl.createProgram();
+    gl.attachShader(program, vertex);
+    gl.attachShader(program, fragment);
+    gl.linkProgram(program);
+    gl.deleteShader(vertex);
+    gl.deleteShader(fragment);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(`Program: ${gl.getProgramInfoLog(program)}`);
+    gl.useProgram(program);
+    gl.bindVertexArray(gl.createVertexArray());
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
+    images.forEach((image, index) => {
+      gl.activeTexture(gl.TEXTURE0 + index);
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+      const name = index === 0 ? "baseImage" : `dot${index}`;
+      gl.uniform1i(gl.getUniformLocation(program, name), index);
+    });
+    uniforms = { levels: gl.getUniformLocation(program, "levels[0]") };
+    gl.uniform2f(gl.getUniformLocation(program, "imageSize"), manifest.image.width, manifest.image.height);
+    gl.uniform4fv(gl.getUniformLocation(program, "rectangles[0]"), manifest.dots.flatMap(dot => dot.rect));
+    gl.uniform2fv(gl.getUniformLocation(program, "tileSizes[0]"), manifest.dots.flatMap(dot => dot.tile));
+    gl.uniform2fv(gl.getUniformLocation(program, "atlasSizes[0]"), images.slice(1).flatMap(image => [image.naturalWidth, image.naturalHeight]));
+    gl.uniform1i(gl.getUniformLocation(program, "columns"), manifest.dots[0].columns);
+  }
+
+  function loadImage(path) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error(`IMAGE_MISSING: ${path}`));
+      image.src = new URL(path, location.href).href;
+    });
+  }
+
+  function validateManifest(value) {
+    if (!value.image || !(value.image.width > 0 && value.image.height > 0)) throw new Error("INVALID_IMAGE_SIZE");
+    if (!Array.isArray(value.heights_mm) || value.heights_mm.length < 2 || value.heights_mm[0] !== 0 || !value.heights_mm.every((v, i, a) => Number.isFinite(v) && (i === 0 || v > a[i - 1]))) throw new Error("INVALID_HEIGHTS");
+    if (!Array.isArray(value.dots) || value.dots.length !== 6) throw new Error("INVALID_DOTS");
+    value.dots.sort((a, b) => a.number - b.number);
+    value.dots.forEach((dot, index) => {
+      if (dot.number !== index + 1 || !dot.atlas || dot.rect?.length !== 4 || dot.tile?.length !== 2 || !(dot.columns > 0 && dot.rows > 0) || dot.columns !== value.dots[0].columns || dot.columns * dot.rows < value.heights_mm.length) throw new Error("INVALID_ATLAS");
+      if (dot.tile[0] !== dot.rect[2] + 4 || dot.tile[1] !== dot.rect[3] + 4) throw new Error("INVALID_GUTTERS");
+    });
+  }
+
+  async function start() {
+    try {
+      const response = await fetch("assets/manifest.json", { cache: "no-cache" });
+      if (!response.ok) throw new Error("MANIFEST_MISSING");
+      manifest = await response.json();
+      validateManifest(manifest);
+      const motionResponse = await fetch("assets/motion.json", { cache: "no-cache" });
+      if (!motionResponse.ok) throw new Error("MOTION_MISSING");
+      motion = { ...motionDefaults, ...(await motionResponse.json()) };
+      if (!(motion.peak_mm > motion.hold_mm && motion.hold_mm > 0 && motion.peak_mm <= manifest.heights_mm.at(-1)) || ["rise_ms", "settle_ms", "retract_ms"].some(key => !(Number.isFinite(motion[key]) && motion[key] > 0)) || !(Number.isFinite(motion.peak_pause_ms) && motion.peak_pause_ms >= 0) || motion.curve !== "linear" || motion.pose_sampling !== "nearest") throw new Error("INVALID_MOTION");
+      let loaded = 0;
+      const paths = ["assets/Base.png", ...manifest.dots.map(dot => `assets/${dot.atlas}`)];
+      const images = await Promise.all(paths.map(async path => {
+        const image = await loadImage(path);
+        message.textContent = `正在加载模组… ${++loaded} / ${paths.length}`;
+        return image;
+      }));
+      if (images[0].naturalWidth !== manifest.image.width || images[0].naturalHeight !== manifest.image.height) throw new Error("BASE_SIZE_MISMATCH");
+      manifest.dots.forEach((dot, index) => {
+        if (images[index + 1].naturalWidth !== dot.tile[0] * dot.columns || images[index + 1].naturalHeight !== dot.tile[1] * dot.rows) throw new Error("ATLAS_SIZE_MISMATCH");
+      });
+      createRenderer(images);
+      states = Array.from({ length: 6 }, () => ({ active: false, height: 0, phase: "idle", startHeight: 0, started: 0 }));
+      manifest.dots.forEach(dot => {
+        const label = document.createElement("span");
+        label.className = "label";
+        label.textContent = dot.number;
+        const centre = dot.centre || [dot.rect[0] + dot.rect[2] / 2, dot.rect[1] + dot.rect[3] / 2];
+        label.style.left = `${centre[0] / manifest.image.width * 100}%`;
+        label.style.top = `${centre[1] / manifest.image.height * 100}%`;
+        labels.appendChild(label);
+      });
+      ready = true;
+      buttons.forEach((button, index) => { button.disabled = false; refreshButton(index); });
+      resetButton.disabled = false;
+      numbering.disabled = false;
+      message.hidden = true;
+      resize();
+      view.focus({ preventScroll: true });
+      window.modulePreview = Object.freeze({
+        getState: () => states.map((state, index) => ({ number: index + 1, active: state.active, height_mm: state.height, phase: state.phase })),
+        toggleDot: number => toggleDot(number - 1),
+        reset: resetAll
+      });
+    } catch (error) {
+      console.error(error);
+      message.hidden = false;
+      message.textContent = error.message === "WEBGL_UNAVAILABLE"
+        ? "当前浏览器无法显示预览。请用 Chrome 或 Edge 打开，并启用图形加速。"
+        : location.protocol === "file:"
+          ? "请先运行此文件夹中的 launch.cmd，再打开预览。"
+          : "模组暂时未能加载。请确认预览素材已生成，再刷新页面。";
+    }
+  }
+
+  buttons.forEach((button, index) => button.addEventListener("click", () => toggleDot(index)));
+  resetButton.addEventListener("click", resetAll);
+  numbering.addEventListener("change", () => { labels.hidden = !numbering.checked; });
+  view.addEventListener("pointerdown", () => view.focus({ preventScroll: true }));
+  window.addEventListener("keydown", event => {
+    if (!ready || event.repeat || event.isComposing || event.ctrlKey || event.altKey || event.metaKey || !root.contains(document.activeElement)) return;
+    const match = /^([1-6])$/.exec(event.key) || /^(?:Digit|Numpad)([1-6])$/.exec(event.code);
+    if (!match) return;
+    event.preventDefault();
+    toggleDot(Number(match[1]) - 1);
+  });
+  window.addEventListener("resize", resize);
+  canvas.addEventListener("webglcontextlost", event => {
+    event.preventDefault();
+    ready = false;
+    if (frameRequest) cancelAnimationFrame(frameRequest);
+    frameRequest = 0;
+    message.hidden = false;
+    message.textContent = "预览暂停，请刷新页面继续。";
+    buttons.forEach(button => { button.disabled = true; });
+    resetButton.disabled = true;
+    numbering.disabled = true;
+  });
+  start();
+})();
+</script>
+</body>
+</html>

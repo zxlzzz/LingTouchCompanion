@@ -1,0 +1,46 @@
+{
+  "unchanged_parts": 22,
+  "geometry_and_local_part_positions_preserved": true,
+  "static_retracted_dots": 6,
+  "animation": false,
+  "wear": false,
+  "compositor": false,
+  "projection": "perspective",
+  "resolution": [
+    1200,
+    1600
+  ],
+  "source_sha256": "45b51bca38fe5a1d18f8f45b6bce35afb347416ae9a4225b7b534c09432850d1",
+  "physical_lighting": {
+    "key_W": 2.8,
+    "fill_W": 0.045,
+    "key_local_mm": [
+      15,
+      -60,
+      180
+    ]
+  },
+  "reference_photo": "../inputs/Touchpoint_Reference.jpg",
+  "youtube_video_frames_viewed": true,
+  "youtube_reference": "https://www.youtube.com/watch?v=iSmRM2PUBzA",
+  "observed_video_times_seconds": [
+    6,
+    12,
+    18,
+    25,
+    32,
+    45,
+    51
+  ],
+  "video_closeup_resolution": [
+    1920,
+    1080
+  ],
+  "saved_scene_readback_verified": true,
+  "self_contained": true,
+  "preserved_source_files": 14,
+  "camera_names": [
+    "Photo reference camera",
+    "Video closeup camera"
+  ]
+}

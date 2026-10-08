@@ -1,0 +1,91 @@
+{
+  "source": "3mf/Handle/inputs/Handle_Original.3mf",
+  "source_sha256": "25cd55ec492a72cccf81dd1d16a50490106574b93a2b63005601ec6ab786d6c6",
+  "material": "Ivory FDM PLA visual finish: dielectric, matte, 0.2 mm side layers and 0.42 mm top extrusion paths in browser shader",
+  "parts": [
+    {
+      "name": "housing",
+      "vertices": 35944,
+      "triangles": 71860,
+      "original_mesh_preserved": true,
+      "source_offset_xyz_mm": [
+        95.08280944824219,
+        -3.749715805053711,
+        -4.863739013671875e-05
+      ],
+      "cad_bounds_xyz_mm": [
+        [
+          -39.99999955175781,
+          -31.00000000505371,
+          -23.000098237390137
+        ],
+        [
+          230.16561844824218,
+          23.50056839494629,
+          23.000000962609864
+        ]
+      ]
+    },
+    {
+      "name": "cover",
+      "vertices": 329,
+      "triangles": 670,
+      "original_mesh_preserved": true,
+      "source_offset_xyz_mm": [
+        115.0,
+        11.749999999999998,
+        0.0
+      ],
+      "cad_bounds_xyz_mm": [
+        [
+          0.0,
+          -1.7763568394002505e-15,
+          -23.0
+        ],
+        [
+          230.0,
+          23.5,
+          23.0
+        ]
+      ]
+    }
+  ],
+  "original_triangle_indices_and_vertices_preserved_before_rigid_transform": true,
+  "assembly_frame": "Original STEP coordinates recovered from each part source_offset metadata",
+  "cad_touch_window_x_mm": [
+    48,
+    80
+  ],
+  "cad_touch_windows_z_mm": [
+    [
+      -16,
+      -6
+    ],
+    [
+      -4.5,
+      4.5
+    ],
+    [
+      6,
+      16
+    ]
+  ],
+  "array_translation_blender_z_mm": 30.7,
+  "touch_plane_height_mm": 54.5,
+  "all_90_dot_crowns_inside_original_cover_apertures": true,
+  "minimum_dot_crown_edge_clearance_mm": 0.9129744027741253,
+  "bounds_three_mm": [
+    [
+      -23.000098237390137,
+      -5.053710339097961e-09,
+      -166.16561844824218
+    ],
+    [
+      23.000000962609864,
+      54.500568394946285,
+      103.99999955175781
+    ]
+  ],
+  "visual_reference": "paper/\u7ade\u8d5bPPT/\u6280\u672f.pptx, slide 1, ppt/media/image10.png",
+  "scope": "Visual enclosure assembly; does not establish physical PCB mounting or manufacture fit."
+}

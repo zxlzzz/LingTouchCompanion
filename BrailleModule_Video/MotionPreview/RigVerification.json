@@ -1,0 +1,203 @@
+{
+  "source": "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\MotionPreview\\AppearanceStudy.blend",
+  "source_sha256": "433c03d9a56435f20df698e10fc23902e4470e07b0a72c4bc8f2390b7a9e505b",
+  "source_role": "Corrected round-cap cylindrical pins and unified grey-white appearance",
+  "appearance_verification": "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\MotionPreview\\AppearanceVerification.json",
+  "appearance_verification_sha256": "e08a82c5ed91a1f357161c92aae4a3c7eefee53b976234c9dd37793483956e39",
+  "original_static_meshes_verified_unchanged": 16,
+  "original_photographic_source": "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\PhotoStudy\\ReferenceStudy.blend",
+  "original_photographic_source_sha256": "7d46dd6b381360f00952f4cb2da472df6c7cf551fe68e208e69263ba4cc586e3",
+  "output": "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\MotionPreview\\ModuleMotion.blend",
+  "saved_blend_reopened_and_verified": true,
+  "unchanged_meshes": 22,
+  "unchanged_materials": true,
+  "unchanged_non_dot_transforms_lights_and_cameras": true,
+  "frame_1_matches_all_original_part_transforms": true,
+  "camera": "Video closeup camera",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "root": "BrailleModule",
+  "control_properties": [
+    "Dot_1_height_mm",
+    "Dot_2_height_mm",
+    "Dot_3_height_mm",
+    "Dot_4_height_mm",
+    "Dot_5_height_mm",
+    "Dot_6_height_mm"
+  ],
+  "prototype_heights_mm": {
+    "retracted": 0.0,
+    "peak": 0.7,
+    "maintained": 0.45
+  },
+  "timings_ms_provisional": {
+    "rise": 33.333333333333336,
+    "peak": 66.66666666666667,
+    "settle": 50,
+    "retract": 50
+  },
+  "motion_profile": "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\MotionPreview\\assets\\motion.json",
+  "motion_profile_sha256": "87d1445dc48b3389c9cd8c422ef3a6140e9eef6d23d56807592c16bfc279df24",
+  "motion_profile_revision": 2,
+  "curve": "linear",
+  "reference_basis": "Short lift/release informed by the supplied 30 fps physical-module video; high-to-hold stages and numerical settings remain provisional.",
+  "timeline": {
+    "fps": 60,
+    "start": 1,
+    "end": 430,
+    "dot_starts": {
+      "1": 1,
+      "2": 49,
+      "3": 97,
+      "4": 145,
+      "5": 193,
+      "6": 241
+    },
+    "rise_frames": 2,
+    "peak_frames": 4,
+    "settle_frames": 3,
+    "retract_at": 360,
+    "retract_frames": 3
+  },
+  "sampled_height_range_mm": [
+    0.0,
+    0.700000673532486
+  ],
+  "frames_measured": 430,
+  "peak_stem_overlap_below_face_mm": 0.1500000112690032,
+  "samples_measured_mm": {
+    "retracted": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "maintained_all": [
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537
+    ],
+    "retracted_all": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "dot_1_peak": [
+      0.700000673532486,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "dot_1_maintained": [
+      0.45000016689300537,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "dot_2_peak": [
+      0.45000016689300537,
+      0.700000673532486,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "dot_2_maintained": [
+      0.45000016689300537,
+      0.45000016689300537,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "dot_3_peak": [
+      0.45000016689300537,
+      0.45000016689300537,
+      0.700000673532486,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "dot_3_maintained": [
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "dot_4_peak": [
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.700000673532486,
+      0.0,
+      0.0
+    ],
+    "dot_4_maintained": [
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.0,
+      0.0
+    ],
+    "dot_5_peak": [
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.700000673532486,
+      0.0
+    ],
+    "dot_5_maintained": [
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.0
+    ],
+    "dot_6_peak": [
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.700000673532486
+    ],
+    "dot_6_maintained": [
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537,
+      0.45000016689300537
+    ],
+    "retract_first_step": [
+      0.29999949038028717,
+      0.29999949038028717,
+      0.29999949038028717,
+      0.29999949038028717,
+      0.29999949038028717,
+      0.29999949038028717
+    ]
+  },
+  "no_compositor_filters_added": true,
+  "no_wear_added": true,
+  "no_renders_run_by_builder": true
+}

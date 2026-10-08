@@ -1,0 +1,160 @@
+{
+  "image": {
+    "width": 1280,
+    "height": 720
+  },
+  "heights_mm": [
+    0,
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.675,
+    0.7
+  ],
+  "motion": {
+    "revision": 2,
+    "peak_mm": 0.7,
+    "hold_mm": 0.45,
+    "rise_ms": 33.333333333333336,
+    "peak_pause_ms": 66.66666666666667,
+    "settle_ms": 50,
+    "retract_ms": 50,
+    "curve": "linear",
+    "pose_sampling": "nearest",
+    "basis": "Short lift/release informed by the supplied 30 fps physical-module video; high-to-hold stages and numerical settings remain provisional."
+  },
+  "dots": [
+    {
+      "number": 1,
+      "atlas": "dot_1.png",
+      "rect": [
+        735,
+        451,
+        190,
+        162
+      ],
+      "tile": [
+        194,
+        166
+      ],
+      "columns": 4,
+      "rows": 4,
+      "centre": [
+        833.59,
+        531.87
+      ]
+    },
+    {
+      "number": 2,
+      "atlas": "dot_2.png",
+      "rect": [
+        780,
+        315,
+        186,
+        156
+      ],
+      "tile": [
+        190,
+        160
+      ],
+      "columns": 4,
+      "rows": 4,
+      "centre": [
+        876.8,
+        393.02
+      ]
+    },
+    {
+      "number": 3,
+      "atlas": "dot_3.png",
+      "rect": [
+        823,
+        181,
+        182,
+        157
+      ],
+      "tile": [
+        186,
+        161
+      ],
+      "columns": 4,
+      "rows": 4,
+      "centre": [
+        917.78,
+        261.34
+      ]
+    },
+    {
+      "number": 4,
+      "atlas": "dot_4.png",
+      "rect": [
+        635,
+        387,
+        199,
+        167
+      ],
+      "tile": [
+        203,
+        171
+      ],
+      "columns": 4,
+      "rows": 4,
+      "centre": [
+        738.06,
+        470.12
+      ]
+    },
+    {
+      "number": 5,
+      "atlas": "dot_5.png",
+      "rect": [
+        685,
+        242,
+        195,
+        164
+      ],
+      "tile": [
+        199,
+        168
+      ],
+      "columns": 4,
+      "rows": 4,
+      "centre": [
+        786.4,
+        325.1
+      ]
+    },
+    {
+      "number": 6,
+      "atlas": "dot_6.png",
+      "rect": [
+        733,
+        103,
+        190,
+        167
+      ],
+      "tile": [
+        194,
+        171
+      ],
+      "columns": 4,
+      "rows": 4,
+      "centre": [
+        832.11,
+        187.97
+      ]
+    }
+  ],
+  "source_sha256": "433c03d9a56435f20df698e10fc23902e4470e07b0a72c4bc8f2390b7a9e505b",
+  "scope": "Fixed photographic camera; heights and timings are provisional visual settings."
+}

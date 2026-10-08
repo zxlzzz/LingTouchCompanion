@@ -1,0 +1,8 @@
+{
+  "name": "lingtouch-array-preview",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node build_web.mjs" },
+  "dependencies": { "three": "0.180.0" },
+  "devDependencies": { "esbuild": "0.25.10" }
+}

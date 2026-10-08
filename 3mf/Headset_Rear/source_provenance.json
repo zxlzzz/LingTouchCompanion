@@ -1,0 +1,28 @@
+{
+  "generator_inputs": {
+    "rear_tray": {
+      "file": "inputs/rear_tray.npz",
+      "source_sha256": "9ddf320614db9e5f580a0b75c5054d7ee1e35c3b285248e605a3ec366fc3f2ce"
+    },
+    "rear_fill": {
+      "file": "inputs/rear_fill.npz",
+      "source_sha256": "31d73dc202a014e4ae6b7acaea2a8446ba9e8e2c51c8acd1ea1e9b5a5eac3b9d"
+    }
+  },
+  "unchanged_meshes": {
+    "rear_body": {
+      "file": "geometry/rear_body.npz",
+      "array_sha256": {
+        "v": "68ab314d25a1620dc906c320dd3bdc00bb2a72b490faef82e768903fedf20cb7",
+        "f": "9cedad54adfa8082f3e8ceb78aa470f66cd685288745a6e597df6b737f422ba8"
+      }
+    },
+    "battery": {
+      "file": "geometry/battery.npz",
+      "array_sha256": {
+        "v": "55d80c5c8eaed72936c91e4455577a10e40ebc6d281f54c436ccee290f36ea6c",
+        "f": "3704c0775580790e7e3dc1183b4e2c0940685cfa3f47e52dc2f20faf03419858"
+      }
+    }
+  }
+}

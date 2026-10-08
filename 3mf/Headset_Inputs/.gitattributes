@@ -1,0 +1,7 @@
+*.stp -text
+*.stl -text
+*.3mf binary
+*.npz binary
+*.pdf binary
+*.py -text
+*.json -text

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>盲文模组 · 阵列预览</title>
+  <style>
+    :root { font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; color: #303630; background: #f2f1ed; --green: #426451; --line: #d8dcd3; --image-ratio: 1.45454545; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { width: min(1830px, 100%); padding: 20px; margin: auto; }
+    header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px 22px; margin-bottom: 16px; }
+    h1 { margin: 0; font-size: 21px; font-weight: 600; }
+    h2 { margin: 0; font-size: 15px; font-weight: 600; }
+    p { margin: 0; }
+    .instruction { color: #677063; font-size: 13px; line-height: 1.6; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 344px; gap: 20px; align-items: start; }
+    .picture { position: sticky; top: 18px; }
+    .view { position: relative; width: 100%; aspect-ratio: 16 / 11; overflow: hidden; border-radius: 10px; background: #dfded8; outline: none; }
+    .view:focus-visible { outline: 3px solid #78927e; outline-offset: 3px; }
+    canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+    .message { position: absolute; inset: 0; padding: 25px; display: grid; place-content: center; text-align: center; background: #e9e7e1; color: #61685c; line-height: 1.8; }
+    .message[hidden], .labels[hidden], .label[hidden] { display: none; }
+    .labels { position: absolute; inset: 0; pointer-events: none; }
+    .label { position: absolute; transform: translate(-50%, -50%); min-width: 22px; height: 22px; padding: 0 4px; border-radius: 11px; display: grid; place-items: center; background: #294638d6; color: #fff; font-size: 10px; border: 1px solid #ffffff99; }
+    .picture-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+    .picture-tools .group { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .summary { color: #66735f; font-size: 12px; }
+    .panel { display: flex; flex-direction: column; gap: 12px; }
+    .card { padding: 14px 15px; background: #fafaf7; border: 1px solid #dedfd8; border-radius: 10px; }
+    .card-header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .muted { color: #74806d; font-size: 11px; line-height: 1.6; }
+    button, select, input, textarea { font: inherit; }
+    button { cursor: pointer; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: #394534; padding: 7px 10px; font-size: 12px; }
+    button:hover { background: #edf1e9; border-color: #b9c5b3; }
+    button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid #8fa78a; outline-offset: 2px; }
+    button:disabled { opacity: .5; cursor: default; }
+    button.primary { background: #46634d; color: #fff; border-color: #46634d; }
+    button.primary:hover { background: #36503c; }
+    select, input[type="number"] { border: 1px solid var(--line); border-radius: 5px; background: #fff; padding: 5px 6px; color: #3c4937; font-size: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(9, 28px); grid-template-rows: repeat(10, 28px); gap: 3px; justify-content: center; margin: 3px auto 12px; }
+    .cell { position: relative; padding: 0; border-radius: 5px; border: 1px solid #cad2c3; background: #e5e9e0; }
+    .cell::after { content: ""; position: absolute; width: 10px; height: 10px; background: #b5c1aa; border-radius: 50%; inset: 0; margin: auto; }
+    .cell[aria-pressed="true"] { background: #d6e8d6; border-color: #668665; }
+    .cell[aria-pressed="true"]::after { background: #476b46; box-shadow: 0 1px 2px #0002; }
+    .cell[data-phase="peak"]::after { background: #264726; width: 13px; height: 13px; }
+    .cell[data-phase="rise"]::after, .cell[data-phase="settle"]::after, .cell[data-phase="retract"]::after { background: #789360; }
+    .cell:nth-child(9n+3), .cell:nth-child(9n+6) { border-right: 3px solid #a0ad93; }
+    .cell[data-row="1"], .cell[data-row="3"], .cell[data-row="5"], .cell[data-row="7"] { border-bottom: 3px solid #a0ad93; }
+    .buttons { display: flex; gap: 7px; flex-wrap: wrap; }
+    .grid-actions { justify-content: center; }
+    .bytes { margin-top: 11px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px 8px; font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: #727d67; }
+    .byte { background: #eff1e9; padding: 4px 6px; border-radius: 4px; }
+    .byte.active { color: #365133; background: #e1edda; }
+    textarea { width: 100%; min-height: 116px; max-height: 280px; resize: vertical; border: 1px solid var(--line); border-radius: 6px; background: #fff; padding: 9px; color: #384433; font-size: 11px; line-height: 1.55; font-family: ui-monospace, Consolas, monospace; }
+    .json-actions { margin-top: 8px; }
+    .feedback { min-height: 19px; margin-top: 8px; color: #617955; font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
+    .feedback.error { color: #a44136; }
+    .file-button { display: inline-block; cursor: pointer; border: 1px solid var(--line); border-radius: 6px; background: #fff; padding: 7px 10px; font-size: 12px; }
+    .file-button:hover { background: #edf1e9; }
+    .file-button input { display: none; }
+    details { margin-top: 7px; color: #77816e; font-size: 11px; line-height: 1.7; }
+    summary { cursor: pointer; }
+    .format { padding: 7px 0 0; overflow-wrap: anywhere; }
+    code { font-family: ui-monospace, Consolas, monospace; }
+    .timeline { margin: 10px 0; width: 100%; accent-color: #58784d; }
+    .timeline-info { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: #728068; margin-top: 9px; }
+    .play-actions { align-items: center; }
+    .speed { margin-left: auto; }
+    .editing { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; border-top: 1px solid #e1e4da; padding-top: 12px; }
+    .editing label { font-size: 11px; color: #74816b; }
+    #interval { width: 64px; }
+    .numbering { display: flex; align-items: center; gap: 5px; color: #67745d; font-size: 12px; cursor: pointer; }
+    .numbering input { accent-color: #58784d; }
+    .exit-capture { display: none; position: fixed; right: 12px; top: 12px; z-index: 3; background: #ffffffbb; border-color: #ccc8; color: #48523f; }
+    body.capture { background: #dfded8; }
+    body.capture main { width: 100%; padding: 0; }
+    body.capture header, body.capture .panel, body.capture .picture-tools, body.capture .labels { display: none; }
+    body.capture .layout { display: block; }
+    body.capture .picture { position: static; }
+    body.capture .view { border-radius: 0; width: 100%; height: 100dvh; aspect-ratio: auto; margin: auto; }
+    body.capture .exit-capture { display: block; opacity: 0; transition: opacity .15s; }
+    body.capture .exit-capture:hover, body.capture .exit-capture:focus-visible { opacity: 1; }
+    @media (max-width: 1100px) { main { padding: 16px; } .layout { grid-template-columns: minmax(0, 1fr) 320px; gap: 14px; } .card { padding: 12px; } }
+    @media (max-width: 830px) { main { padding: 13px; } .layout { grid-template-columns: 1fr; } .picture { position: static; } .panel { display: grid; grid-template-columns: 1fr 1fr; align-items: start; } .point-card { grid-row: span 2; } header { margin-bottom: 12px; } h1 { font-size: 18px; } .instruction { font-size: 12px; } }
+    @media (max-width: 620px) { .panel { display: flex; } .card { padding: 14px; } .grid { gap: 4px; } .picture-tools { gap: 10px; } .summary { font-size: 11px; } }
+  </style>
+</head>
+<body>
+<main id="preview">
+  <header><h1>盲文模组 · 阵列预览</h1><p class="instruction">15 个模组，90 个触点。拖动旋转 · 滚轮缩放 · 右键拖动平移。单击触点或右侧点阵控制凸起。</p></header>
+  <div class="layout">
+    <section class="picture" aria-label="阵列效果">
+      <div class="view" id="view" tabindex="0" role="region" aria-label="盲文模组 3D 阵列，拖动旋转、滚轮缩放，单击触点控制凸起">
+        <canvas id="canvas" width="1600" height="1100" aria-label="盲文模组阵列的凸起效果"></canvas>
+        <div class="labels" id="labels" hidden></div>
+        <div class="message" id="message" role="status">正在加载阵列…</div>
+      </div>
+      <div class="picture-tools"><div class="group"><span class="summary" id="summary">0 / 90 个触点凸起</span><label class="numbering"><input id="numbering" type="checkbox">显示模组编号</label><label class="numbering"><input id="enclosureVisible" type="checkbox" checked disabled>显示外壳</label></div><div class="group"><select id="viewMode" aria-label="观察范围" disabled><option value="near">触点近景</option><option value="switch">开关近景</option><option value="whole">外壳全景</option></select><button id="resetView" type="button" disabled>复位视角</button><button id="capture" type="button">纯画面</button></div></div>
+    </section>
+    <aside class="panel" aria-label="控制面板">
+      <section class="card point-card">
+        <div class="card-header"><h2>9 × 10 点阵</h2><span class="muted">每个模组 3 × 2 点</span></div>
+        <div class="grid" id="grid" role="group" aria-label="9 列 10 行点阵控制"></div>
+        <div class="buttons grid-actions"><button id="allOn" type="button">全部凸起</button><button id="allOff" type="button">全部收回</button><button id="invert" type="button">反转</button><button id="checker" type="button">棋盘</button></div>
+        <div class="bytes" id="bytes" aria-label="15 个模组的控制字节"></div>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2>JSON 控制</h2><span class="muted">兼容测试页帧格式</span></div>
+        <textarea id="jsonInput" spellcheck="false" aria-label="JSON 帧序列" placeholder='粘贴 JSON / JSONL，或选择文件。&#10;每帧：{"seq":0,"ts":0,"mode":"LOCAL_ZOOM","frame": […10 行 × 9 列…]}'></textarea>
+        <div class="buttons json-actions"><button id="loadText" class="primary" type="button">载入</button><label class="file-button">选择文件<input id="fileInput" type="file" accept=".json,.jsonl,application/json,text/plain" aria-label="选择 JSON 或 JSONL 文件"></label><button id="demo" type="button">载入示例</button></div>
+        <p class="feedback" id="feedback" role="status">可载入帧对象、帧数组或 JSONL；也支持单张 10 × 9 矩阵。</p>
+        <details><summary>查看格式与编号</summary><p class="format"><code>frame</code> 为 10 行 × 9 列，0 收回、1 凸起；<code>ts</code> 为毫秒。模组从上到下、从左到右编号 M1–M15。每个模组的上排依次为点 3、2、1，下排为点 6、5、4，与测试页一致。</p></details>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2>帧序列</h2><span id="sourceLabel" class="muted">尚未载入</span></div>
+        <div class="buttons play-actions"><button id="previous" type="button" aria-label="上一帧" disabled>上一帧</button><button id="play" class="primary" type="button" disabled>播放</button><button id="next" type="button" aria-label="下一帧" disabled>下一帧</button><button id="rewind" type="button" disabled>回到开头</button><select id="speed" class="speed" aria-label="播放速度"><option value="0.25">0.25 ×</option><option value="0.5">0.5 ×</option><option value="1" selected>1 ×</option><option value="2">2 ×</option><option value="4">4 ×</option></select></div>
+        <div class="timeline-info"><span id="frameInfo">未载入帧</span><span id="timeInfo">0 ms</span></div>
+        <input id="timeline" class="timeline" type="range" min="0" max="0" value="0" step="1" aria-label="当前帧" disabled>
+        <div class="editing"><label>帧间隔 <input id="interval" type="number" min="1" max="60000" step="50" value="500" aria-label="添加帧的间隔"> ms</label><button id="append" type="button">添加当前帧</button><button id="save" type="button">导出 JSON</button></div>
+      </section>
+    </aside>
+  </div>
+</main>
+<button id="exitCapture" class="exit-capture" type="button">退出纯画面 · Esc</button>
+<!-- SCENE_ASSETS -->
+<!-- VIEWER_BUNDLE -->
+<!-- ARRAY_CONTROLS -->
+</body>
+</html>

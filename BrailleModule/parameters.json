@@ -1,0 +1,55 @@
+{
+  "units": "mm",
+  "body_width": 8.2,
+  "body_depth": 6.0,
+  "body_height": 20.0,
+  "base_overall_width": 10.82,
+  "base_collar_width": 10.0,
+  "base_height": 3.4,
+  "pin_extension": 3.8,
+  "pin_pitch": 1.25,
+  "pin_width": 0.3,
+  "pin_thickness": 0.1,
+  "pin_inner_row_gap": 4.96,
+  "pin_front_end_offset": 2.05,
+  "pin_back_end_offset": 2.65,
+  "dot_pitch": 2.5,
+  "dot_diameter": 1.42,
+  "dot_cap_height": 0.45,
+  "dot_aperture_diameter": 1.64,
+  "dot_aperture_mouth_diameter": 1.72,
+  "dot_visible_top_z": 20.0,
+  "shell_wall": 0.45,
+  "shell_top_thickness": 0.75,
+  "edge_radius": 0.065,
+  "source": {
+    "file": "inputs/Braille_Module_Reference.pdf",
+    "touchpoint_photo": "inputs/Touchpoint_Reference.jpg",
+    "dimensioned": {
+      "page_2": ["body_width", "body_height", "base_overall_width", "pin_extension"],
+      "page_3": ["body_depth"],
+      "page_4": ["pin_thickness", "pin_inner_row_gap"],
+      "page_5": ["pin_pitch", "pin_width", "pin_front_end_offset", "pin_back_end_offset"]
+    },
+    "estimated_from_illustrations": [
+      "base_collar_width", "base_height", "dot_pitch", "dot_diameter", "dot_cap_height",
+      "dot_aperture_diameter", "dot_aperture_mouth_diameter", "edge_radius",
+      "side_recesses", "base_moulding", "pin_shoulder_shapes"
+    ],
+    "visual_construction_only": ["shell_wall", "shell_top_thickness"],
+    "user_decisions": [
+      "Black housing; slightly grey white dots.",
+      "All six dots have the same spherical-cap head, matching the photo and PDF.",
+      "All six dots are static; their apices remain flush with the top face.",
+      "Keep this folder outside 3mf."
+    ],
+    "interpretation": [
+      "10.82 mm includes the asymmetric orientation tab; main collar is approximately 10 mm.",
+      "4.96 mm is the inner edge gap between the two 0.10 mm metal sheets; centre spacing is 5.06 mm.",
+      "The two pin rows are staggered, following the opposite views and the two end offsets.",
+      "PDF part display colours do not establish actual material colours.",
+      "The photo shows two raised dots and four retracted dots of the same round-headed shape.",
+      "Cap height is an exterior estimate from the silhouettes; the PDF's 0.4-0.5 mm rise is not a measured cap dimension."
+    ]
+  }
+}

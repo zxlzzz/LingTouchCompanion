@@ -1,0 +1,12 @@
+{
+  "revision": 2,
+  "peak_mm": 0.7,
+  "hold_mm": 0.45,
+  "rise_ms": 33.333333333333336,
+  "peak_pause_ms": 66.66666666666667,
+  "settle_ms": 50,
+  "retract_ms": 50,
+  "curve": "linear",
+  "pose_sampling": "nearest",
+  "basis": "Short lift/release informed by the supplied 30 fps physical-module video; high-to-hold stages and numerical settings remain provisional."
+}

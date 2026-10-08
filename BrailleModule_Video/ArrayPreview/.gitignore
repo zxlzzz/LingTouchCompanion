@@ -1,0 +1,6 @@
+node_modules/
+.3d-work/
+.enclosure-work/
+.switch-work/
+__pycache__/
+*.blend1

@@ -1,0 +1,25 @@
+{
+  "pass": true,
+  "preserved_meshes_and_component_transforms": 330,
+  "preserved_modules": 15,
+  "independent_pins": 90,
+  "one_shared_crown_and_shaft_material": true,
+  "pin_cast_shadows": false,
+  "compositor_filters": false,
+  "previous_scene": "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\Archives\\ArrayPreview_2026-10-08_before_finish\\ModuleArray.blend",
+  "scope": "Geometry and placement compared with the actual previous saved array; shared material and shadow settings read back from the updated scene.",
+  "control_html_unchanged_except_embedded_assets": true,
+  "motion_profile_unchanged": true,
+  "embedded_assets_match_render_files": true,
+  "pin_gloss": {
+    "extra_additive_glossy_branch": false,
+    "roughness_range": [
+      0.16,
+      0.34
+    ],
+    "surface_coordinates": "Object-local coordinates with stable per-object seed",
+    "one_crown_and_shaft_material": true
+  },
+  "scene_matches_render_source": true,
+  "updated_page_checked_in_browser": true
+}

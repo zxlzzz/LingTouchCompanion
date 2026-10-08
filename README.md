@@ -12,6 +12,7 @@
 | [app/frontend/](app/frontend/README.md) | uni-app 手机应用 |
 | [app/backend/](app/backend/README.md) | 地图、命令解析与视觉帧转发服务 |
 | [vision/](vision/README.md) | 旧图像平面视觉管线，保留作回退 |
+| [3mf/](3mf/README.md) | 前件、后件与两件式手柄的模型、完整生成代码及必要输入 |
 
 ## 运行实验
 
