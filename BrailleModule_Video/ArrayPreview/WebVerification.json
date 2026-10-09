@@ -1,80 +1,9 @@
 {
-  "revision": "2026-10-08 grey semi-gloss pins and height-dependent aperture lighting",
-  "scope": "Browser appearance and view presets; model geometry and control logic retained.",
-  "model_sha256": "a4c6a77de7d6881bab234e50a3771b328b8a3e7a755a9140d60cacbd88e74047",
-  "model_matches_archived_version": true,
-  "original_module_array_sha256": "dcc7735bdda9423f0eab315e6fb3c10086ccbdd2e6f846a62a4fddd9bd190f3d",
-  "browser_checks": {
-    "page": "http://127.0.0.1:8867/",
-    "ready": true,
-    "cells": 90,
-    "preserved_raised_count": 45,
-    "preserved_control_bytes": [
-      42,
-      21,
-      42,
-      42,
-      21,
-      42,
-      42,
-      21,
-      42,
-      42,
-      21,
-      42,
-      42,
-      21,
-      42
-    ],
-    "rotation": {
-      "before_yaw": 10.62,
-      "after_yaw": 3.744,
-      "before_pitch": 34.148,
-      "after_pitch": 41.024,
-      "bytes_unchanged": true
-    },
-    "views_inspected": [
-      "near",
-      "switch with enclosure",
-      "switch without enclosure",
-      "whole",
-      "clean capture"
-    ],
-    "final_view": {
-      "mode": "near",
-      "enclosure_visible": true,
-      "yaw": 3.744,
-      "pitch": 41.024,
-      "distance_mm": 78.127
-    },
-    "json_input": "Empty, retained from the user's initial state.",
-    "pin_state_checks": "All 90 raised, all 90 retracted, original 45-pin checker pattern restored; close and oblique views visually inspected."
-  },
-  "finish": {
-    "shared_environment": "Offline PMREM from two broad reflection panels aligned with the direct area lights; used by all model materials.",
-    "pin_emissive": false,
-    "pin_base_roughness": [
-      0.22,
-      0.315
-    ],
-    "housing": "Fine moulded grain, nominal roughness 0.46, no broad colour blotches.",
-    "switch": "Same environment as the array; nominal roughness 0.46.",
-    "pla": "Ivory, zero metalness, nominal roughness 0.53; 0.2 mm side layers and shallower 0.42 mm top paths.",
-    "blender_materials": "Previous source finish retained; current browser appearance is defined in viewer3d.js.",
-    "pin_surface": "Slightly cool grey-white base, stable per-pin gloss and fine surface variation; head and shaft share the material.",
-    "pin_aperture_lighting": "Fixed aperture mouth recorded at rest. Five area-light samples for each light approximate mouth obstruction; indirect visibility follows fragment depth. No crown shape or motion changes.",
-    "pin_references": [
-      "../inputs/Touchpoint_Reference.jpg",
-      "../inputs/PhysicalMotionReference.mp4"
-    ]
-  },
-  "screenshots": [
-    "Preview.jpg",
-    "ProductView.jpg",
-    "PinCloseup.jpg",
-    "SwitchPreview.jpg",
-    "EnclosureOverview.jpg",
-    "SwitchAssembly.jpg"
-  ],
-  "preceding_archive": "../Archives/ArrayPreview_BulletHead_PLA_2026-10-08/"
+  "scope": "Point-pattern editing and preview; production output is Cycles",
+  "offline_html_assets_checked": true,
+  "embedded_glb_sha256": "a4c6a77de7d6881bab234e50a3771b328b8a3e7a755a9140d60cacbd88e74047",
+  "embedded_motion_matches_shared_profile": true,
+  "embedded_controls_match_source": true,
+  "production_scene_sha256": "e651debc46203b0066c5dd15a02385429526eeeb7a610991792da368b6857e7e",
+  "browser_interactions": "Existing control and viewer logic retained; no new interactive-browser test in this migration"
 }

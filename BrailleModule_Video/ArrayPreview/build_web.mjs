@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 let esbuild, dependencyPath;
+if (!process.argv.includes('--page-only')) {
 try { esbuild = require('esbuild'); dependencyPath = join(root,'node_modules'); }
 catch { esbuild = require('./.3d-work/node_modules/esbuild'); dependencyPath = join(root,'.3d-work/node_modules'); }
 await mkdir(join(root,'vendor'),{recursive:true});
@@ -17,6 +18,7 @@ await esbuild.build({
 });
 await copyFile(join(dependencyPath,'three/LICENSE'),join(root,'vendor/THREE-LICENSE.txt'));
 await copyFile(join(dependencyPath,'esbuild/LICENSE.md'),join(root,'vendor/ESBUILD-LICENSE.md'));
+}
 const template = await readFile(join(root,'index.template.html'),'utf8');
 const scene = JSON.parse(await readFile(join(root,'assets/scene.json'),'utf8'));
 const assets = {

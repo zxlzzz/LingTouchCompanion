@@ -1,6 +1,4 @@
 {
-  "source_sha256": "dcc7735bdda9423f0eab315e6fb3c10086ccbdd2e6f846a62a4fddd9bd190f3d",
-  "blender_source_unchanged": true,
   "model_file": "EnclosedArray.glb",
   "mesh_instances": 343,
   "independent_dots": 90,
@@ -106,13 +104,13 @@
         103.99999955175781
       ]
     ],
-    "visual_reference": "paper/\u7ade\u8d5bPPT/\u6280\u672f.pptx, slide 1, ppt/media/image10.png",
+    "visual_reference": "paper/竞赛PPT/技术.pptx, slide 1, ppt/media/image10.png",
     "scope": "Visual enclosure assembly; does not establish physical PCB mounting or manufacture fit."
   },
   "switch": {
     "kind": "User-requested bullet-head tactile switch, 6.1 x 6.1 x 20 mm visual variant",
     "bom_source": "C:/Users/Hsinlung/Downloads/BOM_Board1_PCB1_5_2026-09-15.xlsx",
-    "bom_cells": "bom\u6a21\u677f!D44, G44, H44, I44",
+    "bom_cells": "bom模板!D44, G44, H44, I44",
     "bom_mpn": "TSA06131-250B532CA",
     "bom_lcsc_part": "C49174365",
     "bom_height_mm": 25,
@@ -152,5 +150,9 @@
     "metal_lid_clearance_below_faceplate_mm": 13.299999999999997,
     "visible_finish": "Black plastic smooth shaft with a rounded bullet nose and broad environment reflections",
     "interaction": "Static visual switch; does not control the tactile array or BLE."
-  }
+  },
+  "model_export_source_sha256": "dcc7735bdda9423f0eab315e6fb3c10086ccbdd2e6f846a62a4fddd9bd190f3d",
+  "production_scene": "EnclosedArray.blend",
+  "production_scene_sha256": "e651debc46203b0066c5dd15a02385429526eeeb7a610991792da368b6857e7e",
+  "browser_role": "Sequence editing and interactive preview; final pictures and video use Cycles"
 }

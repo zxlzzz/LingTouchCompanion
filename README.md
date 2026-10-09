@@ -2,6 +2,8 @@
 
 将视觉信息转换为触觉阵列反馈的辅助感知项目。当前实验使用手机摄像头、电脑端深度推理和 ESP32-S3，输出为 15 个六点模组，共 90 个触点。
 
+给 Claude 的近期工作与审阅入口见 [CLAUDE.md](CLAUDE.md)。其中 PCB 布局和渲染外观仍待修正，验证记录不代表已经验收。
+
 ## 项目入口
 
 | 目录 | 用途 |
@@ -13,6 +15,8 @@
 | [app/backend/](app/backend/README.md) | 地图、命令解析与视觉帧转发服务 |
 | [vision/](vision/README.md) | 旧图像平面视觉管线，保留作回退 |
 | [3mf/](3mf/README.md) | 前件、后件与两件式手柄的模型、完整生成代码及必要输入 |
+| [PCB 修订稿](PCB_REDESIGN_2026-10-08/README.txt) | 五页原理图及实际板、98×98 mm 测试板的未布线布局草稿 |
+| [阵列编排与渲染](BrailleModule_Video/ArrayPreview/README.md) | 离线网页编排与 Cycles 渲染流程，外观仍待修正 |
 
 ## 运行实验
 

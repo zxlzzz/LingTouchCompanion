@@ -279,5 +279,10 @@ def main():
     assert hashlib.sha256(base.read_bytes()).hexdigest()==before
     assert hashlib.sha256(SOURCE.read_bytes()).hexdigest()==handle_before
     print('Enclosed array exported; 90 crowns fit the original cover slots; input files unchanged.',flush=True)
+    # Reapply the production finish and animation after an intentional geometry
+    # regeneration, so this generator cannot silently restore the old render.
+    from argparse import Namespace
+    from render_cycles import prepare
+    prepare(Namespace(sequence=None, fps=30, tail=1, width=1920, height=1080, samples=192))
 
 if __name__=='__main__':main()

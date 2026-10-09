@@ -1,0 +1,49 @@
+{
+  "asset": "Plastic003",
+  "source": "https://ambientcg.com/a/Plastic003",
+  "download": "https://ambientcg.com/get?file=Plastic003_2K-PNG.zip",
+  "license": "CC0-1.0",
+  "license_source": "https://docs.ambientcg.com/license/",
+  "creation_method": "surface-fully-procedural",
+  "physical_dimensions_provided": false,
+  "purpose": "Candidate PBR material for comparison to supplied module references; not applied to production scene.",
+  "archive_sha256": "96949f59c6d53c0919c7af079d1668cdedd742e45251b00e5695660ad0bafa59",
+  "files": [
+    {
+      "file": "Plastic003_2K-PNG_Color.png",
+      "bytes": 1789065,
+      "pixels": [
+        2048,
+        2048
+      ],
+      "sha256": "eb8e69d2fb594c1bc5e84e59bf7941adddcc5707651132df39619097dcea8dad"
+    },
+    {
+      "file": "Plastic003_2K-PNG_Displacement.png",
+      "bytes": 6431081,
+      "pixels": [
+        2048,
+        2048
+      ],
+      "sha256": "f7250a1df5c73827dbb9126f827ca230b435b722f27d29dd698b94745c76c3f6"
+    },
+    {
+      "file": "Plastic003_2K-PNG_NormalGL.png",
+      "bytes": 21037143,
+      "pixels": [
+        2048,
+        2048
+      ],
+      "sha256": "d1068dc0bd7de1bc36f6202f28dfe934259e6ba966cc015deb8330fa4a063422"
+    },
+    {
+      "file": "Plastic003_2K-PNG_Roughness.png",
+      "bytes": 1941104,
+      "pixels": [
+        2048,
+        2048
+      ],
+      "sha256": "eb0f342346f5965519139bef5d92d48f94068b728d4b0c6bd00255ceac632591"
+    }
+  ]
+}

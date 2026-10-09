@@ -1,45 +1,58 @@
-# CLAUDE.md
+# Review handoff for Claude — 2026-10-09
 
-给下次会话接手用的状态记录。项目整体背景见 [README.md](README.md)。
+Hsinlung wants the recent work reviewed. Begin with the PCB drafts and Cycles appearance below; report findings before implementing a new direction. Address him as Hsinlung. Keep observations, calculations and unverified assumptions distinct. Repository background is in [README.md](README.md).
 
-## 现在在干什么
+## Read first
 
-给"俯视栅格"离线验证管线（`topdown_pipeline.py`：metric深度→点云→地面拟合→10×9俯视栅格）做**相机标定 + 测试集精度验证**。详细协议、算法改动、完整数据表都在 **[TOPDOWN_VALIDATION.md](TOPDOWN_VALIDATION.md)**——这是主记录，下次先看那个。这份文件只写"现在卡在哪、下一步干什么"。
+- [PCB revision package](PCB_REDESIGN_2026-10-08/README.txt), its native schematic/PCB files, five schematic images, two placement images and `validation.json`.
+- [Manufactured-board audit](3mf/PCB/PCB_PREPOWER_REVIEW_2026-10-07.md): September 15 copper, electrical limits, firmware compatibility and proposed measurements.
+- [Array rendering](BrailleModule_Video/ArrayPreview/README.md), `render_cycles.py`, `EnclosedArray.blend`, `CyclesVerification.json` and the three PNG review stills.
+- [Physical visual references](BrailleModule_Video/inputs/): supplied photograph, module PDF and `PhysicalMotionReference.mp4`.
+- [Portable model sources](3mf/README.md). Commit `6f46dfa` already consolidated these sources and added the module/preview models; this handoff includes that recent context.
 
-## 当前状态（2026-08-09 会话结束时——对照实验已跑完，假设基本坐实）
+## PCB: latest drafts need correction
 
-- fx=3260px 已标定确认，不用重拍。
-- 地面拟合算法已收紧（候选带45%→25%，非对称容差[-15,+5]cm，2轮→3轮迭代）+ 尺度锚定（`CAM_H_TRUE=1.40m`）+ 健康指标（`scale` 离散度CV，<10%才算干净）。
-- **补拍的3张对照照片（`empty3`/`chair_3m_plain`/`balloon_1m_plain`，地面是浅蓝环氧地坪+近处一块深色胶垫的混合场地）跑完，结论：黑色/深色地面材质假设成立**：
-  - 椅子3m 落在浅蓝地坪范围内 → 估距误差从黑布组的 -14.0% 降到 **-2.1%**。
-  - 气球（标称1m，压在浅蓝地坪上）→ 测得深度 **1.63m**，和"相机高度1.4m+水平1m"的纯几何直线距离预测值 1.72m 几乎精确对上（黑布组同类气球测出3.1-3.6m，差2-3倍）。
-  - `scale`/`cam_h_raw` 这两张依然没回到 ~1.0（还是 0.66-0.69，CV=14.0%），但逐行查过：RANSAC地面候选带（画面底部25%）在这两张新照片里material分界线正好卡在候选带起点，候选带几乎整个落在近处那块深色胶垫上，**不是假设被推翻，是候选带这次恰好又踩进了另一块深色材质**——和黑布组是同一类问题，只是范围缩小到了画面最下方一条，没盖住椅子/气球所在的浅蓝区域。这正好解释了"物体测距准了、但scale没变"这个看似矛盾的结果。
-  - 完整数据表和材质分界线的逐行验证过程见 [TOPDOWN_VALIDATION.md](TOPDOWN_VALIDATION.md) "决定性对照实验结果" 一节。
-- **结论：俯视管线算法本身没问题，是黑色/深色反光地面材质让 Depth Anything V2 近距离绝对尺度失准。以后测试集/实际部署选浅色、非反光地面拍摄，且要确保画面最下方（相机脚下那一截，RANSAC候选带覆盖的范围）也不能是深色材质。**
+The manufactured PCB1_5 and the October redesign are separate evidence. The former has narrow high-current routes, including approximately 0.18 mm on U49 SW to L1. Digital connectivity checks did not establish current capacity. The latest conversation says the manufactured board has no tactile modules and is intended for testing while a replacement is considered. Do not present thermal estimates as measurements or certification.
 
-## 下一步（可选，非阻塞）
+The October 8 cloud source produced a five-page `Revised_Schematic.epro`, `Actual_Placement.epro2` (191.7065 × 35.7505 mm) and `Test98_Placement.epro2` (98 × 98 mm). Both drafts have 179 components and 1062 connected pin assignments. They are separate saved copies; original PCB1_5 remains. Neither draft has routing or copper pours. Six layers remain: Inner1 GND, Inner4 VCC, four routing layers. Q1's four footprint vias are retained.
 
-对"地面拟合算法本身scale能否回到~1.0"这一点，三次尝试（黑布组×2 + 新拍组）候选带都不巧踩在深色材质上，还没有一张"从画面最下方到远处全程浅色地面"的干净样本。不是必须——现有证据已经足够支撑"换浅色地面部署"这个操作结论。如果 Hsinlung 想彻底闭环，可以再补拍一张连脚下都是浅色地面的照片；否则可以直接往下走（比如把俯视栅格接入实际胸挂设备）。
+Changes include 47 kΩ SER/SRCLK/RCLK pull-downs R40/R41/R42 and optional J_NTC. R22 remains 51 kΩ, with temperature detection disabled; the proposed 100 kΩ/B4100 sensor option would also need R22 changed to 82 kΩ. It is not fitted by default. U48, SW1, J_test and J_NTC retain pads but are excluded from the BOM. The 16-stage HC595/ULN chain, 15 working modules and existing power/gating architecture remain.
 
-## 环境注意事项（踩过的坑，别重踩）
+The actual-board draft preserves fixed U31–U45/U48 poses and the board outline; ESP sockets keep 25.4 mm spacing. ESP and sockets were rotated together to put the antenna beyond the end. These facts do not establish a practical layout.
 
-1. **这台机器 `D:\anaconda\envs\lingtouch` 的 numpy LAPACK 库整体是坏的**：`np.linalg.{svd,eigh,inv,det}` 或大数组 `@`/`np.dot`（N≳1000）会**静默崩溃**（退出码127，无 traceback）。matplotlib 的 `savefig` 也会中招（内部要求逆变换矩阵）。已在 `topdown_pipeline.py` 里手写绕开（`matvec`/`smallest_eigvec_3x3`/`_det3`），但**新加代码如果用到矩阵运算要小心**；`topdown_pipeline.py --outdir` 那段可视化目前跑不通。建议找时间重装这个环境的 numpy/BLAS 彻底解决。
-2. **中文文件名 + Git Bash + Windows Python = 乱码**：`cv2.imread` 等直接拿命令行参数传中文路径的场景会失败且报错信息本身也是乱码，容易误判。测试图片一律先在 Python 内部（`shutil.copy2`，不经过命令行参数）复制成 ASCII 文件名再处理，见 `pics/ascii/`。
-3. 跑深度推理/矩阵运算用 `D:\anaconda\envs\lingtouch\python.exe`（不是 `where python` 默认给的那个，那个是 anaconda base，没装 torch/cv2）。
-4. `Depth-Anything-V2/`（官方仓库clone + `metric_depth/checkpoints/depth_anything_v2_metric_hypersim_vitl.pth` 1.3GB权重）、`pics/`（标定+测试集照片，484M）都在 `.gitignore` 里，本地存在但不进 git，是正常状态，不是遗留垃圾。
+**The October 9 follow-up review withdrew the earlier claim that layout optimization was complete. Both boards are drafts needing correction before routing.** It reported:
 
-## 坑：`git clone` 出来的 `Depth-Anything-V2/` 自带独立 `.git`
+- U49 feedback-connected R7/R8 pads approximately 9.6/11.5 mm from FB, on the wrong side for a compact feedback arrangement; both drafts reuse this arrangement.
+- J1 USB to U53 charger centre distances approximately 53 mm on the actual board and 68 mm on the test board. Review the charging path and local placement.
+- Test-board U50/L2 and other power parts remain under ESP, restricting probing, observation and repair despite the larger board.
+- ESP underside clearance of at least 4 mm has not been confirmed. Actual module-socket selection, insertion space, screw heads and standoffs are also unresolved. Do not assume ordinary 2.54 mm sockets fit the tactile module.
 
-`git clone` 官方仓库时会带着它自己的 `.git`，等于在项目文件夹里嵌了个**独立的第二仓库**（指向
-`github.com/DepthAnything/Depth-Anything-V2`，跟我们项目无关）。它自己没有 `.gitignore`，所以从
-它自己的视角看，`metric_depth/checkpoints/*.pth`（1.3GB权重）永远是"未跟踪"状态——VSCode
-Source Control 面板会把这个嵌套仓库当成额外的仓库单独显示出来，看着像"权重文件要被提交了"，
-其实跟主仓库完全无关（主仓库的 `.gitignore` 里 `Depth-Anything-V2/` 整体忽略，包括它的 `.git`
-本身，不可能泄漏进主仓库历史）。2026-08-09 已经把这个嵌套 `.git` 删掉（`rm -rf
-Depth-Anything-V2/.git`），消除这个视觉困惑；如果以后重新 `git clone` 覆盖了这个目录，这个坑会
-再出现一次，记得再删一次，或者当时就用 `git clone --depth 1 <url> tmp && cp -r tmp/* dest && rm -rf tmp`
-这种方式避免带 `.git`。
+These are prior inspection findings for Claude to independently check against the files. `validation.json` records net, export and selected geometric checks. Native PCB DRC did not return; no load, temperature, loop or BLE measurements validate these drafts. Empty mismatch lists do not prove physical assembly or power-routing suitability.
 
-## Git 状态（2026-08-08 审计过，干净）
+Firmware was not changed. The pre-power audit identifies GPIO9/OE polarity and startup-latch ordering incompatibility, and the extra 16th shift stage under the current 15-byte protocol. Review those pending adaptations separately from the schematic; do not claim the new pull-downs resolve them. Preserve U48 as optional. Supplier budgets are 0.17 A per coil (15 groups: 15.3 A on VCC) and approximately 0.08–0.10 A per SMA. These are output-load budgets, not battery current or measured performance.
 
-检查过 `git ls-files`，62个跟踪文件全是合法源码/文档/两张小参考图（`vision/1.jpg`/`2.jpg`），没有 `pics/`、`Depth-Anything-V2/`、`.npy`、`.pth`、`node_modules`、`__pycache__` 等被误提交。当时看到"很多东西"大概率是编辑器 Source Control 面板把**未提交的修改/新文件**（`.gitignore`、`README.md` 的改动 + 这次新加的 `TOPDOWN_VALIDATION.md`/`topdown_pipeline.py`/`validate_distance.py`/`check_balloon_depth.py`）显示成一大坨，不是已提交的垃圾——这些新文件本身就是这次会话的产出，还没 commit，不要删。
+## Array: pipeline migrated, appearance rejected
+
+The browser remains the offline 10 × 9 point-pattern editor and JSON exporter. Production pictures/video now use Cycles in the existing `EnclosedArray.blend`; 90 independent dot animations use `assets/sequence.json` and `assets/motion.json`. Mesh geometry and assembly placement were retained. Three 1920 × 1080, 16-bit PNG stills replace the older browser JPEGs. The current demo is off/checker/cross/all-on/off, not experiment data. No full array video was rendered.
+
+Implemented: packed Blender `interior.exr`, soft window lighting, small edge bevels, PLA print texture, photo-derived `MouldDetail.png`, three camera presets, depth of field, motion blur and grain composition. Verification records animation agreement with browser controls, geometry preservation and a synthetic encoding check. It does not prove realism. `WebVerification.json` explicitly records that no new interactive browser test accompanied this migration.
+
+Hsinlung viewed the result and judged it poor. Raised and retracted dots remain similarly bright; the top looks unlike the physical reference. In the latest discussion, Claude's single-module lighting comparison led to this revised proposed order:
+
+1. Match the photograph's camera, pose and dot state on one module.
+2. Match grazing directional light and weaker ambient fill before prioritizing fine texture.
+3. Check retracted depth and raised exposure separately; do not shift the whole motion curve down. −0.3 mm is a trial hypothesis, not a measured dimension.
+4. Compare dot subsurface appearance and matte, mottled top-face shading independently.
+5. Add fine texture only after the state-dependent light/shadow relationship works; then transfer to the array and compare motion against the real video.
+
+This correction was discussed only. It is not applied in the committed scene. Hsinlung selected ambientCG Plastic003 as a material starting point; its four maps and CC0/source/hash record remain in `assets/textures/Plastic003/`. It is procedural, not a measured material scan, and is not connected to the current scene. The unselected Plastic012A download was removed. Neither the precise shell/dot polymer nor proposed optical settings are established from the photograph.
+
+Keep edits in the existing folder. Do not rebuild the assembly, create dated iterations or render a full shot before Hsinlung accepts the stills. Review the actual images against the references, rather than treating successful Blender checks as approval.
+
+## Other recent work and environment
+
+- `3mf/` retains front, rear and two-part handle inputs, final files, generators and readback verification. Digital reproduction does not prove physical fit. Do not restore the superseded root model folders.
+- `BrailleModule/` is the separate static exterior model; `BrailleModule_Video/` retains the visual/motion sources. Their unmarked geometric details and timing remain estimates. Do not merge or delete these intentional source sets as duplicates.
+- The experiment path remains `visionss/experiment_server.py`, shared by spatial and single-point conditions. Logs are ignored; firmware is still V2.8. See the respective READMEs and [TOPDOWN_VALIDATION.md](TOPDOWN_VALIDATION.md) for historical offline evidence. No new camera or experimental validation is implied by this handoff.
+- Vision uses `D:/anaconda/envs/LING/python.exe`. The old lowercase `lingtouch` environment has broken NumPy/LAPACK. Modelling uses `3mf/.runtime/structural-runtime/Scripts/python.exe`; on another machine install the pinned modelling/module requirements. Do not commit the runtime.
+- `pics/`, `Depth-Anything-V2/`, weights, experiment logs, secrets, dependencies, paper materials and local archives remain outside Git. Preserve those original datasets and user work. Do not update the global collaboration contract or local AGENTS memo unless asked.

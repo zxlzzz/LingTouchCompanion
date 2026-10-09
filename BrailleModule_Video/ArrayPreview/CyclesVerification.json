@@ -1,0 +1,116 @@
+{
+  "engine": "CYCLES",
+  "device": "GPU",
+  "mesh_count": 344,
+  "original_mesh_geometry_preserved": true,
+  "photo_texture": {
+    "source": "../inputs/Touchpoint_Reference.jpg",
+    "source_sha256": "fbafe393eb396e49bdb803dc363fbbd4dec2f568feff5f566e5d7c7469ee8d71",
+    "rectification_corners_px": [
+      [
+        626.0,
+        285.0
+      ],
+      [
+        873.0,
+        623.0
+      ],
+      [
+        1094.0,
+        548.0
+      ],
+      [
+        867.0,
+        224.0
+      ]
+    ],
+    "texture": "assets/textures/MouldDetail.png",
+    "method": "Perspective correction, pin/rim masking, inpainting, broad-illumination removal; grayscale roughness and microscopic normal detail only"
+  },
+  "environment": {
+    "image": "Blender bundled interior.exr",
+    "image_size": [
+      1024,
+      512
+    ],
+    "packed": true,
+    "rotation_degrees": 115,
+    "strength": 0.65
+  },
+  "sequence_source": "assets/sequence.json",
+  "input_records": 5,
+  "fps": 30,
+  "frame_start": 1,
+  "frame_end": 150,
+  "motion": {
+    "revision": 2,
+    "peak_mm": 0.7,
+    "hold_mm": 0.45,
+    "rise_ms": 33.333333333333336,
+    "peak_pause_ms": 66.66666666666667,
+    "settle_ms": 50,
+    "retract_ms": 50,
+    "curve": "linear",
+    "pose_sampling": "nearest",
+    "basis": "Short lift/release informed by the supplied 30 fps physical-module video; high-to-hold stages and numerical settings remain provisional."
+  },
+  "animation": {
+    "independent_animated_dots": 90,
+    "baked_comparison_samples": 3150,
+    "max_baked_error_mm": 6.805324883618624e-07,
+    "grid_left_to_right_checked": true,
+    "browser_comparison_samples": 432,
+    "max_error_mm": 2.220446049250313e-16
+  },
+  "preview_frame": 46,
+  "cameras": {
+    "near": {
+      "position_m": [
+        0.01327112689614296,
+        -0.07327933609485626,
+        0.16016902029514313
+      ],
+      "fstop": 22.0,
+      "source": "viewer3d.js setView + frameBounds"
+    },
+    "switch": {
+      "position_m": [
+        0.006000000052154064,
+        -0.029500000178813934,
+        0.07350000739097595
+      ],
+      "fstop": 32.0,
+      "source": "viewer3d.js setView + frameBounds"
+    },
+    "whole": {
+      "position_m": [
+        0.3243740499019623,
+        -0.27421048283576965,
+        0.5239515900611877
+      ],
+      "fstop": 8.0,
+      "source": "viewer3d.js setView + frameBounds"
+    }
+  },
+  "motion_blur_shutter_frames": 0.5,
+  "full_sequence_rendered": false,
+  "approval": "Await Hsinlung's still review before rendering sequences",
+  "stills": {
+    "width": 1920,
+    "height": 1080,
+    "samples": 192,
+    "frame": 46,
+    "grain_sigma_display_levels": 0.65,
+    "files": [
+      "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\ArrayPreview\\PinCloseup.png",
+      "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\ArrayPreview\\SwitchPreview.png",
+      "C:\\Users\\Hsinlung\\Desktop\\LingTouchCompanion\\BrailleModule_Video\\ArrayPreview\\EnclosureOverview.png"
+    ]
+  },
+  "composition_validation": {
+    "synthetic_frames": 3,
+    "frame_order_checked": true,
+    "built_in_h264_encode_decode_checked": true,
+    "full_array_video_rendered": false
+  }
+}

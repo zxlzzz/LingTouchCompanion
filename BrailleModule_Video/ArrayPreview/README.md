@@ -1,36 +1,75 @@
-# 盲文模组阵列预览
+# Array preview and Cycles production rendering
 
-直接双击 `index.html` 即可打开，全部预览素材内置在 HTML 中，无需联网。本文件夹独立于 `3mf`，原来的单模组预览保留。
+`index.html` is the offline point-pattern editor and interactive preview. Final pictures and video come from **Cycles in `EnclosedArray.blend`**. Browser shadows, aperture shading and materials are preview approximations.
 
-阵列为 3 列 × 5 行模组，共 9 列 × 10 行触点。M1–M15 从左到右、从上到下排列，分别对应 PCB 的 U31–U45。位置取自实际 PCB，转到当前观察方向后，横向中心距约 11 mm、纵向约 6.5 mm；第一列原有约 0.127 mm 的行向偏移也保留。
+## Review status — 2026-10-09
 
-- 左键拖动旋转视角，滚轮缩放，右键拖动平移；“复位视角”恢复初始角度和距离。触屏单指旋转、双指缩放和平移。画面获得焦点后，也可用方向键旋转、`+` / `-` 缩放。
-- “观察范围”可切换“触点近景”、“开关近景”和“外壳全景”。复位恢复当前所选视图的初始角度；切换视图保留点阵状态和播放序列。
-- “显示外壳”可隐藏外壳，配合“开关近景”查看完整杆身、开关底座和引脚；再次勾选后查看端头在原开孔中的效果。
-- 单击画面触点或右侧点阵，可单独凸起、收回；拖动视角不会触发凸起。也可使用全部、反转、棋盘按钮。
-- 粘贴 JSON 或选择 `.json` / `.jsonl` 文件后点击载入。支持单帧对象、帧对象数组、JSONL 和单张 10 行 × 9 列矩阵。
-- 帧对象沿用 `ble_testbench.html` 的 `{seq, ts, mode, frame}` 格式；`frame` 内 0 表示收回、1 表示凸起，`ts` 为毫秒且按时间排列。每模组上排点序为 3、2、1，下排为 6、5、4。
-- 载入后可播放、暂停、跳帧、调速。点击“添加当前帧”把当前点阵加入序列，再“导出 JSON”。“载入示例”提供完整格式和演示序列。
-- “纯画面”隐藏控制面板，按 Esc 返回；模组编号可单独显示。
+Hsinlung has viewed these stills and judged the appearance insufficiently realistic. Raised and retracted dots are similarly bright, and the module top does not match the supplied physical references. The files below are retained for review, not approved production output. No full animation is approved.
 
-The viewer uses the unchanged geometry exported from `EnclosedArray.blend`, containing the original array, the two handle enclosure meshes and the tactile switch, with Three.js 0.180.0. Two broad studio panels supply both direct illumination and one shared offline reflection environment for every part. The enclosure presentation follows the Dot Pad / Dot Pad X, APH Monarch and Orbit Graphiti comparison. The current pin finish is checked against `../inputs/Touchpoint_Reference.jpg` and actual frames from `../inputs/PhysicalMotionReference.mp4`: slightly cool grey-white with modest gloss, rather than bright matte white. Pins have no emissive lighting, 0.22–0.315 base roughness and shallow, stable per-pin surface variation. Each pin's fixed aperture is recorded before animation. Five sample rays toward each area light approximate the mouth's obstruction, while indirect-light visibility varies with the surface's depth below the mouth. This makes retracted crowns and their sides less illuminated than exposed crowns; it is a local lighting approximation, not full ray tracing. Head and shaft share one finish. Black moulded plastic retains fine grain with small colour variation. No dirt, wear or image filter is applied. Current lighting and materials live in `viewer3d.js`; Blender source materials retain the preceding finish and are not an exact representation of this browser revision.
+The latest discussion proposes matching the photograph on one module first: camera and state, grazing directional light and ambient fill, separate retracted depth and raised exposure, then dot subsurface appearance and top-face shading. Fine texture follows those checks. This revision has not been implemented. A suggested −0.3 mm rest offset is an unmeasured trial value; shifting the whole existing animation would also lower its raised exposure.
 
-The added enclosure uses `../../3mf/Handle/inputs/Handle_Original.3mf`: this is the project's retained handle model, with 71,860 housing triangles and 670 cover triangles. Each part's original STEP frame is recovered from the 3MF `source_offset_x/y/z` metadata. Vertex positions and triangles retain their original shape; only rigid coordinate changes assemble them around the array. Printed plate orientations are not assembly positions. No original 3MF, PPT or `ModuleArray.blend` is edited.
+`assets/textures/Plastic003/` retains Hsinlung's selected procedural material candidate, with its source, CC0 license and hashes. Its maps are not applied to the current scene. The unselected Plastic012A download was removed. See the repository's `CLAUDE.md` for the wider review handoff.
 
-The handle outline and three existing cover slots come from the retained 3MF. The PPT (`../../paper/竞赛PPT/技术.pptx`, slide 1, embedded `image10.png`) supplies the light body / dark tactile-area colour reference. The enclosure remains **PLA**. The browser uses an ivory dielectric material (zero metalness, nominal 0.53 roughness), with 0.2 mm side layers, much shallower 0.42 mm diagonal top extrusion paths and subtle grain. These shallow surface-normal details stay attached to the object; subpixel patterns fade out to prevent shimmering. Layer spacing and finish are visual settings, not manufacturing parameters. The array keeps all internal placements and the existing 30.7 mm vertical translation. All 90 crowns fit inside the original slots; numerical checks are in `EnclosureVerification.json`. This verifies visual alignment, not physical PCB mounting or manufacturing fit.
+## Current stills
 
-SW1 in `C:/Users/Hsinlung/Downloads/BOM_Board1_PCB1_5_2026-09-15.xlsx`, sheet `bom模板`, cells D44/G44/H44/I44, is **Khon TSA06131-250B532CA / C49174365**. Its drawing, page 9 of `../inputs/Khon_TSA06131_Reference.pdf`, supplies the 6.1 mm square body, 3.2 mm shaft diameter, 3.5 mm body height and 3 mm terminal projection. The user has replaced the photographed fluted-head direction with a **larger smooth bullet-shaped head**: a 4.2 mm wide, 2.6 mm high elliptical nose ends at a rounded pole without a flat top or grooves. A short smooth flared neck joins the 3.2 mm shaft. This head is user-directed visual geometry rather than a claim about the BOM component's actual shape.
+- `PinCloseup.png`: the browser's tactile-array preset, with the checker pattern.
+- `SwitchPreview.png`: the browser's enclosed-switch preset.
+- `EnclosureOverview.png`: the browser's whole-handle preset.
 
-The BOM variant is 25 mm high. **The preview retains the user's explicit 20 mm height**, measured from its virtual mounting plane to the end, excluding terminals. At the user's request, the entire switch is raised 1.2 mm above the module-base insert datum, placing its virtual mounting plane at 35.7 mm and its tip **1.2 mm above the faceplate**. This placement is not an independently measured PCB assembly. The 5 mm hole has 0.4 mm nominal radial clearance around the larger head. Black shaft, pins, enclosure and steel lid now use the same studio environment. The switch's nominal 0.46 roughness softens its highlights. Near-view shadows resolve the opening; local bore visibility approximates obstruction of the area lights using the rounded nose's radius, with less severe ambient darkening. Choose “开关近景” to rotate around the head, or hide the enclosure to inspect the complete switch. This is a visual variant, not an exact 25 mm part model or a physical assembly check. The switch remains static and has no BLE or array-control function. Dimensions and reference provenance are in `SwitchVerification.json`. The enclosed preview before the switch addition is retained in `../Archives/ArrayPreview_Enclosed_2026-10-08_before_switch/`.
+These replace the preceding browser screenshots: 1920 × 1080, 192 samples, environment lighting, depth of field and light monochrome grain. Revised stills require Hsinlung's acceptance before a full shot is rendered. No full animation has been rendered during this migration.
 
-Pins receive the assembly's shadows but do not cast long shadows. Motion remains retracted → 0.7 mm peak → 0.45 mm maintained; toggling the same pin again retracts it. Heights and timings are provisional visual settings, shared with the single-module profile.
+## Edit and render
 
-The initial “触点近景” frames all three columns and the button together. The whole-device preset shows a more oblique view of the unchanged handle. `ProductView.jpg` is the current clean browser capture; `PinCloseup.jpg` shows raised and retracted crowns at a closer angle. `Preview.jpg`, `EnclosureOverview.jpg`, `SwitchPreview.jpg` and `SwitchAssembly.jpg` show the current finish with the controls. The preceding bullet-head / PLA version is preserved in `../Archives/ArrayPreview_BulletHead_PLA_2026-10-08/`, including its live view and hashes.
+Open `index.html`, edit or import a 10-row × 9-column sequence, then choose **导出 JSON**. The page is self-contained and needs no network. `launch.cmd` optionally serves it at `http://127.0.0.1:8867/`.
 
-这是虚拟效果预览，页面不连接或发送到真实 BLE 硬件。完整模型、渲染库和控制代码都内置在 HTML 中，双击打开与本机网页使用同一份内容。
+Run the retained runtime from the repository root:
 
-`ModuleArray.blend` 为未加外壳的原始阵列场景，`build_array.py` / `surface_finish.py` 保留其排列和 Blender 材质来源。用含 `bpy` 的 Python 运行 `build_enclosure.py`，生成当前的 `EnclosedArray.blend`、`assets/EnclosedArray.glb` 和 `assets/scene.json`；再运行网页构建即可更新显示。`export_web_model.py` 保留为原阵列单独导出的入口。
+```powershell
+# Update the existing scene and render three review stills.
+& '3mf/.runtime/structural-runtime/Scripts/python.exe' -B 'BrailleModule_Video/ArrayPreview/render_cycles.py' stills
 
-Web source: `viewer3d.js` (camera, real-time materials, picking), `controls.js` (unchanged grid mapping, motion and JSON playback), and `index.template.html` (interface). Run `npm install --ignore-scripts --no-audit --no-fund`, then `npm run build` to regenerate the single-file `index.html`. Dependencies are pinned in `package.json` / `package-lock.json`; the generated browser library and its MIT license are in `vendor/`. The distributed HTML needs no npm installation or network connection.
+# Import a newly exported browser sequence and rebuild the stills.
+& '3mf/.runtime/structural-runtime/Scripts/python.exe' -B 'BrailleModule_Video/ArrayPreview/render_cycles.py' stills --sequence 'C:/path/frames.json'
 
-运行 `launch.cmd` 可打开 [本机预览](http://127.0.0.1:8867/)。加外壳前的可旋转版本完整保存在 `../Archives/ArrayPreview_Interactive_2026-10-08_before_enclosure/`，含文件哈希清单。固定视角网页在 `../Archives/ArrayPreview_FixedCamera_2026-10-08/`，更早的表面版本在 `../Archives/ArrayPreview_2026-10-08_before_finish/`。原来的单模组预览保留。
+# Only after still approval: render lossless 16-bit PNG sequences.
+& '3mf/.runtime/structural-runtime/Scripts/python.exe' -B 'BrailleModule_Video/ArrayPreview/render_cycles.py' render
+
+# Compose PNG sequences into H.264 MP4 with changing monochrome grain.
+& '3mf/.runtime/structural-runtime/Scripts/python.exe' -B 'BrailleModule_Video/ArrayPreview/render_cycles.py' compose
+```
+
+`prepare` updates the existing scene without rendering. `verify` checks the saved animation. `--shot near|switch|whole|all` selects a shot; `--width`, `--height`, `--samples` control quality. `--frame` selects a still frame. `--fps` and `--tail` configure the timeline during preparation. Defaults: 1920 × 1080, 192 samples, 30 fps, one second after the final JSON command.
+
+`assets/sequence.json` is the active sequence. The current five-frame sequence is exactly the browser's built-in demo: off, checker, cross, all on, off. The review still uses frame 46, 1.5 seconds into the sequence: 45 raised points at maintained height. This is an appearance demo, not an experiment log. Timestamps are milliseconds; the first timestamp becomes time zero. JSONL, a `{frames: [...]}` object, a single record and a single 10 × 9 matrix are also accepted.
+
+Full shots write `frames/<shot>/frame_0001.png` onward. Composition writes `Array_near.mp4`, `Array_switch.mp4` and `Array_whole.mp4`. The Blender runtime includes the FFmpeg encoder; no separate installation is needed. Optional `--ffmpeg` selects an external encoder. The original PNGs remain unmodified during composition.
+
+## Scene and material sources
+
+The existing assembly is retained: 15 modules, 90 independently moving complete pins, the two original handle meshes and the bullet-head switch. Original vertices, topology, module placements and handle placements are preserved. Three-segment bevel modifiers round module edges by 0.06 mm and handle edges by 0.18 mm. Smaller shader bevels soften microscopic highlights.
+
+Blender's bundled `interior.exr` is packed into the world, with one soft window light. The grey tabletop extends beyond the camera frustum. Module black plastic uses dielectric reflection with no metallic or emissive shading. `assets/textures/MouldDetail.png` is extracted from `../inputs/Touchpoint_Reference.jpg`: perspective correction, pin/rim masking and removal of broad lighting. Grayscale detail controls narrow roughness variation and microscopic bump rather than baking photographed highlights into the black colour. `../inputs/PhysicalMotionReference.mp4` is also the visual reference. The photograph has limited detail; this is an appearance reconstruction, not a measured PBR scan.
+
+Ivory PLA printing detail keeps the browser's existing settings: 0.2 mm side layers, 0.42 mm diagonal top paths, 0.0035 mm side relief and 0.0014 mm top relief. These are visual settings. All image assets needed by Cycles are packed into the .blend.
+
+The three cameras use `viewer3d.js` `setView` directions, bounds fitting and horizontal field of view, adapted to 16:9. Focus is on the tactile face, switch nose or device centre; apertures are f/22, f/32 and f/8. Motion blur uses a half-frame shutter. Cameras stay fixed; dot motion supplies motion blur.
+
+## Motion and mapping
+
+`assets/motion.json` is the shared source: 0.7 mm peak, 0.45 mm hold, 33.333 ms rise, 66.667 ms peak pause, 50 ms settle and 50 ms retraction. These remain provisional visual settings informed by the supplied 30 fps clip. Fractional linear keyframes preserve short stages and let Cycles evaluate shutter subframes. Repeated identical commands leave an ongoing stroke alone. Mid-stroke commands reverse from the current height.
+
+M1–M15 go left to right, then top to bottom. Each module's upper row is dots 3/2/1 and lower row is 6/5/4. The PCB arrangement stays three columns by five rows: approximately 11 mm horizontal and 6.5 mm vertical centre spacing, including the first column's 0.127 mm offset.
+
+`CyclesVerification.json` records mesh preservation, references, cameras and animation checks. Motion is compared directly against the actual `controls.js` function, including mid-stroke reversals; all 90 saved animations are checked at fractional frames. This verifies migration and timing, not perceptual realism or manufacturing fit.
+
+## Geometry and browser maintenance
+
+`ModuleArray.blend`, `build_array.py` and `surface_finish.py` retain the source array. `build_enclosure.py` is only for an intentional geometry rebuild; it reapplies production materials and animation after exporting the preview GLB. Routine appearance or sequence changes use `render_cycles.py` on the existing scene.
+
+The enclosure source stays `../../3mf/Handle/inputs/Handle_Original.3mf`, with 71,860 housing and 670 cover triangles. STEP offsets recover the assembly frame. The 30.7 mm array translation, original slots and 90 crown clearances are retained; see `EnclosureVerification.json`. These checks do not establish PCB mounting fit.
+
+The switch retains the user-directed 20 mm height excluding terminals, and smooth 4.2 mm wide, 2.6 mm high bullet nose. Its tip stays 1.2 mm above the faceplate; it differs from the BOM's 25 mm TSA06131 variant. It is static and does not control BLE. Dimension provenance remains in `SwitchVerification.json` and `../inputs/Khon_TSA06131_Reference.pdf`.
+
+Browser sources are `viewer3d.js`, `controls.js` and `index.template.html`. Run `npm run build` to regenerate the self-contained HTML. Dependencies remain pinned, with licenses in `vendor/`. The page has no real-hardware control.
+
+When only the template, JSON or preview GLB changes, `node build_web.mjs --page-only` reuses the existing viewer bundle and updates the embedded page assets.

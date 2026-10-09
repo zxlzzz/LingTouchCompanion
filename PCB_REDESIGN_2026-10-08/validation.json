@@ -1,0 +1,188 @@
+{
+  "actual": {
+    "parts": 179,
+    "connectedAssignments": 1062,
+    "positionMismatches": [],
+    "pinNetMismatches": [],
+    "routePrimitives": [],
+    "dimensions_mm": [
+      191.7065,
+      35.75050000000001
+    ],
+    "fixedPoseMismatches": [],
+    "socketSpacing_mm": 25.4,
+    "copperPadClearanceBelow011": [],
+    "padEdgeBelow025": [],
+    "throughHoleBodyClearanceBelow035": [],
+    "bodyOverlaps": [],
+    "mountConflicts": [],
+    "mountCount": 1,
+    "dnp": [
+      "U48",
+      "SW1",
+      "J_test",
+      "J_NTC"
+    ]
+  },
+  "test": {
+    "parts": 179,
+    "connectedAssignments": 1062,
+    "positionMismatches": [],
+    "pinNetMismatches": [],
+    "routePrimitives": [],
+    "dimensions_mm": [
+      97.99999958,
+      97.99999958
+    ],
+    "fixedPoseMismatches": [],
+    "socketSpacing_mm": 25.400000000000002,
+    "copperPadClearanceBelow011": [],
+    "padEdgeBelow025": [],
+    "throughHoleBodyClearanceBelow035": [],
+    "bodyOverlaps": [],
+    "mountConflicts": [],
+    "mountCount": 4,
+    "dnp": [
+      "U48",
+      "SW1",
+      "J_test",
+      "J_NTC"
+    ]
+  },
+  "nativeExports": {
+    "actual": {
+      "reopenExactSourceMatch": true,
+      "nativeExportMatchesPlacementAndNets": true,
+      "embeddedFootprintsMatchGeometryChecks": true,
+      "routePrimitives": []
+    },
+    "test": {
+      "reopenExactSourceMatch": true,
+      "nativeExportMatchesPlacementAndNets": true,
+      "embeddedFootprintsMatchGeometryChecks": true,
+      "routePrimitives": []
+    },
+    "schematic": {
+      "pageCounts": [
+        28,
+        38,
+        33,
+        40,
+        40
+      ],
+      "uniqueParts": 179,
+      "nativeExportContainsAllPages": true
+    },
+    "sha256": {
+      "Actual_Placement.epro2": "2b503e9e5725549308b107cf36c09f257e244cad455c17d35f9094487466da54",
+      "Revised_Schematic.epro": "4ed6264629751dede0b2bd46e2d8cc10de221bb412f75ef99358f1560f4b5984",
+      "Test98_Placement.epro2": "f0974bf3ef4253b716522e22d8bc063ccfb47253e5bf21bdd42b9c58f7a11e62"
+    }
+  },
+  "schematic": {
+    "components": 179,
+    "connectedPinAssignments": 1062,
+    "matchesExpected": true,
+    "nativeDrc": [
+      {
+        "type": "warn",
+        "rule": "ATTRMATCHCODE",
+        "primitives": [
+          {
+            "primitiveId": "f8d1aff2a7f6c654",
+            "sheet": "63f930a239904f1c",
+            "name": "U31($4I18)"
+          },
+          {
+            "primitiveId": "b1307e68809e770d",
+            "sheet": "63f930a239904f1c",
+            "name": "U32($4I19)"
+          },
+          {
+            "primitiveId": "b37444733fc15407",
+            "sheet": "63f930a239904f1c",
+            "name": "U33($4I20)"
+          },
+          {
+            "primitiveId": "be9d7957ea6e4c86",
+            "sheet": "63f930a239904f1c",
+            "name": "U34($4I21)"
+          },
+          {
+            "primitiveId": "833bdc9a1e69c997",
+            "sheet": "63f930a239904f1c",
+            "name": "U35($4I22)"
+          },
+          {
+            "primitiveId": "3b2f332f663424cc",
+            "sheet": "63f930a239904f1c",
+            "name": "U36($4I23)"
+          },
+          {
+            "primitiveId": "d74b866b7268f740",
+            "sheet": "63f930a239904f1c",
+            "name": "U37($4I24)"
+          },
+          {
+            "primitiveId": "964fd051ca90df37",
+            "sheet": "63f930a239904f1c",
+            "name": "U38($4I25)"
+          },
+          {
+            "primitiveId": "9d18bfd86629c6ed",
+            "sheet": "10ab6ac5a33275f1",
+            "name": "U39($5I18)"
+          },
+          {
+            "primitiveId": "e64554ce555313bf",
+            "sheet": "10ab6ac5a33275f1",
+            "name": "U40($5I19)"
+          },
+          {
+            "primitiveId": "ee45a6c6f9785faa",
+            "sheet": "10ab6ac5a33275f1",
+            "name": "U41($5I20)"
+          },
+          {
+            "primitiveId": "a0bf981706588e4d",
+            "sheet": "10ab6ac5a33275f1",
+            "name": "U42($5I21)"
+          },
+          {
+            "primitiveId": "835477d122fda1f0",
+            "sheet": "10ab6ac5a33275f1",
+            "name": "U43($5I22)"
+          },
+          {
+            "primitiveId": "bff1ea69d25909e5",
+            "sheet": "10ab6ac5a33275f1",
+            "name": "U44($5I23)"
+          },
+          {
+            "primitiveId": "5c962fafd8e3b616",
+            "sheet": "10ab6ac5a33275f1",
+            "name": "U45($5I24)"
+          },
+          {
+            "primitiveId": "96e8991b17d0ac9f",
+            "sheet": "10ab6ac5a33275f1",
+            "name": "U48($5I25)"
+          }
+        ]
+      }
+    ]
+  },
+  "cloud": {
+    "project": "test",
+    "projectUuid": "c63af9ce4e4345119dcf2ae3fe8617d8",
+    "schematicUuid": "f5fc1f5310a727a5",
+    "actualPcbUuid": "a5443ab57da8de3b",
+    "testPcbUuid": "5bd6de5c7e6987dc",
+    "board": "Redesign_20261008"
+  },
+  "limitations": [
+    "Native PCB DRC did not return in headless mode.",
+    "ESP underside clearance of at least 4 mm remains to be confirmed.",
+    "No routing, copper pours, physical load, thermal, loop stability, or BLE tests performed."
+  ]
+}
