@@ -1,9 +1,12 @@
 import { parseAssistantCommand } from '@/api/assistant.js'
 import { searchPlace, reverseGeocode } from '@/api/map.js'
 import { invokeDeviceHandler } from '@/utils/deviceBridge.js'
+import { speakText, setVoiceBroadcastEnabled, getVoiceBroadcastEnabled } from '@/utils/tts.js'
+import { wgs84ToBd09, gcj02ToBd09 } from '@/utils/coord.js'
 
 const WAKE_WORD_ALIASES = [
 	'灵触助手',
+	'灵触随行', // 产品名「灵触·随行智能盲杖」的常见喊法
 	'零触助手',
 	'领触助手',
 	'领处助手',
@@ -12,36 +15,15 @@ const WAKE_WORD_ALIASES = [
 	'林处助手'
 ]
 
-
-
 const ASSISTANT_SELECTED_PLACE_KEY = 'assistant_selected_place'
-const VOICE_SWITCH_KEY = 'voiceBroadcastEnabled'
 
 let isRunning = false
 let isStopped = false
-let voiceBroadcastEnabled = true
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 const sanitizeText = (text = '') => {
 	return String(text).replace(/\s+/g, '').trim()
-}
-
-const speakText = (text) => {
-	const content = String(text || '').trim()
-	if (!content) return
-	if (!voiceBroadcastEnabled) return
-
-	try {
-		if (typeof window !== 'undefined' && window.speechSynthesis) {
-			window.speechSynthesis.cancel()
-			const utter = new SpeechSynthesisUtterance(content)
-			utter.lang = 'zh-CN'
-			window.speechSynthesis.speak(utter)
-		}
-	} catch (err) {
-		console.warn('[globalAssistant] 语音播报失败：', err)
-	}
 }
 
 const recognizeSpeechText = async () => {
@@ -134,7 +116,8 @@ const getCurrentPosition = async () => {
 					}
 				)
 			})
-			return pos
+			// 浏览器定位为 WGS84，转换为百度坐标系 BD09
+			return wgs84ToBd09(pos.lat, pos.lng)
 		}
 	} catch (err) {
 		console.warn('[globalAssistant] 浏览器定位失败：', err)
@@ -155,13 +138,11 @@ const getCurrentPosition = async () => {
 				fail: reject
 			})
 		})
-		return pos
+		// uni.getLocation 返回 GCJ02，转换为 BD09
+		return gcj02ToBd09(pos.lat, pos.lng)
 	} catch (err) {
 		console.warn('[globalAssistant] uni 定位失败：', err)
-		return {
-			lat: 39.9042,
-			lng: 116.4074
-		}
+		return wgs84ToBd09(39.9042, 116.4074) // 默认北京，统一到 BD09
 	}
 }
 
@@ -176,6 +157,13 @@ const getCurrentCity = async () => {
 	}
 }
 
+// ---------- 医院专项流程（「去医院」「最近的医院」等泛化说法） ----------
+
+/**
+ * 判断是否为泛化医院请求。
+ * 这类说法不能当具体目的地搜索（如直接搜「最近的医院」搜不到），
+ * 需走「附近医院列表 → 语音选择」专项流程。
+ */
 const isGenericHospitalRequest = (destination = '') => {
 	const text = sanitizeText(destination)
 	if (!text) return false
@@ -211,13 +199,47 @@ const getNearbyHospitals = async () => {
 
 const speakHospitalList = async (list = []) => {
 	if (!list.length) {
-		speakText('附近没有找到医院')
+		await speakText('附近没有找到医院')
 		return
 	}
 
 	const parts = list.map((item, index) => `第${index + 1}个，${item.name}`)
 	const text = `为您找到附近医院。${parts.join('。')}。请说第几个，或者直接说医院名称。`
-	speakText(text)
+	await speakText(text)
+}
+
+const handleHospitalFlow = async () => {
+	try {
+		const hospitalCandidates = await getNearbyHospitals()
+
+		if (!hospitalCandidates.length) {
+			await speakText('附近没有找到医院')
+			return
+		}
+
+		await speakHospitalList(hospitalCandidates)
+		await sleep(1000)
+
+		const choiceText = await recognizeSpeechText()
+		console.log('[globalAssistant] 医院选择：', choiceText)
+
+		if (!choiceText) {
+			await speakText('没有听清您的选择')
+			return
+		}
+
+		const selectedHospital = parsePlaceChoice(choiceText, hospitalCandidates)
+
+		if (!selectedHospital) {
+			await speakText('没有匹配到您选择的医院')
+			return
+		}
+
+		await navigateByPlaceObject(selectedHospital)
+	} catch (err) {
+		console.error('[globalAssistant] 医院选择流程失败：', err)
+		await speakText('医院选择失败')
+	}
 }
 
 const chineseNumberMap = {
@@ -234,7 +256,7 @@ const chineseNumberMap = {
 	十: 10
 }
 
-const parseHospitalChoice = (text = '', list = []) => {
+const parsePlaceChoice = (text = '', list = []) => {
 	const normalized = sanitizeText(text)
 	if (!normalized || !list.length) return null
 
@@ -261,7 +283,7 @@ const parseHospitalChoice = (text = '', list = []) => {
 
 const navigateByPlaceObject = async (place) => {
 	if (!place || !place.location?.lat || !place.location?.lng) {
-		speakText('目的地信息不完整，无法开始导航')
+		await speakText('目的地信息不完整，无法开始导航')
 		return
 	}
 
@@ -271,46 +293,74 @@ const navigateByPlaceObject = async (place) => {
 		console.warn('[globalAssistant] 保存选中地点失败：', err)
 	}
 
-	speakText(`正在为您导航到${place.name}`)
-	await sleep(300)
+	await speakText(`正在为您导航到${place.name}`)
 
 	uni.reLaunch({
 		url: `/pages/navigation/navigation?assistantPlace=1`
 	})
 }
 
-const handleHospitalFlow = async () => {
+/**
+ * 通用导航流程（任意 POI 多候选语音选择）：
+ * 搜索目的地 → 无结果提示换说法 / 单结果直接导航 / 多结果播报列表语音选择
+ */
+const handleNavigationFlow = async (destination) => {
+	const city = await getCurrentCity()
+	let list = []
+
 	try {
-		const hospitalCandidates = await getNearbyHospitals()
-
-		if (!hospitalCandidates.length) {
-			speakText('附近没有找到医院')
-			return
-		}
-
-		await speakHospitalList(hospitalCandidates)
-		await sleep(1000)
-
-		const choiceText = await recognizeSpeechText()
-		console.log('[globalAssistant] 医院选择：', choiceText)
-
-		if (!choiceText) {
-			speakText('没有听清您的选择')
-			return
-		}
-
-		const selectedHospital = parseHospitalChoice(choiceText, hospitalCandidates)
-
-		if (!selectedHospital) {
-			speakText('没有匹配到您选择的医院')
-			return
-		}
-
-		await navigateByPlaceObject(selectedHospital)
+		const res = await searchPlace(destination, city)
+		list = res?.data?.results || []
 	} catch (err) {
-		console.error('[globalAssistant] 医院选择流程失败：', err)
-		speakText('医院选择失败')
+		console.error('[globalAssistant] 目的地搜索失败：', err)
 	}
+
+	// 搜索失败时兜底：直接跳导航页，由页面手动选择
+	if (!list.length) {
+		await speakText(`没有找到${destination}，正在打开导航页面，请手动选择目的地`)
+		uni.reLaunch({
+			url: `/pages/navigation/navigation?keyword=${encodeURIComponent(destination)}`
+		})
+		return
+	}
+
+	const candidates = list.slice(0, 5).map((item) => ({
+		name: item.name,
+		address: item.address || '',
+		location: item.location || { lat: '', lng: '' }
+	}))
+
+	if (candidates.length === 1) {
+		await navigateByPlaceObject(candidates[0])
+		return
+	}
+
+	// 多个候选 → 语音播报列表，等用户选择
+	const parts = candidates.map((item, index) => `第${index + 1}个，${item.name}`)
+	await speakText(`为您找到多个地点。${parts.join('。')}。请说第几个，或直接说地点名称。`)
+
+	const choiceText = await recognizeSpeechText()
+	console.log('[globalAssistant] 地点选择：', choiceText)
+
+	if (!choiceText) {
+		await speakText('没有听清您的选择，正在打开导航页面')
+		uni.reLaunch({
+			url: `/pages/navigation/navigation?keyword=${encodeURIComponent(destination)}`
+		})
+		return
+	}
+
+	const selectedPlace = parsePlaceChoice(choiceText, candidates)
+
+	if (!selectedPlace) {
+		await speakText('没有匹配到您选择的地点，正在打开导航页面')
+		uni.reLaunch({
+			url: `/pages/navigation/navigation?keyword=${encodeURIComponent(destination)}`
+		})
+		return
+	}
+
+	await navigateByPlaceObject(selectedPlace)
 }
 
 const buildDiagnosticSpeakText = (diagnosticResult) => {
@@ -328,7 +378,7 @@ const buildDiagnosticSpeakText = (diagnosticResult) => {
 
 const handleAssistantCommand = async (command) => {
 	if (!command || !command.intent) {
-		speakText('没有听清，请再试一次')
+		await speakText('没有听清，请再试一次')
 		return
 	}
 
@@ -336,31 +386,26 @@ const handleAssistantCommand = async (command) => {
 		case 'start_navigation': {
 			const destination = String(command.destination || '').trim()
 			if (!destination) {
-				speakText('没有识别到目的地')
+				await speakText('没有识别到目的地')
 				return
 			}
 
+			// 泛化医院说法（去医院/最近的医院等）走专项流程，其他目的地走通用流程
 			if (isGenericHospitalRequest(destination)) {
 				await handleHospitalFlow()
 				return
 			}
 
-			speakText(`正在为您导航到${destination}`)
-			await sleep(300)
-
-			uni.reLaunch({
-				url: `/pages/navigation/navigation?keyword=${encodeURIComponent(destination)}`
-			})
+			await handleNavigationFlow(destination)
 			return
 		}
 
 		case 'connect_device': {
 			const result = await invokeDeviceHandler('connect')
 			if (result.success) {
-				speakText('正在连接设备')
+				await speakText('正在连接设备')
 			} else {
-				speakText('正在打开设备页进行连接')
-				await sleep(300)
+				await speakText('正在打开设备页进行连接')
 				uni.reLaunch({ url: '/pages/device/device?autoConnect=1' })
 			}
 			return
@@ -369,25 +414,23 @@ const handleAssistantCommand = async (command) => {
 		case 'disconnect_device': {
 			const result = await invokeDeviceHandler('disconnect')
 			if (result.success) {
-				speakText('正在断开设备')
+				await speakText('正在断开设备')
 			} else {
-				speakText('正在打开设备页进行断开')
-				await sleep(300)
+				await speakText('正在打开设备页进行断开')
 				uni.reLaunch({ url: '/pages/device/device?autoDisconnect=1' })
 			}
 			return
 		}
 
 		case 'run_device_diagnostic': {
-			speakText('正在检测设备，请稍候')
+			await speakText('正在检测设备，请稍候')
 			const result = await invokeDeviceHandler('diagnostic')
 
 			if (result.success && result.data) {
 				const speakMessage = buildDiagnosticSpeakText(result.data)
-				await sleep(500)
-				speakText(speakMessage)
+				await speakText(speakMessage)
 			} else {
-				speakText('设备检测失败，请稍后重试')
+				await speakText('设备检测失败，请稍后重试')
 			}
 			return
 		}
@@ -395,9 +438,9 @@ const handleAssistantCommand = async (command) => {
 		case 'get_battery_status': {
 			const result = await invokeDeviceHandler('getBatteryStatus')
 			if (result.success && result.data?.message) {
-				speakText(result.data.message)
+				await speakText(result.data.message)
 			} else {
-				speakText('当前暂未接入设备电量读取')
+				await speakText('当前暂未接入设备电量读取')
 			}
 			return
 		}
@@ -406,9 +449,9 @@ const handleAssistantCommand = async (command) => {
 			const result = await invokeDeviceHandler('getDeviceStatus')
 			if (result.success && result.data) {
 				const speakMessage = buildDiagnosticSpeakText(result.data)
-				speakText(speakMessage)
+				await speakText(speakMessage)
 			} else {
-				speakText('暂时无法获取设备状态')
+				await speakText('暂时无法获取设备状态')
 			}
 			return
 		}
@@ -423,33 +466,26 @@ const handleAssistantCommand = async (command) => {
 			const page = String(command.page || '').trim()
 			const url = pageMap[page]
 			if (!url) {
-				speakText('暂不支持打开该页面')
+				await speakText('暂不支持打开该页面')
 				return
 			}
-			speakText('正在打开页面')
-			await sleep(300)
+			await speakText('正在打开页面')
 			uni.reLaunch({ url })
 			return
 		}
 
 		case 'set_voice_switch':
-			voiceBroadcastEnabled = Boolean(command.value)
-			try {
-				uni.setStorageSync(VOICE_SWITCH_KEY, voiceBroadcastEnabled)
-			} catch (err) {
-				console.warn('[globalAssistant] 保存语音播报开关失败：', err)
-			}
-			speakText(voiceBroadcastEnabled ? '已打开语音播报' : '已关闭语音播报')
+			setVoiceBroadcastEnabled(Boolean(command.value))
+			await speakText(getVoiceBroadcastEnabled() ? '已打开语音播报' : '已关闭语音播报')
 			return
 
 		case 'cancel_navigation':
-			speakText('已取消导航')
-			await sleep(300)
+			await speakText('已取消导航')
 			uni.reLaunch({ url: '/pages/home/home' })
 			return
 
 		default:
-			speakText('暂不支持该语音指令')
+			await speakText('暂不支持该语音指令')
 	}
 }
 
@@ -475,8 +511,10 @@ const runOneRound = async () => {
 		return
 	}
 
-	speakText('请说')
-	await sleep(1000)
+	// 互斥：等待播报结束再开始识别，避免把播报声识别成指令
+	await speakText('请说')
+
+	if (isStopped) return
 
 	const commandText = await recognizeSpeechText()
 	console.log('[globalAssistant] commandText =', commandText)
@@ -484,7 +522,7 @@ const runOneRound = async () => {
 	if (isStopped) return
 
 	if (!commandText) {
-		speakText('没有听清指令')
+		await speakText('没有听清指令')
 		await sleep(1200)
 		if (!isStopped) runOneRound()
 		return
@@ -497,7 +535,14 @@ const runOneRound = async () => {
 		await handleAssistantCommand(command)
 	} catch (err) {
 		console.error('[globalAssistant] 命令解析失败：', err)
-		speakText('语音指令处理失败')
+		// uni.request 网络层失败（errMsg 以 request: 开头）说明后端不可达，
+		// 给出可操作的提示，而不是笼统的「处理失败」
+		const isNetworkError = String(err?.errMsg || '').startsWith('request:')
+		if (isNetworkError) {
+			await speakText('无法连接服务器，请确认后端服务已启动后再试')
+		} else {
+			await speakText('语音指令处理失败，请稍后重试')
+		}
 	}
 
 	await sleep(1200)
@@ -516,21 +561,11 @@ export const startGlobalAssistant = async () => {
 		return
 	}
 
-	try {
-		const localVoiceSwitch = uni.getStorageSync(VOICE_SWITCH_KEY)
-		if (typeof localVoiceSwitch === 'boolean') {
-			voiceBroadcastEnabled = localVoiceSwitch
-		}
-	} catch (err) {
-		console.warn('[globalAssistant] 读取语音播报开关失败：', err)
-	}
-
 	isRunning = true
 	isStopped = false
 
 	console.log('[globalAssistant] startGlobalAssistant called')
-	speakText('语音助手已就绪')
-	await sleep(1200)
+	await speakText('语音助手已就绪')
 
 	runOneRound()
 }
