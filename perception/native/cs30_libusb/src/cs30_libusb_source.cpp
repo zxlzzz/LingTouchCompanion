@@ -38,7 +38,7 @@ std::string step_name(size_t i, const cs30::Step& s) {
 Cs30LibusbSource::Cs30LibusbSource(libusb_context* ctx, libusb_device_handle* handle, Engine* engine, LogFn log)
     : ctx_(ctx), handle_(handle), engine_(engine), log_(std::move(log)) {}
 
-Result<std::unique_ptr<Cs30LibusbSource>> Cs30LibusbSource::open_fd(int fd, Engine* engine, LogFn log) {
+Result<std::unique_ptr<Cs30LibusbSource>> Cs30LibusbSource::open_fd(int fd, Engine* engine, LogFn log, bool auto_detach) {
   using R = Result<std::unique_ptr<Cs30LibusbSource>>;
   libusb_context* ctx = nullptr;
   // 安卓非 root：跳过设备枚举，直接包住 UsbManager 给的 fd（上游 android/README）
@@ -58,7 +58,9 @@ Result<std::unique_ptr<Cs30LibusbSource>> Cs30LibusbSource::open_fd(int fd, Engi
     libusb_exit(ctx);
     return R::failure(usb_error("libusb_wrap_sys_device", r));
   }
-  return R::success(std::unique_ptr<Cs30LibusbSource>(new Cs30LibusbSource(ctx, handle, engine, std::move(log))));
+  std::unique_ptr<Cs30LibusbSource> source(new Cs30LibusbSource(ctx, handle, engine, std::move(log)));
+  source->auto_detach_ = auto_detach;
+  return R::success(std::move(source));
 }
 
 Result<std::unique_ptr<Cs30LibusbSource>> Cs30LibusbSource::open_vid_pid(uint16_t vid, uint16_t pid, Engine* engine,
@@ -102,8 +104,9 @@ void Cs30LibusbSource::prepare_configuration() {
 
 Status Cs30LibusbSource::claim(int interface_number) {
   if (claimed_[interface_number]) return Status::success();
-  // 内核若已用 uvcvideo 绑定，claim 时自动 detach，release 时交还；不需要 root
-  libusb_set_auto_detach_kernel_driver(handle_, 1);
+  // 内核若已用 uvcvideo 绑定，claim 时自动 detach，release 时交还；不需要 root。
+  // 调用方已强制占住接口时不能开：此时驱动名是 usbfs，自动 detach 会直接返回忙。
+  if (auto_detach_) libusb_set_auto_detach_kernel_driver(handle_, 1);
   const int r = libusb_claim_interface(handle_, interface_number);
   if (r != 0) return Status::failure(usb_error(("claim 接口 " + std::to_string(interface_number)).c_str(), r));
   claimed_[interface_number] = true;

@@ -29,7 +29,8 @@ class Cs30LibusbSource {
   using LogFn = std::function<void(const std::string&)>;
 
   // fd 由调用方持有：本类不关闭它（libusb_close 也不会关）；调用方在本对象销毁后再关闭连接。
-  static Result<std::unique_ptr<Cs30LibusbSource>> open_fd(int fd, Engine* engine, LogFn log);
+  // 调用方已用平台接口强制占住接口时（安卓），auto_detach 传 false。
+  static Result<std::unique_ptr<Cs30LibusbSource>> open_fd(int fd, Engine* engine, LogFn log, bool auto_detach = true);
   // 桌面 Linux 主机上按 VID/PID 打开（需要对 /dev/bus/usb 有权限）。
   static Result<std::unique_ptr<Cs30LibusbSource>> open_vid_pid(uint16_t vid, uint16_t pid, Engine* engine, LogFn log);
 
@@ -68,6 +69,7 @@ class Cs30LibusbSource {
   std::vector<std::vector<uint8_t>> buffers_;
   std::vector<IsoPacketDesc> descs_;  // 只在事件线程里用
   bool claimed_[2] = {false, false};
+  bool auto_detach_ = true;
 
   std::atomic<bool> submitting_{false};
   std::atomic<bool> streaming_{false};

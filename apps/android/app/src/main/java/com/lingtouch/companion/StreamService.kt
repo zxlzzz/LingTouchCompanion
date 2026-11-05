@@ -39,6 +39,7 @@ class StreamService : Service(), HandleLink.Listener {
     private var connection: UsbDeviceConnection? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var foreground = false
+    private val cameraLock = Any()  // 开、关相机互斥：连点两次不能打开两个连接
 
     var handle: Long = 0
         private set
@@ -112,8 +113,8 @@ class StreamService : Service(), HandleLink.Listener {
     }
 
     /** 返回 null 表示已开流。会阻塞约 3 秒（Commit 约 2.36 s），不要在主线程调用。 */
-    fun openCamera(device: UsbDevice): String? {
-        if (handle == 0L) return cameraStatus
+    fun openCamera(device: UsbDevice): String? = synchronized(cameraLock) {
+        if (handle == 0L) return@synchronized cameraStatus
         closeCamera()
         cameraStatus = "启动中（Commit 约需 2–3 秒）"
         var error = openOnce(device)
@@ -130,16 +131,23 @@ class StreamService : Service(), HandleLink.Listener {
         }
         if (error != null) {
             cameraStatus = "开流失败：$error"
-            return error
+            return@synchronized error
         }
         acquireWakeLock()
         cameraStatus = "已开流"
-        return null
+        null
     }
 
     private fun openOnce(device: UsbDevice): String? {
         val usb = getSystemService(Context.USB_SERVICE) as UsbManager
         val conn = usb.openDevice(device) ?: return "openDevice 失败（没有 USB 权限或设备已拔出）"
+        // 交给 native 前先强制占住每个接口；同一接口的不同 alt 在这里是多个条目，按接口号去重
+        for (i in (0 until device.interfaceCount).map { device.getInterface(it) }.distinctBy { it.id }) {
+            if (!conn.claimInterface(i, true)) {
+                conn.close()
+                return "强制占用 USB 接口 ${i.id} 失败"
+            }
+        }
         val error = NativeCore.nativeOpenCamera(handle, conn.fileDescriptor)
         if (error != null) {
             conn.close()
@@ -149,7 +157,7 @@ class StreamService : Service(), HandleLink.Listener {
         return null
     }
 
-    fun closeCamera() {
+    fun closeCamera() = synchronized(cameraLock) {
         if (handle != 0L) NativeCore.nativeCloseCamera(handle)  // 先停流、release，再关 fd
         connection?.close()
         connection = null

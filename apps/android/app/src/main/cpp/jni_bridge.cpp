@@ -96,7 +96,7 @@ JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeOpenCame
   NativeState* s = state(handle);
   std::lock_guard<std::mutex> lock(s->camera_mutex);
   s->camera.reset();
-  Result<std::unique_ptr<Cs30LibusbSource>> source = Cs30LibusbSource::open_fd(fd, s->engine.get(), log_line);
+  Result<std::unique_ptr<Cs30LibusbSource>> source = Cs30LibusbSource::open_fd(fd, s->engine.get(), log_line, false);
   if (!source) return to_jstring(env, source.error());
   Status started = source.value()->start();
   if (!started) {
