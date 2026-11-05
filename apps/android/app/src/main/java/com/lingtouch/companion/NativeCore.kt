@@ -14,6 +14,8 @@ object NativeCore {
     /** fd 来自 UsbDeviceConnection.getFileDescriptor()，由调用方在 [nativeCloseCamera] 之后关闭。返回 null 表示成功。 */
     @JvmStatic external fun nativeOpenCamera(handle: Long, fd: Int): String?
     @JvmStatic external fun nativeCloseCamera(handle: Long)
+    /** 最近的取流日志（含 libusb 自己的告警）。 */
+    @JvmStatic external fun nativeUsbLog(): String
     @JvmStatic external fun nativeResetCamera(handle: Long): String?
     @JvmStatic external fun nativeCameraStreaming(handle: Long): Boolean
 

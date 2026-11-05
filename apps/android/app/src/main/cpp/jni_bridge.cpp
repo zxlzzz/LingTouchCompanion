@@ -2,6 +2,7 @@
 #include <jni.h>
 
 #include <cstdio>
+#include <deque>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -20,7 +21,16 @@ using namespace lingtouch;
 
 namespace {
 
+// 最近的取流日志，界面直接显示，排查不依赖 adb
+std::mutex g_log_mutex;
+std::deque<std::string> g_log;
+
 void log_line(const std::string& message) {
+  {
+    std::lock_guard<std::mutex> lock(g_log_mutex);
+    g_log.push_back(message);
+    if (g_log.size() > 60) g_log.pop_front();
+  }
 #ifdef __ANDROID__
   __android_log_print(ANDROID_LOG_INFO, "LingTouchCore", "%s", message.c_str());
 #else
@@ -89,9 +99,24 @@ JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeOpenCame
   Result<std::unique_ptr<Cs30LibusbSource>> source = Cs30LibusbSource::open_fd(fd, s->engine.get(), log_line);
   if (!source) return to_jstring(env, source.error());
   Status started = source.value()->start();
-  if (!started) return to_jstring(env, started.message);
+  if (!started) {
+    // 上次开流可能把相机卡住了：复位一次再走一遍。设备已断开时复位也会失败，直接报第一次的错。
+    const std::string first = started.message;
+    log_line("开流失败，复位相机后重试：" + first);
+    Status reset = source.value()->reset_device();
+    if (!reset) log_line("复位失败：" + reset.message);
+    else started = source.value()->start();
+    if (!started) return to_jstring(env, reset ? first + "；复位后仍失败：" + started.message : first);
+  }
   s->camera = std::move(source.value());
   return nullptr;
+}
+
+JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeUsbLog(JNIEnv* env, jclass) {
+  std::lock_guard<std::mutex> lock(g_log_mutex);
+  std::string text;
+  for (const std::string& line : g_log) text += line + "\n";
+  return to_jstring(env, text);
 }
 
 JNIEXPORT void JNICALL Java_com_lingtouch_companion_NativeCore_nativeCloseCamera(JNIEnv*, jclass, jlong handle) {

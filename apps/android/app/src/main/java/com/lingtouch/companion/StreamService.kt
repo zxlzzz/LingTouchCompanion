@@ -31,6 +31,7 @@ class StreamService : Service(), HandleLink.Listener {
         const val CHANNEL_ID = "stream"
         const val NOTIFICATION_ID = 1
         const val CONTINUOUS_GAP_MS = 50L
+        const val RECONNECT_WAIT_MS = 2000L
     }
 
     private val binder = LocalBinder()
@@ -114,18 +115,37 @@ class StreamService : Service(), HandleLink.Listener {
     fun openCamera(device: UsbDevice): String? {
         if (handle == 0L) return cameraStatus
         closeCamera()
-        val usb = getSystemService(Context.USB_SERVICE) as UsbManager
-        val conn = usb.openDevice(device) ?: return "openDevice 失败（没有 USB 权限或设备已拔出）"
         cameraStatus = "启动中（Commit 约需 2–3 秒）"
-        val error = NativeCore.nativeOpenCamera(handle, conn.fileDescriptor)
+        var error = openOnce(device)
+        // 扩展坞接上电源时 USB 可能断开重连，设备会换一个新节点：等它回来，用新节点再开一次
+        if (error != null && error.contains("NO_DEVICE")) {
+            Thread.sleep(RECONNECT_WAIT_MS)
+            val usb = getSystemService(Context.USB_SERVICE) as UsbManager
+            val again = usb.deviceList.values.firstOrNull { it.vendorId == device.vendorId && it.productId == device.productId }
+            error = when {
+                again == null -> "$error（相机断开后没有回来）"
+                !usb.hasPermission(again) -> "$error（相机断开重连了，请再点一次连接并授权）"
+                else -> openOnce(again)
+            }
+        }
         if (error != null) {
-            conn.close()
             cameraStatus = "开流失败：$error"
             return error
         }
-        connection = conn
         acquireWakeLock()
         cameraStatus = "已开流"
+        return null
+    }
+
+    private fun openOnce(device: UsbDevice): String? {
+        val usb = getSystemService(Context.USB_SERVICE) as UsbManager
+        val conn = usb.openDevice(device) ?: return "openDevice 失败（没有 USB 权限或设备已拔出）"
+        val error = NativeCore.nativeOpenCamera(handle, conn.fileDescriptor)
+        if (error != null) {
+            conn.close()
+            return error
+        }
+        connection = conn
         return null
     }
 
