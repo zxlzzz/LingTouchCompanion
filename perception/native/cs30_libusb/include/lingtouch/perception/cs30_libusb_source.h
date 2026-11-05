@@ -51,6 +51,7 @@ class Cs30LibusbSource {
   Cs30LibusbSource(libusb_context* ctx, libusb_device_handle* handle, Engine* engine, LogFn log);
   static void on_transfer(libusb_transfer* transfer);
   void handle_transfer(libusb_transfer* transfer);
+  void prepare_configuration();
   Status claim(int interface_number);
   Status queue_iso(uint8_t endpoint, uint32_t count, uint32_t bytes, uint32_t packets, uint32_t timeout_ms);
   void start_events();

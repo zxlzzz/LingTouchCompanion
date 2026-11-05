@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -55,6 +57,7 @@ class MainActivity : Activity() {
     private lateinit var continuousSwitch: Switch
     private lateinit var planeText: TextView
     private lateinit var detailText: TextView
+    private lateinit var usbLogText: TextView
 
     private var lastFrames = -1L
     private var lastFramesAt = 0L
@@ -196,6 +199,7 @@ class MainActivity : Activity() {
             return
         }
         cameraText.text = "相机：" + s.cameraStatus
+        usbLogText.text = NativeCore.nativeUsbLog()
         handleText.text = "手柄：" + s.handleLink.state
         renderGrid(JSONObject(NativeCore.nativeGridJson(s.handle)))
         val stats = JSONObject(NativeCore.nativeStatsJson(s.handle))
@@ -344,6 +348,18 @@ class MainActivity : Activity() {
             cameraText.text = if (error == null) "相机：已复位，请重新连接" else "相机：复位失败：$error"
         }
         detailText = text(13f)
+        button("复制诊断信息") {
+            val usb = getSystemService(Context.USB_SERVICE) as UsbManager
+            val devices = usb.deviceList.values.joinToString("\n") {
+                "%s %04x:%04x USB %s，%d 个接口".format(it.deviceName, it.vendorId, it.productId, it.version, it.interfaceCount)
+            }
+            val report = "${Build.MANUFACTURER} ${Build.MODEL}，安卓 ${Build.VERSION.RELEASE}\n" +
+                "相机：${service?.cameraStatus}\nUSB 设备：\n$devices\n日志：\n${NativeCore.nativeUsbLog()}"
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("灵触诊断", report))
+            planeText.text = "已复制，可直接粘贴发出"
+        }
+        usbLogText = text(12f, mono = true)
         button("显示当前参数") { planeText.text = service?.let { NativeCore.nativeConfigText(it.handle) } ?: "" }
 
         return ScrollView(this).apply { addView(column) }

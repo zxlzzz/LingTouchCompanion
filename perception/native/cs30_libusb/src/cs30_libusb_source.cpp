@@ -14,6 +14,16 @@ std::string usb_error(const char* what, int code) {
   return std::string(what) + "：" + libusb_error_name(code) + "（" + std::to_string(code) + "）";
 }
 
+// libusb 自己的告警（如 submiturb failed, errno=…）比错误名更细，转进同一份日志，手机上不用 adb 也能看到
+Cs30LibusbSource::LogFn g_libusb_log;
+
+void on_libusb_log(libusb_context*, enum libusb_log_level, const char* message) {
+  if (!g_libusb_log) return;
+  std::string line(message);
+  while (!line.empty() && (line.back() == '\n' || line.back() == '\r')) line.pop_back();
+  g_libusb_log("libusb：" + line);
+}
+
 std::string step_name(size_t i, const cs30::Step& s) {
   char buf[96];
   if (s.kind == cs30::StepKind::kControl)
@@ -32,10 +42,15 @@ Result<std::unique_ptr<Cs30LibusbSource>> Cs30LibusbSource::open_fd(int fd, Engi
   using R = Result<std::unique_ptr<Cs30LibusbSource>>;
   libusb_context* ctx = nullptr;
   // 安卓非 root：跳过设备枚举，直接包住 UsbManager 给的 fd（上游 android/README）
-  libusb_init_option options[1];
+  g_libusb_log = log;
+  libusb_init_option options[3];
   options[0].option = LIBUSB_OPTION_NO_DEVICE_DISCOVERY;
   options[0].value.ival = 0;
-  int r = libusb_init_context(&ctx, options, 1);
+  options[1].option = LIBUSB_OPTION_LOG_LEVEL;
+  options[1].value.ival = LIBUSB_LOG_LEVEL_WARNING;
+  options[2].option = LIBUSB_OPTION_LOG_CB;
+  options[2].value.log_cbval = on_libusb_log;
+  int r = libusb_init_context(&ctx, options, 3);
   if (r != 0) return R::failure(usb_error("libusb_init_context", r));
   libusb_device_handle* handle = nullptr;
   r = libusb_wrap_sys_device(ctx, static_cast<intptr_t>(fd), &handle);
@@ -68,6 +83,21 @@ Cs30LibusbSource::~Cs30LibusbSource() {
 
 void Cs30LibusbSource::log(const std::string& message) const {
   if (log_) log_(message);
+}
+
+void Cs30LibusbSource::prepare_configuration() {
+  log("USB 速度代码 " + std::to_string(libusb_get_device_speed(libusb_get_device(handle_))) + "（3 = 高速，2 = 全速）");
+  int active = -1;
+  int r = libusb_get_configuration(handle_, &active);
+  if (r != 0) {
+    log(usb_error("读当前配置", r));
+    return;
+  }
+  log("当前 USB 配置 " + std::to_string(active));
+  if (active != 0) return;
+  // 手机认为供电不够时内核会不选配置，这时接口不可用；相机实际由外部供电，手动选上
+  r = libusb_set_configuration(handle_, 1);
+  log(r == 0 ? std::string("相机未配置，已手动选配置 1") : usb_error("选配置 1", r));
 }
 
 Status Cs30LibusbSource::claim(int interface_number) {
@@ -148,6 +178,7 @@ Status Cs30LibusbSource::start() {
   if (pending_.load() > 0)
     return Status::failure("上次停流时还有传输没回来，缓冲不能复用；请拔插相机后重新打开");
   engine_->reset_stream();
+  prepare_configuration();
   Status s = claim(cs30::kControlInterface);  // REPORT 第 1 步：claim 接口 0
   for (size_t i = 0; s && i < Engine::startup_step_count(); ++i) {
     const cs30::Step& st = Engine::startup_step(i);
