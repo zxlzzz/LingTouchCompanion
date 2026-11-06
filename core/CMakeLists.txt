@@ -53,7 +53,7 @@ add_subdirectory("${LINGTOUCH_ROOT}/perception/native" "${CMAKE_CURRENT_BINARY_D
 add_subdirectory("${LINGTOUCH_ROOT}/agent/native" "${CMAKE_CURRENT_BINARY_DIR}/agent")
 
 # 给外壳调用的门面
-add_library(lingtouch_engine STATIC src/engine.cpp src/report_json.cpp)
+add_library(lingtouch_engine STATIC src/engine.cpp src/report_json.cpp src/depth_evidence.cpp)
 target_link_libraries(lingtouch_engine PUBLIC lingtouch_base lingtouch_perception lingtouch_agent Threads::Threads)
 lingtouch_target_defaults(lingtouch_engine)
 

@@ -16,6 +16,7 @@
 #include "lingtouch/perception/cs30_libusb_source.h"
 #include "lingtouch/perception/pipeline.h"
 #include "lingtouch/report_json.h"
+#include "lingtouch/transport_owner.h"
 
 using namespace lingtouch;
 
@@ -85,9 +86,9 @@ JNIEXPORT void JNICALL Java_com_lingtouch_companion_NativeCore_nativeDestroy(JNI
   if (s == nullptr) return;
   {
     std::lock_guard<std::mutex> lock(s->camera_mutex);
-    s->camera.reset();
+    // Cleanup ownership is transferred below.
   }
-  delete s;
+  destroy_usb_state(s);
 }
 
 // 返回 null 表示成功，否则是错误说明。fd 来自 UsbDeviceConnection.getFileDescriptor()，由 Kotlin 侧关闭。
@@ -95,20 +96,14 @@ JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeOpenCame
                                                                                    jint fd) {
   NativeState* s = state(handle);
   std::lock_guard<std::mutex> lock(s->camera_mutex);
-  s->camera.reset();
+  if (pending_usb_cleanups().load()) return to_jstring(env, "USB cleanup pending; retry later");
+  const auto previous = close_usb_camera(s);
+  if (!previous) return to_jstring(env, previous.message);
   Result<std::unique_ptr<Cs30LibusbSource>> source = Cs30LibusbSource::open_fd(fd, s->engine.get(), log_line);
   if (!source) return to_jstring(env, source.error());
-  Status started = source.value()->start();
-  if (!started) {
-    // 上次开流可能把相机卡住了：复位一次再走一遍。设备已断开时复位也会失败，直接报第一次的错。
-    const std::string first = started.message;
-    log_line("开流失败，复位相机后重试：" + first);
-    Status reset = source.value()->reset_device();
-    if (!reset) log_line("复位失败：" + reset.message);
-    else started = source.value()->start();
-    if (!started) return to_jstring(env, reset ? first + "；复位后仍失败：" + started.message : first);
-  }
   s->camera = std::move(source.value());
+  Status started = s->camera->start();
+  if (!started) return to_jstring(env, started.message);
   return nullptr;
 }
 
@@ -119,10 +114,11 @@ JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeUsbLog(J
   return to_jstring(env, text);
 }
 
-JNIEXPORT void JNICALL Java_com_lingtouch_companion_NativeCore_nativeCloseCamera(JNIEnv*, jclass, jlong handle) {
+JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeCloseCamera(JNIEnv* env, jclass, jlong handle) {
   NativeState* s = state(handle);
   std::lock_guard<std::mutex> lock(s->camera_mutex);
-  s->camera.reset();  // 停流、release；fd 由 Kotlin 侧随后关闭
+  const auto status = close_usb_camera(s);
+  return status ? nullptr : to_jstring(env, status.message);
 }
 
 JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeResetCamera(JNIEnv* env, jclass, jlong handle) {
@@ -215,4 +211,7 @@ JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeProcessF
   return to_jstring(env, grid_json(g.value(), g.value().capture_time_ns));
 }
 
+JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeInterfaceInfo(JNIEnv* env, jclass, jint fd, jint id) {
+  return to_jstring(env, Cs30LibusbSource::interface_info(fd, id));
+}
 }  // extern "C"

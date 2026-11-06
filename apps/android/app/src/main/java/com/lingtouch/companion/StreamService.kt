@@ -28,19 +28,21 @@ class StreamService : Service(), HandleLink.Listener {
     }
 
     companion object {
+        const val RECONNECT_WAIT_MS = 2000L
         const val CHANNEL_ID = "stream"
         const val NOTIFICATION_ID = 1
         const val CONTINUOUS_GAP_MS = 50L
-        const val RECONNECT_WAIT_MS = 2000L
     }
 
     private val binder = LocalBinder()
+    private val cameraLock = Any()
+    @Volatile private var destroyed = false
     private val main = Handler(Looper.getMainLooper())
     private var connection: UsbDeviceConnection? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var foreground = false
 
-    var handle: Long = 0
+    @Volatile var handle: Long = 0
         private set
     lateinit var handleLink: HandleLink
         private set
@@ -112,52 +114,70 @@ class StreamService : Service(), HandleLink.Listener {
     }
 
     /** 返回 null 表示已开流。会阻塞约 3 秒（Commit 约 2.36 s），不要在主线程调用。 */
-    fun openCamera(device: UsbDevice): String? {
-        if (handle == 0L) return cameraStatus
-        closeCamera()
+    fun openCamera(device: UsbDevice): String? { synchronized(cameraLock) {
+        if (destroyed) return "服务已销毁"
+        val h = handle
+        if (h == 0L) return cameraStatus
+        closeCamera()?.let { return it }
         cameraStatus = "启动中（Commit 约需 2–3 秒）"
-        var error = openOnce(device)
-        // 扩展坞接上电源时 USB 可能断开重连，设备会换一个新节点：等它回来，用新节点再开一次
-        if (error != null && error.contains("NO_DEVICE")) {
+        var error = openOnce(device, h)
+        if (error != null && error.contains("NO_DEVICE") && !destroyed) {
             Thread.sleep(RECONNECT_WAIT_MS)
             val usb = getSystemService(Context.USB_SERVICE) as UsbManager
-            val again = usb.deviceList.values.firstOrNull { it.vendorId == device.vendorId && it.productId == device.productId }
+            val next = usb.deviceList.values.firstOrNull { it.vendorId == device.vendorId && it.productId == device.productId }
             error = when {
-                again == null -> "$error（相机断开后没有回来）"
-                !usb.hasPermission(again) -> "$error（相机断开重连了，请再点一次连接并授权）"
-                else -> openOnce(again)
+                destroyed -> "服务已销毁"
+                next == null -> "$error（相机重新枚举后尚未返回）"
+                !usb.hasPermission(next) -> "$error（请重新选择设备并授权）"
+                else -> openOnce(next, h)
             }
         }
-        if (error != null) {
-            cameraStatus = "开流失败：$error"
-            return error
-        }
-        acquireWakeLock()
-        cameraStatus = "已开流"
-        return null
-    }
+        if (error != null) { cameraStatus = "开流失败：$error"; return error }
+        acquireWakeLock(); cameraStatus = "已开流"; return null
+    } }
 
-    private fun openOnce(device: UsbDevice): String? {
+    private fun openOnce(device: UsbDevice, h: Long): String? {
+        closeCamera()?.let { return it }
+        if (destroyed) return "服务已销毁"
         val usb = getSystemService(Context.USB_SERVICE) as UsbManager
-        val conn = usb.openDevice(device) ?: return "openDevice 失败（没有 USB 权限或设备已拔出）"
-        val error = NativeCore.nativeOpenCamera(handle, conn.fileDescriptor)
-        if (error != null) {
-            conn.close()
-            return error
+        val conn = usb.openDevice(device) ?: return "openDevice 失败（无权限或设备当前不可用）"
+        val claimed = mutableListOf<android.hardware.usb.UsbInterface>()
+        try {
+            for (iface in (0 until device.interfaceCount).map { device.getInterface(it) }.sortedBy { it.alternateSetting }.distinctBy { it.id }) {
+                val before = NativeCore.nativeInterfaceInfo(conn.fileDescriptor, iface.id)
+                lastLog = "Java force claim: $before"
+                if (!conn.claimInterface(iface, true)) {
+                    claimed.asReversed().forEach { conn.releaseInterface(it) }
+                    conn.close(); return "Java force claim 接口 ${iface.id} 失败；$before"
+                }
+                claimed.add(iface)
+            }
+            connection = conn
+            val error = NativeCore.nativeOpenCamera(h, conn.fileDescriptor)
+            if (error != null) {
+                val cleanup = NativeCore.nativeCloseCamera(h)
+                if (cleanup == null) { conn.close(); connection = null }
+                return error + (cleanup?.let { "; cleanup pending: $it" } ?: "")
+            }
+            return null
+        } catch (e: Exception) {
+            val cleanup = NativeCore.nativeCloseCamera(h)
+            if (cleanup == null) { conn.close(); connection = null }
+            return (e.message ?: "USB 连接失败") + (cleanup?.let { "; cleanup pending: $it" } ?: "")
         }
-        connection = conn
-        return null
     }
 
-    fun closeCamera() {
-        if (handle != 0L) NativeCore.nativeCloseCamera(handle)  // 先停流、release，再关 fd
+    fun closeCamera(): String? { synchronized(cameraLock) {
+        val engineHandle = handle
+        if (engineHandle != 0L) NativeCore.nativeCloseCamera(engineHandle)?.let { cameraStatus = it; return it }
         connection?.close()
         connection = null
         releaseWakeLock()
         cameraStatus = "未连接"
-    }
+        return null
+    } }
 
-    fun resetCamera(): String? = if (handle == 0L) cameraStatus else NativeCore.nativeResetCamera(handle)
+    fun resetCamera(): String? = synchronized(cameraLock) { val h = handle; if (h == 0L) cameraStatus else NativeCore.nativeResetCamera(h) }
 
     /** 把最新栅格编码成旧板帧发给手柄。返回 null 表示已发出或排队。 */
     fun sendLatest(): String? {
@@ -202,10 +222,19 @@ class StreamService : Service(), HandleLink.Listener {
 
     override fun onDestroy() {
         continuousSend = false
-        closeCamera()
+        destroyed = true
+        val engineHandle = handle
+        handle = 0 // Main-thread readers observe invalidation before async destruction.
+        Thread { synchronized(cameraLock) {
+            if (engineHandle != 0L) {
+                NativeCore.nativeCloseCamera(engineHandle)
+                NativeCore.nativeDestroy(engineHandle)
+            }
+            connection?.close()
+            connection = null
+            releaseWakeLock()
+        } }.start()
         handleLink.disconnect()
-        if (handle != 0L) NativeCore.nativeDestroy(handle)
-        handle = 0
         super.onDestroy()
     }
 }

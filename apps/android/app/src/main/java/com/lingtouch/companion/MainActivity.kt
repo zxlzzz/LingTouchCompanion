@@ -281,7 +281,7 @@ class MainActivity : Activity() {
         cameraText = text()
         cameraText.text = "相机：未连接"
         button("连接相机（CS30）") { connectCamera() }
-        button("断开相机") { service?.closeCamera() }
+        button("断开相机") { Thread { service?.closeCamera() }.start() }
 
         gridStatusText = text()
         gridStatusText.text = "栅格：未连接"
@@ -344,8 +344,10 @@ class MainActivity : Activity() {
         }
         button("复位相机（release 后重开仍失败时）") {
             val s = service
-            val error = if (s == null) "服务还没启动" else s.resetCamera()
-            cameraText.text = if (error == null) "相机：已复位，请重新连接" else "相机：复位失败：$error"
+            if (s == null) cameraText.text = "服务还没启动"
+            else Thread { val error = s.resetCamera(); main.post {
+                cameraText.text = if (error == null) "相机：已复位，请重新连接" else "相机：复位失败：$error"
+            } }.start()
         }
         detailText = text(13f)
         button("复制诊断信息") {

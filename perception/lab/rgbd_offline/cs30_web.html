@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS30 点阵处理器</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: #f4f4f4; color: #151515; font: 15px/1.55 system-ui, "Microsoft YaHei", sans-serif; }
+  main { width: min(100% - 32px, 760px); margin: 32px auto; }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  h2 { margin: 0; font-size: 19px; }
+  p { margin: 8px 0; }
+  .muted { color: #535353; font-size: 14px; }
+  section, form { background: #fff; border: 1px solid #ccc; padding: 20px; margin-top: 16px; border-radius: 6px; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  button, .picker, select { font: inherit; border: 1px solid #777; border-radius: 4px; padding: 7px 12px; background: #fff; color: #111; }
+  button, .picker { cursor: pointer; }
+  button[type=submit] { background: #111; color: #fff; }
+  button:disabled { background: #ddd; color: #555; cursor: default; }
+  .picker:has(input:disabled) { color: #555; cursor: default; }
+  .picker:focus-within { outline: 2px solid #333; outline-offset: 3px; }
+  .picker input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  #pair { max-width: 100%; margin-top: 10px; }
+  #selection, #status { overflow-wrap: anywhere; }
+  #status { min-height: 1.55em; }
+  .threshold { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; margin: 16px 0 5px; }
+  input[type=range] { width: 100%; min-width: 0; accent-color: #000; }
+  output { font-weight: 650; min-width: 2ch; text-align: right; }
+  .dot-grid { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: clamp(5px, 2vw, 15px); width: min(100%, 480px); margin: 15px auto; }
+  .dot { display: block; width: 100%; max-width: 34px; aspect-ratio: 1; justify-self: center; border: 1.5px solid #111; border-radius: 50%; background: #fff; }
+  .dot.on { background: #000; }
+  #counts { min-height: 1.55em; font-variant-numeric: tabular-nums; }
+  @media (max-width: 480px) { main { margin: 16px auto; } section, form { padding: 14px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>CS30 点阵处理器</h1>
+  <p class="muted">960×540 RGB-D 导出 · 本机处理</p>
+  <form id="upload">
+    <div class="controls">
+      <label class="picker">选 RGB 和 RAW<input id="files" type="file" accept=".png,.raw" multiple></label>
+      <label class="picker">选采集文件夹<input id="folder" type="file" webkitdirectory multiple></label>
+      <button id="process" type="submit" disabled>处理</button>
+    </div>
+    <select id="pair" aria-label="选择采集帧" hidden></select>
+    <p id="selection" class="muted">选择同一帧的 RGBD_RGB PNG 和 RGBD_Depth RAW。</p>
+    <p id="status" role="status" aria-live="polite"></p>
+  </form>
+  <section aria-labelledby="result-title">
+    <h2 id="result-title">9×6 黑白点阵</h2>
+    <div class="threshold">
+      <label for="threshold">阈值 K</label>
+      <input id="threshold" type="range" min="1" max="16" step="1" value="1" disabled>
+      <output id="value" for="threshold">1</output>
+    </div>
+    <p class="muted">每格含 16 个 10 cm 小格。障碍小格数达到 K 时点亮为黑色。</p>
+    <p class="muted">上远下近 · 每格 40 cm · 前向 1.0–3.4 m</p>
+    <div id="grid" class="dot-grid" role="group" aria-label="九列六行点阵" hidden></div>
+    <p id="counts" class="muted">处理后显示点阵。白点表示未点亮。</p>
+  </section>
+</main>
+<script>
+  const files = document.getElementById('files');
+  const folder = document.getElementById('folder');
+  const pairSelect = document.getElementById('pair');
+  const processButton = document.getElementById('process');
+  const selection = document.getElementById('selection');
+  const status = document.getElementById('status');
+  const threshold = document.getElementById('threshold');
+  const value = document.getElementById('value');
+  const grid = document.getElementById('grid');
+  const counts = document.getElementById('counts');
+  const dots = [];
+  let pairs = [];
+  let result = null;
+
+  for (let i = 0; i < 54; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.setAttribute('role', 'img');
+    dots.push(dot);
+    grid.append(dot);
+  }
+
+  function pairFiles(list) {
+    const groups = new Map();
+    for (const file of list) {
+      const rgbMatch = /^RGBD_RGB\[(\d+)\]\.png$/i.exec(file.name);
+      const depthMatch = /^RGBD_Depth\[(\d+)\]\.raw$/i.exec(file.name);
+      const match = rgbMatch || depthMatch;
+      if (!match) continue;
+      const parent = file.webkitRelativePath ? file.webkitRelativePath.split('/').slice(0, -1).join('/') : '';
+      const key = `${parent}/${match[1]}`;
+      const group = groups.get(key) || {label: `${parent ? parent + ' / ' : ''}第 ${match[1]} 帧`};
+      const role = rgbMatch ? 'rgb' : 'depth';
+      if (group[role]) group.duplicate = true;
+      group[role] = file;
+      groups.set(key, group);
+    }
+    return Array.from(groups.values())
+      .filter(group => group.rgb && group.depth && !group.duplicate)
+      .sort((a, b) => a.label.localeCompare(b.label, undefined, {numeric: true}));
+  }
+
+  function draw() {
+    const k = Number(threshold.value);
+    value.value = String(k);
+    threshold.disabled = !result;
+    grid.hidden = !result;
+    if (!result) {
+      counts.textContent = '处理后显示点阵。白点表示未点亮。';
+      return;
+    }
+    let lit = 0, below = 0, supported = 0, unknown = 0;
+    for (let r = 0; r < 6; r++) {
+      for (let c = 0; c < 9; c++) {
+        const n = result.obstacle[r][c];
+        const f = result.ground[r][c];
+        const u = result.unknown[r][c];
+        const on = n >= k;
+        const dot = dots[r * 9 + c];
+        let state;
+        if (on) { lit++; state = '已点亮'; }
+        else if (n > 0) { below++; state = '阈下障碍'; }
+        else if (f === 16) { supported++; state = '地面支持'; }
+        else { unknown++; state = '未知'; }
+        dot.classList.toggle('on', on);
+        dot.title = `第 ${r + 1} 行第 ${c + 1} 列，${state}。障碍 ${n}/16，地面 ${f}/16，未知 ${u}/16。`;
+        dot.setAttribute('aria-label', dot.title);
+      }
+    }
+    counts.textContent = `点亮 ${lit} 格 · 阈下障碍 ${below} 格 · 地面支持 ${supported} 格 · 未知 ${unknown} 格。白点表示未点亮。`;
+  }
+
+  function selectPair() {
+    result = null;
+    draw();
+    const pair = pairs[Number(pairSelect.value)];
+    processButton.disabled = !pair;
+    selection.textContent = pair ? `${pair.rgb.name} + ${pair.depth.name}` : '请选择同目录、同帧编号的 RGB PNG 和深度 RAW。';
+    status.textContent = pair ? '' : '没有找到完整配对。';
+  }
+
+  function updateFiles(list) {
+    pairs = pairFiles(list);
+    pairSelect.replaceChildren();
+    pairs.forEach((pair, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = pair.label;
+      pairSelect.append(option);
+    });
+    pairSelect.hidden = pairs.length < 2;
+    pairSelect.value = '0';
+    selectPair();
+  }
+
+  files.addEventListener('change', () => { updateFiles(files.files); folder.value = ''; });
+  folder.addEventListener('change', () => { updateFiles(folder.files); files.value = ''; });
+  pairSelect.addEventListener('change', selectPair);
+  threshold.addEventListener('input', draw);
+
+  document.getElementById('upload').addEventListener('submit', async event => {
+    event.preventDefault();
+    const pair = pairs[Number(pairSelect.value)];
+    if (!pair || processButton.disabled) return;
+    result = null;
+    draw();
+    if (pair.depth.size !== 960 * 540 * 2) {
+      status.textContent = '深度 RAW 必须为 1,036,800 字节（960×540，16 位）。';
+      return;
+    }
+    if (pair.rgb.size > 8 * 1024 * 1024) {
+      status.textContent = '请选择不超过 8 MiB 的 RGB PNG。';
+      return;
+    }
+    for (const control of [files, folder, pairSelect, processButton]) control.disabled = true;
+    status.textContent = '正在处理…';
+    try {
+      const response = await fetch('/process', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/octet-stream', 'X-RGB-Bytes': String(pair.rgb.size)},
+        body: new Blob([pair.rgb, pair.depth]),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      result = data;
+      status.textContent = data.ground_valid ? `处理完成。地面参考有效，模型与几何耗时 ${data.elapsed_ms} ms。`
+        : `地面参考未通过：${data.status}。54 格保留未知。`;
+      draw();
+    } catch (error) {
+      status.textContent = error instanceof TypeError ? '无法连接本地处理器，请确认启动窗口仍在运行。' : error.message;
+    } finally {
+      for (const control of [files, folder, pairSelect, processButton]) control.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

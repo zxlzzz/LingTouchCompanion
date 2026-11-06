@@ -1,0 +1,5 @@
+data/
+weights/
+outputs/
+__pycache__/
+.venv/
