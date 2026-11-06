@@ -1,0 +1,8 @@
+# Preserve exact hashes of the delivered optional model resources.
+/models/segformer-b0-ade/* -text
+# Keep the original protocol evidence byte-for-byte (it contains CRLF).
+/cs30/startup_sequence.json -text
+# Scripts and generated source checks must survive Windows/Linux checkouts.
+/apps/android-cs30-live/gradlew text eol=lf
+/vision/native/src/cs30_startup_sequence.inc text eol=lf
+/vision/core/tests/data/legacy_vectors.txt text eol=lf
