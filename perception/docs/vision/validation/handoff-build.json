@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-06",
+  "purpose": "perception-only relocation and dependency isolation",
+  "upstream_base_commit": "9f0a5f52632bbc0a824941165290737e4d86a764",
+  "public_files_restored_to": "27d7176d4cfaa69d0bf3d69438bf210277b58ad3",
+  "app_path": "perception/apps/android-cs30-live",
+  "core_path": "perception/vision/core",
+  "apk_version": "1.2",
+  "version_code": 3,
+  "apk_sha256": "0e3562e45191b24713b1d7494201d4b4f10af06057688b55fcbcb0d34f266d10",
+  "apk_bytes": 3447790,
+  "abis": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "native_optimized": true,
+  "core_ctest_passed": 12,
+  "offline_reference_tests_passed": 18,
+  "android_checks_passed": 38,
+  "usb_checks_passed": 7,
+  "k_bits_compared": 3456,
+  "android_validation_sha256": "115a219792ab6c75ed9cc5a3bc63ae47c22156cde7e157391cab26070f60cba4",
+  "pc_probe_compile_only_passed": true,
+  "relative_markdown_links_checked": 50,
+  "public_directory_scope_check": "all 69 previous visual paths restored or removed",
+  "legacy_perception_native_restored": true,
+  "production_apk_excludes_test_library_fixtures_and_model": true,
+  "clean_emulator_anr_free": true,
+  "physical_camera_retested_for_relocation": false,
+  "obstacle_accuracy_evaluated": false,
+  "user_confirmed_external_pd_power": true,
+  "fixture_archive_bytes": 484739
+}

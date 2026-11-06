@@ -1,8 +1,12 @@
-// Android fd path: Java force-claims once; libusb records the same file-description claims.
+// 用上游 libusb 收 CS30 等时流（安卓；桌面 Linux 也能编）。
+//
+// 安卓：Kotlin 里 UsbManager 授权、openDevice 后把 getFileDescriptor() 交给 open_fd；
+// 本类按 Engine::startup_step() 那张表（来自 startup_sequence.json）逐步执行，
+// 挂等时传输，收到的传输按批交给 Engine::push_iso_transfer。
+// 内核若已用 uvcvideo 绑定接口，claim 时自动 detach（release 时再交还）。
 #pragma once
-#include <array>
+
 #include <atomic>
-#include <condition_variable>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -10,62 +14,67 @@
 #include <string>
 #include <thread>
 #include <vector>
+
 #include "lingtouch/engine.h"
 #include "lingtouch/result.h"
+
 struct libusb_context;
 struct libusb_device_handle;
 struct libusb_transfer;
+
 namespace lingtouch {
+
 class Cs30LibusbSource {
  public:
   using LogFn = std::function<void(const std::string&)>;
-  static Result<std::unique_ptr<Cs30LibusbSource>> open_fd(int fd, Engine*, LogFn);
-  static Result<std::unique_ptr<Cs30LibusbSource>> open_vid_pid(uint16_t, uint16_t, Engine*, LogFn);
-  static std::string interface_info(int fd, int interface_number);
-  static bool supports_interface(int number) { return number >= 0 && number < 2; }
+
+  // fd 由调用方持有：本类不关闭它（libusb_close 也不会关）；调用方在本对象销毁后再关闭连接。
+  static Result<std::unique_ptr<Cs30LibusbSource>> open_fd(int fd, Engine* engine, LogFn log);
+  // 桌面 Linux 主机上按 VID/PID 打开（需要对 /dev/bus/usb 有权限）。
+  static Result<std::unique_ptr<Cs30LibusbSource>> open_vid_pid(uint16_t vid, uint16_t pid, Engine* engine, LogFn log);
+
   ~Cs30LibusbSource();
   Cs30LibusbSource(const Cs30LibusbSource&) = delete;
   Cs30LibusbSource& operator=(const Cs30LibusbSource&) = delete;
+
+  // 走完启动序列并开始收流。失败时已经清理（release），可以再调一次重开。
   Status start();
-  // Failure preserves transfers, event pump, device handle and owned dup fd for a retry.
-  Status stop();
-  // After reset, close/reopen through Java and force-claim again before starting.
+  // 停流：取消并排空所有传输 → 接口 1 设 alt 0 → 接口 0 设 alt 0 → release。
+  void stop();
+  // release 后重开仍不行时再用（REPORT「安全和恢复」）。
   Status reset_device();
+
   bool streaming() const { return streaming_.load(); }
   uint64_t transfer_errors() const { return transfer_errors_.load(); }
-  double last_transfer_age_ms() const;
-  int last_transfer_status() const { return last_transfer_status_.load(); }
+
  private:
-  Cs30LibusbSource(libusb_context*, libusb_device_handle*, Engine*, LogFn, bool wrapped, int owned_fd);
-  static void on_transfer(libusb_transfer*);
-  void handle_transfer(libusb_transfer*);
-  Status claim(int);
-  Status queue_iso(uint8_t,uint32_t,uint32_t,uint32_t,uint32_t);
+  Cs30LibusbSource(libusb_context* ctx, libusb_device_handle* handle, Engine* engine, LogFn log);
+  static void on_transfer(libusb_transfer* transfer);
+  void handle_transfer(libusb_transfer* transfer);
+  void prepare_configuration();
+  Status claim(int interface_number);
+  Status queue_iso(uint8_t endpoint, uint32_t count, uint32_t bytes, uint32_t packets, uint32_t timeout_ms);
   void start_events();
   void stop_events();
-  Status stop_locked();
-  Status release_all();
-  void prepare_configuration();
-  void log(const std::string&) const;
+  void release_all();
+  void log(const std::string& message) const;
+
   libusb_context* ctx_;
   libusb_device_handle* handle_;
   Engine* engine_;
   LogFn log_;
-  bool wrapped_;
-  int owned_fd_;
-  std::mutex lifecycle_mutex_;
-  std::mutex transfers_mutex_;
-  std::condition_variable drained_;
+
   std::vector<libusb_transfer*> transfers_;
   std::vector<std::vector<uint8_t>> buffers_;
-  std::vector<bool> in_flight_;
-  std::vector<IsoPacketDesc> descs_;
-  std::array<bool,2> claimed_{{false,false}};
-  std::atomic<bool> submitting_{false}, streaming_{false}, events_running_{false};
-  int pending_ = 0; // Every reservation is made before submit; protected by transfers_mutex_.
+  std::vector<IsoPacketDesc> descs_;  // 只在事件线程里用
+  bool claimed_[2] = {false, false};
+
+  std::atomic<bool> submitting_{false};
+  std::atomic<bool> streaming_{false};
+  std::atomic<int> pending_{0};
+  std::atomic<bool> events_running_{false};
   std::atomic<uint64_t> transfer_errors_{0};
-  std::atomic<int64_t> last_transfer_ns_{0};
-  std::atomic<int> last_transfer_status_{0};
   std::thread events_;
 };
-}
+
+}  // namespace lingtouch

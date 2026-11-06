@@ -106,6 +106,3 @@ sth
 /perception/cs30/packages/
 /perception/cs30/android_evidence/
 /perception/cs30/**/*.dll
-
-# Required optional RGB-D reference weight; keep all other large model exclusions.
-!/models/segformer-b0-ade/model.safetensors

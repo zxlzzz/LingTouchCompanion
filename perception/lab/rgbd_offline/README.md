@@ -9,10 +9,10 @@
 ```shell
 python -m venv .venv
 python -m pip install -r requirements.txt
-python cs30_web.py --model-dir ../../../models/segformer-b0-ade --open
+python cs30_web.py --model-dir ../../models/segformer-b0-ade --open
 ```
 
-在当前目录执行，使用所建虚拟环境的 Python。所需模型已随交付放在根目录 `models/segformer-b0-ade`，包含配置、预处理配置与权重；来源、许可及校验见 [模型说明](../../../models/segformer-b0-ade/README.md)。程序只读取本地权重，不自动下载数据或模型。
+在当前目录执行，使用所建虚拟环境的 Python。所需模型位于 perception 下的 `models/segformer-b0-ade`，包含配置、预处理配置与权重；来源、许可及校验见 [模型说明](../../models/segformer-b0-ade/README.md)。程序只读取本地权重，不自动下载数据或模型。
 
 网页地址默认 `http://127.0.0.1:8765`，上传 RGB/RAW 后处理；K 变化在浏览器中重算点阵。`geometry.py` 是基础几何，`spatial_grid.py` 是细格/粗格计数，`rgbd_floor_demo.py` 包含地面先验和拟合。历史报告生成函数为复核保留，不是手机生产入口。
 
@@ -20,4 +20,4 @@ python cs30_web.py --model-dir ../../../models/segformer-b0-ade --open
 python -m unittest test_geometry test_spatial_grid test_rgbd_floor
 ```
 
-以上是几何/未知状态回归，不需要模型文件，但模块导入需要安装依赖。与 C++ 主线的去噪和 RANSAC 抽样策略有差别，不能把两者的结果差异只归因于是否使用 RGB。当前原生深度主线说明见 [pipeline.md](../../../docs/vision/pipeline.md)。
+以上是几何/未知状态回归，不需要模型文件，但模块导入需要安装依赖。与 C++ 主线的去噪和 RANSAC 抽样策略有差别，不能把两者的结果差异只归因于是否使用 RGB。当前原生深度主线说明见 [pipeline.md](../../docs/vision/pipeline.md)。

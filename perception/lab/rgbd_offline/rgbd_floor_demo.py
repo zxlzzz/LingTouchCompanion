@@ -1,6 +1,6 @@
 """Offline RGB-D -> pretrained floor proposals -> measured geometry -> tactile grid.
 
-The bundled Redwood chair scene is synthetic; do not report it as CS30 measurement.
+Inputs are supplied explicitly; no sample dataset is bundled with this module.
 """
 import argparse
 from dataclasses import asdict
@@ -251,9 +251,9 @@ def json_default(value):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--input',type=Path,default=ROOT/'data/redwood_sample')
-    parser.add_argument('--model',type=Path,default=ROOT/'weights/segformer-b0-ade')
-    parser.add_argument('--output',type=Path,default=ROOT/'outputs/rgbd_floor')
+    parser.add_argument('--input',type=Path,required=True)
+    parser.add_argument('--model',type=Path,default=ROOT.parents[1]/'models/segformer-b0-ade')
+    parser.add_argument('--output',type=Path,default=ROOT.parents[1]/'.build/vision/rgbd_floor')
     parser.add_argument('--threads',type=int,default=4)
     parser.add_argument('--coarse-min-subcells',type=int,default=1)
     parser.add_argument('--depth-absolute-tolerance',type=float,default=.02)

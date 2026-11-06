@@ -100,15 +100,6 @@ struct PipelineCounts {
   uint32_t in_grid = 0;        // 落进 9×6 范围的点
 };
 
-// K-independent subcell evidence. 0=unknown, 1=obstacle, 2=ground.
-struct SubcellEvidence {
-  std::array<uint8_t, 864> fine{};  // near-to-far rows, left-to-right columns
-  std::array<uint8_t, 54> obstacle{};
-  std::array<uint8_t, 54> ground{};
-  std::array<uint8_t, 54> unknown{};
-  SubcellEvidence() { unknown.fill(16); }
-};
-
 struct OccupancyGrid {
   uint64_t source_frame_id = 0;
   int64_t capture_time_ns = 0;
@@ -117,7 +108,6 @@ struct OccupancyGrid {
   std::array<CellState, kGridCells> cells{};
   std::array<CellDiagnostics, kGridCells> diag{};
   GroundEstimate ground;
-  SubcellEvidence evidence;
   PipelineCounts counts;
 
   OccupancyGrid() { cells.fill(CellState::kUnknown); }

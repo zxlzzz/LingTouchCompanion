@@ -25,7 +25,7 @@ def main():
     if not cmake:raise RuntimeError('Install CMake or pass --cmake PATH')
     env=compiler_environment()
     folder=BUILD/'host'
-    args=[cmake,'-S',ROOT/'core','-B',folder,'-DCMAKE_BUILD_TYPE=Release','-DCMAKE_TRY_COMPILE_CONFIGURATION=Release',f'-DPython3_EXECUTABLE={sys.executable}']
+    args=[cmake,'-S',ROOT/'vision/core','-B',folder,'-DCMAKE_BUILD_TYPE=Release','-DCMAKE_TRY_COMPILE_CONFIGURATION=Release',f'-DPython3_EXECUTABLE={sys.executable}']
     if ninja:args+=['-G','Ninja',f'-DCMAKE_MAKE_PROGRAM={ninja}']
     execute(args,BUILD/'logs/host-configure.log',env=env)
     execute([cmake,'--build',folder,'--config','Release','--parallel','4'],BUILD/'logs/host-build.log',env=env)
