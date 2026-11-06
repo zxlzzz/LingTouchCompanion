@@ -5,7 +5,6 @@
 // 后台线程只保留最新一帧：上一帧还没算完时新帧替换旧帧（计入 frames_dropped_busy）。
 #pragma once
 
-#include <atomic>
 #include <condition_variable>
 #include <cstdint>
 #include <memory>
@@ -36,7 +35,7 @@ struct EngineStats {
 
 class Engine {
  public:
-  explicit Engine(const Config& config, bool managed_acquisition = false);
+  explicit Engine(const Config& config);
   ~Engine();
   Engine(const Engine&) = delete;
   Engine& operator=(const Engine&) = delete;
@@ -60,9 +59,6 @@ class Engine {
   void push_iso_transfer(const uint8_t* buffer, size_t size, const IsoPacketDesc* descs, size_t count);
   // 重新开流前调用：清掉拆了一半的帧
   void reset_stream();
-  // 0=paused, 1=one fresh frame, 2=500ms sampling. Never returns a cached frame.
-  Status set_acquisition(int mode);
-
 
   // ---- 结果
   OccupancyGrid latest_grid() const;
@@ -82,7 +78,6 @@ class Engine {
   void worker_loop();
 
   const Config config_;
-  const int default_acquisition_mode_;
 
   mutable std::mutex startup_mutex_;
   cs30::StartupCollector collector_;
@@ -100,13 +95,6 @@ class Engine {
   bool pending_ready_ = false;
   bool stopping_ = false;
   DepthFrame pending_;
-  std::atomic<uint64_t> session_{0};
-  uint64_t pending_session_ = 0;
-  int acquisition_mode_ = 0;  // protected by pending_mutex_
-  int64_t next_acquisition_ns_ = 0;
-  std::atomic<uint64_t> acquisition_epoch_{0};
-  uint64_t pending_acquisition_epoch_ = 0;
-
 
   mutable std::mutex result_mutex_;
   OccupancyGrid latest_grid_;

@@ -116,7 +116,7 @@ def main():
     parser.add_argument('--port', type=int, default=8765)
     parser.add_argument('--open', action='store_true')
     parser.add_argument('--model-dir', type=Path, required=True,
-                        help='External local SegFormer model directory; weights are not bundled')
+                        help='Local SegFormer directory, e.g. perception/models/segformer-b0-ade')
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
         parser.error('端口必须在 1–65535 之间。')

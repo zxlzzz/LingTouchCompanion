@@ -12,7 +12,6 @@ void OccupancyGridBuilder::build(const std::vector<GroundPoint>& points, Occupan
   ground_hits_.assign(static_cast<size_t>(kSubCols) * kSubRows, 0);
   for (CellDiagnostics& d : grid->diag) d = CellDiagnostics{};
   uint32_t in_grid = 0;
-  grid->evidence = SubcellEvidence{};
 
   for (const GroundPoint& p : points) {
     // 先按 10 cm 小块取整，再由小块推出格子，保证格子和小块的归属一致
@@ -27,27 +26,14 @@ void OccupancyGridBuilder::build(const std::vector<GroundPoint>& points, Occupan
     ++in_grid;
     if (p.z >= params_.height_band_min_m && p.z <= params_.height_band_max_m) {
       ++d.band_points;
-      grid->evidence.fine[sy * kSubCols + sx] = 1;
     } else if (std::fabs(p.z) <= params_.ground_tolerance_m) {
       ++d.ground_points;
-      auto& fine = grid->evidence.fine[sy * kSubCols + sx];
-      if (fine != 1) fine = 2;
       ++ground_hits_[static_cast<size_t>(sy) * kSubCols + sx];
     } else {
       ++d.other_points;
     }
   }
   grid->counts.in_grid = in_grid;
-  grid->evidence.unknown.fill(0);
-  for (int sy = 0; sy < kSubRows; ++sy) {
-    for (int sx = 0; sx < kSubCols; ++sx) {
-      const int cell = (kGridRows - 1 - sy / 4) * kGridCols + sx / 4;
-      const auto state = grid->evidence.fine[sy * kSubCols + sx];
-      if (state == 1) ++grid->evidence.obstacle[cell];
-      else if (state == 2) ++grid->evidence.ground[cell];
-      else ++grid->evidence.unknown[cell];
-    }
-  }
 
   for (int row = 0; row < kGridRows; ++row) {
     for (int col = 0; col < kGridCols; ++col) {

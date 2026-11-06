@@ -10,7 +10,7 @@ import subprocess
 import sys
 import zipfile
 
-ROOT=Path(__file__).resolve().parents[2]
+ROOT=Path(__file__).resolve().parents[1]
 APP=ROOT/'apps/android-cs30-live'
 BUILD=ROOT/'.build/vision'
 
