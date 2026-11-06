@@ -2,6 +2,7 @@ package com.lingtouch.companion
 
 /** C++ 核心的 JNI 入口（app/src/main/cpp/jni_bridge.cpp）。所有取流、拆帧、栅格、编码都在核心里。 */
 object NativeCore {
+    @JvmStatic external fun nativeInterfaceInfo(fd: Int, id: Int): String
     init {
         System.loadLibrary("lingtouch_jni")  // 依赖的 libusb-1.0.so 由动态链接器一起加载
     }
@@ -13,7 +14,7 @@ object NativeCore {
 
     /** fd 来自 UsbDeviceConnection.getFileDescriptor()，由调用方在 [nativeCloseCamera] 之后关闭。返回 null 表示成功。 */
     @JvmStatic external fun nativeOpenCamera(handle: Long, fd: Int): String?
-    @JvmStatic external fun nativeCloseCamera(handle: Long)
+    @JvmStatic external fun nativeCloseCamera(handle: Long): String?
     /** 最近的取流日志（含 libusb 自己的告警）。 */
     @JvmStatic external fun nativeUsbLog(): String
     @JvmStatic external fun nativeResetCamera(handle: Long): String?

@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-05",
+  "version": "1.2",
+  "version_code": 3,
+  "apk_bytes": 3480327,
+  "apk_sha256": "dbbf3ef6591d9c974fbe562393a6c830ce7314b5331d0e76514a5f20d247799e",
+  "signature_v2_verified": true,
+  "abis": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "android_simulator_checks": 38,
+  "usb_safety_checks": 7,
+  "k_bits_checked": 3456,
+  "temporary_empty_enumeration_verified": true,
+  "enumeration_exception_verified": true,
+  "pending_permission_survives_enumeration_loss": true,
+  "physical_pc_connection_tested": true,
+  "physical_pc_cycles": 6,
+  "physical_pc_complete_frames": 489,
+  "physical_pc_packet_errors": 0,
+  "physical_driver_unchanged": true,
+  "physical_android_connection_tested": false,
+  "physical_obstacle_accuracy_evaluated": false,
+  "validation_sha256": "86cba285e84a5aa2d18930c803499ba46339363cf221f99193063d95f2503bf2",
+  "hardware_summary_sha256": "ed216502728f3799aa8482de688b51f37e48e2bb69cfbe9ba890ee6e5569c78e",
+  "repository_patch_sha256": "3d3a6c33fb0a70c3e8c0e9907530087e8cfb85c4ea859df5813f60ca3e771fd5",
+  "clean_emulator_anr_free": true,
+  "clean_emulator_memory_mb": 3072
+}

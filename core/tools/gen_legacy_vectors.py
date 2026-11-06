@@ -77,7 +77,9 @@ def generate():
                     cells = "".join(str(int(v)) for v in states.reshape(-1))
                     lines.append(f"chain {rot180} {mirror} {policy} {cells} {fc.grid_to_bytes(board).hex()}")
 
-    digest = hashlib.sha256(FRAME_CONVERTER.read_bytes()).hexdigest()
+    # Git may check Python files out as CRLF on Windows. Fingerprint canonical
+    # LF source so an unchanged encoder keeps the same cross-platform vectors.
+    digest = hashlib.sha256(FRAME_CONVERTER.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     header = [
         "# 由 core/tools/gen_legacy_vectors.py 用 experiments/chi2027/visionss/frame_converter.py 生成，不要手改。",
         f"# frame_converter.py sha256: {digest}",

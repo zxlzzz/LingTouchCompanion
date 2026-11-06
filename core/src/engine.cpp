@@ -25,10 +25,12 @@ void size_frame(DepthFrame* f) {
 
 }  // namespace
 
-Engine::Engine(const Config& config)
+Engine::Engine(const Config& config, bool managed_acquisition)
     : config_(config),
+      default_acquisition_mode_(managed_acquisition ? 0 : 3),
       pipeline_(std::make_unique<DepthPipeline>(config)),
       assembler_(cs30::kFrameBytes, [this](const uint8_t* data, size_t size) { on_frame(data, size); }) {
+  acquisition_mode_ = default_acquisition_mode_;
   size_frame(&pending_);
   worker_ = std::thread([this] { worker_loop(); });
 }
@@ -122,11 +124,47 @@ void Engine::push_iso_transfer(const uint8_t* buffer, size_t size, const IsoPack
 void Engine::reset_stream() {
   std::lock_guard<std::mutex> lock(assembler_mutex_);
   assembler_.reset();
+  std::lock_guard<std::mutex> pending(pending_mutex_);
+  std::lock_guard<std::mutex> pipeline(pipeline_mutex_);
+  std::lock_guard<std::mutex> startup(startup_mutex_);
+  std::lock_guard<std::mutex> result(result_mutex_);
+  ++session_;
+  pending_ready_ = false;
+  acquisition_mode_ = default_acquisition_mode_;
+  ++acquisition_epoch_;
+  collector_.reset();
+  intrinsics_.reset();
+  pipeline_ = std::make_unique<DepthPipeline>(config_);
+  latest_grid_ = OccupancyGrid{};
+  latest_frame_ = DepthFrame{};
+  has_frame_ = false;
+}
+
+Status Engine::set_acquisition(int mode) {
+  if (mode < 0 || mode > 2) return Status::failure("Invalid acquisition mode");
+  std::lock_guard<std::mutex> pending(pending_mutex_);
+  std::lock_guard<std::mutex> result(result_mutex_);
+  ++acquisition_epoch_;
+  acquisition_mode_ = mode;
+  next_acquisition_ns_ = now_ns();
+  pending_ready_ = false;
+  // UI owns its last snapshot. A new request must wait for a new complete frame.
+  if (mode != 0) { latest_grid_ = OccupancyGrid{}; has_frame_ = false; }
+  return Status::success();
 }
 
 // 在 assembler_mutex_ 内被调用。加锁顺序：assembler → pending → result。
 void Engine::on_frame(const uint8_t* data, size_t size) {
   std::lock_guard<std::mutex> lock(pending_mutex_);
+  if (acquisition_mode_ == 0) return;
+  const int64_t acquired_at = now_ns();
+  if (acquisition_mode_ == 2) {
+    if (acquired_at < next_acquisition_ns_) return;
+    constexpr int64_t period = 500000000;
+    next_acquisition_ns_ += ((acquired_at - next_acquisition_ns_) / period + 1) * period;
+  } else if (acquisition_mode_ == 1) {
+    acquisition_mode_ = 0;
+  }
   if (pending_ready_) {
     std::lock_guard<std::mutex> result(result_mutex_);
     ++stats_.frames_dropped_busy;
@@ -136,6 +174,8 @@ void Engine::on_frame(const uint8_t* data, size_t size) {
   for (size_t i = 0; i < n; ++i) out[i] = static_cast<uint16_t>(data[2 * i] | (data[2 * i + 1] << 8));  // 小端
   pending_.frame_id = next_frame_id_++;
   pending_.capture_time_ns = now_ns();
+  pending_session_ = session_.load();
+  pending_acquisition_epoch_ = acquisition_epoch_.load();
   pending_ready_ = true;
   pending_cv_.notify_one();
 }
@@ -144,11 +184,14 @@ void Engine::worker_loop() {
   DepthFrame frame;
   size_frame(&frame);
   for (;;) {
+    uint64_t frame_session = 0, frame_acquisition = 0;
     {
       std::unique_lock<std::mutex> lock(pending_mutex_);
       pending_cv_.wait(lock, [this] { return pending_ready_ || stopping_; });
       if (stopping_) return;
       std::swap(frame, pending_);
+      frame_session = pending_session_;
+      frame_acquisition = pending_acquisition_epoch_;
       pending_ready_ = false;
     }
     const auto t0 = std::chrono::steady_clock::now();
@@ -160,6 +203,7 @@ void Engine::worker_loop() {
     }
     const double ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
     std::lock_guard<std::mutex> lock(result_mutex_);
+    if (frame_session != session_.load() || frame_acquisition != acquisition_epoch_.load()) continue;
     latest_grid_ = grid;
     latest_frame_ = frame;
     has_frame_ = true;

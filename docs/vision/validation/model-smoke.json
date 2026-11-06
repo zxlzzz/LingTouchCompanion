@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "model": "SegFormer-B0 ADE20K",
+  "parameters": 3752694,
+  "floor_ids": [
+    3
+  ],
+  "smoke_input": "generated uniform RGB image; shape/load validation only",
+  "output_mask_shape": [
+    512,
+    512
+  ],
+  "device": "cpu",
+  "obstacle_accuracy_evaluated": false
+}

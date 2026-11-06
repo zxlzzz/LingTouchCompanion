@@ -2,6 +2,14 @@
 
 把视觉信息转换为触觉点阵的辅助感知项目。目标形态：CS30 深度相机（加 IMU）戴在头上、直插手机或平板，所有计算都在手机/平板上，结果编码成点阵经蓝牙发给手柄。点阵 9 列 × 6 行，每格 40 cm（左右 ±1.8 m，前方 1.0–3.4 m）。
 
+## 当前视觉交付（2026-11-06）
+
+当前可安装入口为 [CS30 实时点阵](apps/android-cs30-live/README.md)，安装包在 [deliverables/vision/android](deliverables/vision/android/README.md)。负责人从 [视觉交接文档](docs/vision/README.md) 开始阅读。
+
+CS30 原生深度 → 地面与障碍几何 → 10 cm 细格 → K 门槛 → 9×6 黑白点阵/JSON。支持设备下拉、手动单帧、自动 2 次/秒和停止保留结果；CPU 运行，无模型下载。当前手机组合已确认给扩展坞 PD 口接充电宝后可用。
+
+本交付不代表整个导航/语音/手柄项目已完成。旧安卓及原生鸿蒙入口保留，当前演示优先使用 `android-cs30-live`；构建、已测范围和后续验收均见视觉文档。
+
 ## 布局：每个文件夹归谁
 
 | 文件夹 | 归属 | 内容 |
@@ -23,7 +31,7 @@
 | 安卓 App | Android Studio 打开 `apps/android/`（需要 SDK 35、NDK、CMake 3.22.1） |
 | 鸿蒙 App | DevEco Studio 打开 `apps/harmony/`（系统 ≥ HarmonyOS 5.1.0 / API 18） |
 | 对一帧原始深度打印栅格或做平面检查 | `build/core/perception_tests/lt_frame_tool grid|plane 帧文件 perception/cs30/calibration_0.bin` |
-| 论文实验 | `python experiments/chi2027/visionss/phone_server.py`（环境 `D:\anaconda\envs\LING\python.exe`） |
+| 论文实验 | `python experiments/chi2027/visionss/phone_server.py`（环境见该模块 README） |
 | 导航/命令解析服务 | 进入 `agent/backend/`，`npm ci && npm start` |
 | 3D 模型 | 在 `hardware/models/` 下按各模型 README 执行 |
 | 真机验收 | [docs/device_tests.md](docs/device_tests.md) |

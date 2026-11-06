@@ -1,0 +1,36 @@
+{
+  "physical_camera": true,
+  "platform": "Windows + existing libusbK driver",
+  "driver_changed": false,
+  "library": "libusb-package 1.0.30.0",
+  "cycles": 6,
+  "complete_frames": 489,
+  "all_cycles_clean_stop": true,
+  "packet_errors": 0,
+  "incomplete_frames": 0,
+  "latest_frames": [
+    88,
+    81
+  ],
+  "manual_once_auto_2hz_stop_freeze_verified": true,
+  "intrinsics": {
+    "width": 640,
+    "height": 480,
+    "fx": 364.8752746582031,
+    "fy": 364.7783203125,
+    "cx": 324.41571044921875,
+    "cy": 231.05052185058594,
+    "distortion": [
+      -0.3164460062980652,
+      0.14035899937152863,
+      -0.0003020000003743917,
+      -0.0004820000031031668,
+      -0.03490100055932999
+    ],
+    "id": "cs30:HV0130315L0294:640x480:fnv1a64-f5bb174e726f0ff8:inferred"
+  },
+  "obstacle_accuracy_evaluated": false,
+  "android_hardware_tested": false,
+  "scene_adjusted": false,
+  "test_scope": "connection_and_capture_only"
+}

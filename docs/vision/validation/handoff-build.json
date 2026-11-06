@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-06",
+  "target_base_commit": "3e862ea1fc6258e8327fb97f5f03e2a1285a16b3",
+  "apk_sha256": "5d44114b26286d41dbff277e12d3a5fdac5f47c1fad7d4bf57ab9087b2700f39",
+  "apk_bytes": 3868122,
+  "apk_version": "1.2",
+  "abis": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "native_optimized": true,
+  "core_ctest_passed": 12,
+  "offline_reference_tests_passed": 18,
+  "android_checks_passed": 38,
+  "usb_checks_passed": 7,
+  "k_bits_compared": 3456,
+  "legacy_kotlin_compile_passed": true,
+  "legacy_jni_arm64_compile_passed": true,
+  "pc_probe_compile_only_passed": true,
+  "reorganized_build_phone_hardware_retested": false,
+  "user_confirmed_external_pd_power": true,
+  "fixture_archive_bytes": 484739
+}

@@ -1,0 +1,5 @@
+numpy==1.26.4
+Pillow>=10.4,<12
+psutil>=6,<8
+torch==2.5.1
+transformers==4.46.3

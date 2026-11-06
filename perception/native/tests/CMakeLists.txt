@@ -16,6 +16,7 @@ lingtouch_add_perception_test(test_depth_geometry test_depth_geometry.cpp)
 lingtouch_add_perception_test(test_geometry_synthetic test_geometry_synthetic.cpp)
 lingtouch_add_perception_test(test_reference_frames test_reference_frames.cpp)
 lingtouch_add_perception_test(test_engine test_engine.cpp)
+lingtouch_add_perception_test(test_live_acquisition test_live_acquisition.cpp)
 
 # 已提交的启动序列表必须仍与 perception/cs30/startup_sequence.json 一致
 find_package(Python3 COMPONENTS Interpreter)

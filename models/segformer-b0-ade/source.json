@@ -1,0 +1,28 @@
+{
+  "repository": "nvidia/segformer-b0-finetuned-ade-512-512",
+  "observed_revision": "489d5cd81a0b59fab9b7ea758d3548ebe99677da",
+  "local_weight_sha256": "6ae39addd01de6b1b8bde2cf677d43a5cd733424b8d186de3f95d1c51fee23f9",
+  "upstream_weight_sha256": "6ae39addd01de6b1b8bde2cf677d43a5cd733424b8d186de3f95d1c51fee23f9",
+  "weight_matches_observed_revision": true,
+  "license_url": "https://github.com/NVlabs/SegFormer/blob/master/LICENSE",
+  "local_files": {
+    "config.json": {
+      "bytes": 6884,
+      "sha256": "209caa9091e4632f7c8883c11170cd08ad29af68b23c09590aa4a5befb1a2a7f"
+    },
+    "preprocessor_config.json": {
+      "bytes": 271,
+      "sha256": "8039d1d210abaa7117ad78e58cdfd6141a2ec72c03dae891b3cd76737e422c6c"
+    },
+    "model.safetensors": {
+      "bytes": 15036944,
+      "sha256": "6ae39addd01de6b1b8bde2cf677d43a5cd733424b8d186de3f95d1c51fee23f9"
+    },
+    "LICENSE.upstream": {
+      "bytes": 4065,
+      "sha256": "f549820c06519e3105e5174a2fd7285224ffd2268a7f879a843b1a255fd04a61"
+    }
+  },
+  "purpose": "Optional offline RGB-D floor proposals; not used or bundled by the real-time depth APK",
+  "checked_date": "2026-11-06"
+}
