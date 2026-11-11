@@ -37,6 +37,12 @@ object NativeCore {
     @JvmStatic external fun nativeSaveLatestFrame(handle: Long, path: String): String?
     @JvmStatic external fun nativeProcessFrameFile(handle: Long, path: String): String
 
+    @JvmStatic external fun nativeImuTimeNs(): Long
+    @JvmStatic external fun nativeStartImu(handle: Long): String?
+    @JvmStatic external fun nativeStopImu(handle: Long)
+    @JvmStatic external fun nativePushImuNotify(handle: Long, data: ByteArray, receivedNs: Long)
+    @JvmStatic external fun nativeLatestImu(handle: Long): String
+
     const val POLICY_UNSET = 0
     const val POLICY_FLAT = 1
     const val POLICY_RAISED = 2

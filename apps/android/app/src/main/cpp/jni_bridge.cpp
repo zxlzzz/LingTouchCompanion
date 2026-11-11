@@ -11,6 +11,7 @@
 #include <android/log.h>
 #endif
 
+#include "../../../../../common/imu_input.h"
 #include "lingtouch/config.h"
 #include "lingtouch/engine.h"
 #include "lingtouch/perception/cs30_libusb_source.h"
@@ -40,6 +41,7 @@ void log_line(const std::string& message) {
 
 struct NativeState {
   std::unique_ptr<Engine> engine;
+  ImuInput imu;
   std::mutex camera_mutex;
   std::unique_ptr<Cs30LibusbSource> camera;
   std::mutex error_mutex;
@@ -88,6 +90,33 @@ JNIEXPORT void JNICALL Java_com_lingtouch_companion_NativeCore_nativeDestroy(JNI
     s->camera.reset();
   }
   delete s;
+}
+
+JNIEXPORT jlong JNICALL Java_com_lingtouch_companion_NativeCore_nativeImuTimeNs(JNIEnv*, jclass) {
+  return monotonic_time_ns();
+}
+
+JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeStartImu(JNIEnv* env, jclass, jlong handle) {
+  const Status started = state(handle)->imu.start();
+  return started ? nullptr : to_jstring(env, started.message);
+}
+
+JNIEXPORT void JNICALL Java_com_lingtouch_companion_NativeCore_nativeStopImu(JNIEnv*, jclass, jlong handle) {
+  state(handle)->imu.stop();
+}
+
+JNIEXPORT void JNICALL Java_com_lingtouch_companion_NativeCore_nativePushImuNotify(
+    JNIEnv* env, jclass, jlong handle, jbyteArray bytes, jlong received_ns) {
+  const jsize size = env->GetArrayLength(bytes);
+  if (size == 0) return;
+  jbyte* data = env->GetByteArrayElements(bytes, nullptr);
+  if (data == nullptr) return;
+  state(handle)->imu.push(reinterpret_cast<const uint8_t*>(data), static_cast<size_t>(size), received_ns);
+  env->ReleaseByteArrayElements(bytes, data, JNI_ABORT);
+}
+
+JNIEXPORT jstring JNICALL Java_com_lingtouch_companion_NativeCore_nativeLatestImu(JNIEnv* env, jclass, jlong handle) {
+  return to_jstring(env, state(handle)->imu.latest_text());
 }
 
 // 返回 null 表示成功，否则是错误说明。fd 来自 UsbDeviceConnection.getFileDescriptor()，由 Kotlin 侧关闭。

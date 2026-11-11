@@ -8,14 +8,10 @@
 
 #include "lingtouch/perception/cs30_calibration.h"
 #include "lingtouch/perception/pipeline.h"
+#include "monotonic_time.h"
 
 namespace lingtouch {
 namespace {
-
-int64_t now_ns() {
-  return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch())
-      .count();
-}
 
 void size_frame(DepthFrame* f) {
   f->width = cs30::kWidth;
@@ -135,7 +131,7 @@ void Engine::on_frame(const uint8_t* data, size_t size) {
   uint16_t* out = pending_.depth_mm.data();
   for (size_t i = 0; i < n; ++i) out[i] = static_cast<uint16_t>(data[2 * i] | (data[2 * i + 1] << 8));  // 小端
   pending_.frame_id = next_frame_id_++;
-  pending_.capture_time_ns = now_ns();
+  pending_.capture_time_ns = monotonic_time_ns();
   pending_ready_ = true;
   pending_cv_.notify_one();
 }

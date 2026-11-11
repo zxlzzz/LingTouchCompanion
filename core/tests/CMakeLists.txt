@@ -10,6 +10,7 @@ endfunction()
 
 lingtouch_add_test(test_tactile_legacy test_tactile_legacy.cpp)
 lingtouch_add_test(test_config test_config.cpp)
+lingtouch_add_test(test_wit_ble_imu test_wit_ble_imu.cpp)
 
 # 已提交的测试向量必须仍与 frame_converter.py 一致（需要 Python 和 numpy；缺 numpy 时跳过）
 find_package(Python3 COMPONENTS Interpreter)

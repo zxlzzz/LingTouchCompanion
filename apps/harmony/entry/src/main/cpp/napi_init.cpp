@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "../../../../../common/imu_input.h"
 #include "lingtouch/config.h"
 #include "lingtouch/engine.h"
 #include "lingtouch/perception/cs30_protocol.h"
@@ -28,6 +29,7 @@ namespace {
 
 std::mutex g_mutex;
 std::unique_ptr<Engine> g_engine;
+ImuInput g_imu;
 std::string g_last_error;
 #ifdef LINGTOUCH_HARMONY_LIBUSB
 std::unique_ptr<Cs30LibusbSource> g_libusb;
@@ -113,6 +115,34 @@ napi_value Init(napi_env env, napi_callback_info) {
   if (!config) return str(env, "默认参数有误：" + config.error());
   g_engine = std::make_unique<Engine>(config.value());
   return str(env, "");
+}
+
+napi_value StartImu(napi_env env, napi_callback_info) {
+  const Status started = g_imu.start();
+  return str(env, started.message);
+}
+
+napi_value StopImu(napi_env env, napi_callback_info) {
+  g_imu.stop();
+  return undefined(env);
+}
+
+napi_value PushImuNotify(napi_env env, napi_callback_info info) {
+  const int64_t received_ns = monotonic_time_ns();
+  napi_value argv[1];
+  if (!get_args(env, info, 1, argv)) return nullptr;
+  const uint8_t* data = nullptr;
+  size_t size = 0;
+  if (!get_bytes(env, argv[0], &data, &size)) {
+    napi_throw_type_error(env, nullptr, "需要 IMU 通知原始字节");
+    return nullptr;
+  }
+  g_imu.push(data, size, received_ns);
+  return undefined(env);
+}
+
+napi_value LatestImu(napi_env env, napi_callback_info) {
+  return str(env, g_imu.latest_text());
 }
 
 // protocolInfo(): { vendorId, productId, isoEndpoint, controlTimeoutMs, libusbAvailable }
@@ -373,6 +403,10 @@ EXTERN_C_START
 static napi_value RegisterExports(napi_env env, napi_value exports) {
   napi_property_descriptor desc[] = {
       {"init", nullptr, Init, nullptr, nullptr, nullptr, napi_default, nullptr},
+      {"startImu", nullptr, StartImu, nullptr, nullptr, nullptr, napi_default, nullptr},
+      {"stopImu", nullptr, StopImu, nullptr, nullptr, nullptr, napi_default, nullptr},
+      {"pushImuNotify", nullptr, PushImuNotify, nullptr, nullptr, nullptr, napi_default, nullptr},
+      {"latestImu", nullptr, LatestImu, nullptr, nullptr, nullptr, napi_default, nullptr},
       {"protocolInfo", nullptr, ProtocolInfo, nullptr, nullptr, nullptr, napi_default, nullptr},
       {"startupStepCount", nullptr, StartupStepCount, nullptr, nullptr, nullptr, napi_default, nullptr},
       {"startupStep", nullptr, StartupStep, nullptr, nullptr, nullptr, napi_default, nullptr},

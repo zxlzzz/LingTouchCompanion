@@ -45,6 +45,9 @@ class StreamService : Service(), HandleLink.Listener {
     lateinit var handleLink: HandleLink
         private set
 
+    lateinit var imuLink: WitImuLink
+        private set
+
     @Volatile var cameraStatus = "未连接"
         private set
     @Volatile var lastLog = ""
@@ -84,6 +87,14 @@ class StreamService : Service(), HandleLink.Listener {
         if (handle == 0L) cameraStatus = "核心初始化失败：" + NativeCore.nativeCreateError()
         else policy = NativeCore.nativeConfigUnknownPolicy(handle)
         handleLink = HandleLink(this, this)
+        imuLink = WitImuLink(
+            this,
+            startInput = { if (handle == 0L) "核心未初始化" else NativeCore.nativeStartImu(handle) },
+            stopInput = { if (handle != 0L) NativeCore.nativeStopImu(handle) },
+            pushInput = { bytes, receivedNs ->
+                if (handle != 0L) NativeCore.nativePushImuNotify(handle, bytes, receivedNs)
+            },
+        )
     }
 
     override fun onBind(intent: Intent): IBinder = binder
@@ -204,6 +215,7 @@ class StreamService : Service(), HandleLink.Listener {
         continuousSend = false
         closeCamera()
         handleLink.disconnect()
+        imuLink.disconnect()
         if (handle != 0L) NativeCore.nativeDestroy(handle)
         handle = 0
         super.onDestroy()
