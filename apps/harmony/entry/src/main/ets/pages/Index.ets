@@ -6,6 +6,7 @@ import { abilityAccessCtrl, common, Permissions } from '@kit.AbilityKit';
 import core from 'libentry.so';
 import { Cs30Usb } from '../usb/Cs30Usb';
 import { HandleCallbacks, HandleLink, HandleState } from '../device/HandleLink';
+import { WitImuLink } from '../device/WitImuLink';
 import { startKeepAlive, stopKeepAlive } from '../common/KeepAlive';
 
 interface GroundJson {
@@ -55,6 +56,7 @@ const POLL_MS = 200;
 const usb = new Cs30Usb();
 const callbacks = new HandleCallbacks();
 const handle = new HandleLink(callbacks);
+const imu = new WitImuLink();
 
 function symbol(c: string): string {
   return c === '0' ? '·' : (c === '1' ? '■' : '?');
@@ -85,6 +87,7 @@ struct Index {
   @State gridStatus: string = '栅格：未连接';
   @State rows: GridRow[] = [];
   @State handleText: string = '手柄：未连接';
+  @State imuText: string = 'IMU：未连接';
   @State policy: number = POLICY_UNSET;
   @State sendText: string = '';
   @State continuous: boolean = false;
@@ -118,6 +121,7 @@ struct Index {
   }
 
   aboutToDisappear(): void {
+    imu.disconnect();
     if (this.timer >= 0) {
       clearInterval(this.timer);
     }
@@ -170,6 +174,8 @@ struct Index {
       return;
     }
     this.cameraText = `相机：${usb.status}`;
+    const sample = core.latestImu();
+    this.imuText = sample ? `IMU：${imu.state}\n${sample}` : `IMU：${imu.state}`;
     const g = JSON.parse(core.gridJson()) as GridJson;
     if (g.status === 'ok') {
       this.gridStatus = `栅格：正常（离地 ${(g.ground.height_m ?? 0).toFixed(2)} m，俯仰 ${(g.ground.pitch_deg ?? 0).toFixed(0)}°）`;
@@ -250,6 +256,14 @@ struct Index {
         Text(this.handleText).fontSize(16)
         Button('扫描并连接手柄').onClick(() => {
           handle.scanAndConnect();
+        })
+
+        Text(this.imuText).fontSize(16)
+        Button('扫描并连接 IMU').onClick(() => {
+          imu.scanAndConnect();
+        })
+        Button('断开 IMU').onClick(() => {
+          imu.disconnect();
         })
 
         Text('未知（状态 2）在触点上表示为：（待 Hsinlung 定，每次需手选）').fontSize(14)

@@ -52,6 +52,7 @@ class MainActivity : Activity() {
     private lateinit var gridStatusText: TextView
     private lateinit var gridRows: List<TextView>
     private lateinit var handleText: TextView
+    private lateinit var imuText: TextView
     private lateinit var policyGroup: RadioGroup
     private lateinit var sendText: TextView
     private lateinit var continuousSwitch: Switch
@@ -201,6 +202,8 @@ class MainActivity : Activity() {
         cameraText.text = "相机：" + s.cameraStatus
         usbLogText.text = NativeCore.nativeUsbLog()
         handleText.text = "手柄：" + s.handleLink.state
+        val imuSample = NativeCore.nativeLatestImu(s.handle)
+        imuText.text = "IMU：" + s.imuLink.state + if (imuSample.isEmpty()) "" else "\n$imuSample"
         renderGrid(JSONObject(NativeCore.nativeGridJson(s.handle)))
         val stats = JSONObject(NativeCore.nativeStatsJson(s.handle))
         val frames = stats.getLong("frames_processed")
@@ -291,6 +294,11 @@ class MainActivity : Activity() {
         handleText = text()
         handleText.text = "手柄：未连接"
         button("扫描并连接手柄") { service?.handleLink?.scanAndConnect() }
+
+        imuText = text()
+        imuText.text = "IMU：未连接"
+        button("扫描并连接 IMU") { service?.imuLink?.scanAndConnect() }
+        button("断开 IMU") { service?.imuLink?.disconnect() }
 
         text().text = "未知（状态 2）在触点上表示为：（待 Hsinlung 定，每次需手选）"
         policyGroup = RadioGroup(this).apply {

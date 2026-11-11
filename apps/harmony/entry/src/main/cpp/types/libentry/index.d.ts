@@ -47,3 +47,8 @@ export const processFrameFile: (path: string) => string;
 export const openFd: (fd: number) => string;
 export const closeFd: () => void;
 export const libusbLog: () => string;
+
+export const startImu: () => string;
+export const stopImu: () => void;
+export const pushImuNotify: (data: ArrayBuffer) => void;
+export const latestImu: () => string;

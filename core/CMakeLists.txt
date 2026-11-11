@@ -41,10 +41,12 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${LINGTOUCH_DEFA
 add_library(lingtouch_base STATIC
   src/types.cpp
   src/config.cpp
-  src/tactile_legacy.cpp)
+  src/tactile_legacy.cpp
+  src/wit_ble_imu_adapter.cpp)
 target_include_directories(lingtouch_base
   PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
   PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated")
+target_link_libraries(lingtouch_base PUBLIC Threads::Threads)
 lingtouch_target_defaults(lingtouch_base)
 
 # 视觉同学：CS30 取流协议、拆帧、几何、0/1/2
