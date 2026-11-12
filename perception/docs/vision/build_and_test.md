@@ -1,15 +1,16 @@
 # 构建与测试
 
-所有命令从 perception 目录执行。正常构建不依赖原工作区、预先生成的 `.runtime`、模型权重或大数据集。
+所有命令从 perception 目录执行。APK 从本目录的 ONNX 模型和 Maven 固定版本运行时构建。仓库提供基础模拟测试夹具，实拍回归读取另行准备的本地样本。
 
 ## 环境
 
 | 用途 | 依赖 |
 |---|---|
 | 安卓 APK | JDK 17、SDK 36、NDK 27.2.12479018（r27c）、CMake 3.22.1+、Gradle 8.14.3 |
-| 便捷工具 | Python 3.10+，脚本本身只用标准库 |
+| 便捷工具 | Python 3.11+，脚本使用标准库 |
 | 完整主机回归 | C++17 编译器、CMake、Ninja；Python 3.12 + NumPy 1.26.4 用于既有旧板向量生成核对 |
 | 安卓自动回归 | 上述安卓工具，加运行中的 x86_64 模拟器或 ARM64 Android 设备；测试本身模拟 USB |
+| 回放推理 | ONNX Runtime Android 1.20.0，Maven 坐标 `com.microsoft.onnxruntime:onnxruntime-android:1.20.0` |
 | 可选 RGB-D 原型 | 单独的 Python 3.12 环境及该目录 requirements；模型已附在 `models/segformer-b0-ade`，不影响当前 APK |
 
 首次 Gradle 构建需要联网获取工具/依赖；交付不带缓存。已有 Gradle 8.14.3 缓存时可用 `--offline`，便捷工具会优先使用现有发行版，避免 wrapper 再下载。安装环境命令按各自平台执行，项目不自动安装驱动。
@@ -64,4 +65,8 @@ python tools/vision.py test --serial emulator-5554 --offline
 
 测试结果、截图、导出的 JSON/诊断在 `.build/vision/test-results`；不进入交付源码。`--publish` 仅在成功完成测试后将本次 APK 复制到 `deliverables/vision/android` 并更新校验值。
 
-生产 APK 不含模拟库、测试数据或模型权重。正式签名由团队配置；不交付个人签名密钥。团队原有外壳的构建仍按各自说明；本次入口为本目录的 `apps/android-cs30-live`，只链接 `vision/core` 与 `vision/native`。
+离线构建可在配置或测试命令追加 `--ort-aar "本机的 onnxruntime-android-1.20.0.aar"`。工具核对本地 AAR 的 SHA-256。
+
+持有本次实拍数据时，可先运行 `python tools/prepare_fusion_fixtures.py --samples "本机采样目录"`，按 [样本标识和哈希](../../tests/vision/fusion-samples.json) 准备补充回归。基础测试使用合成深度和本地模型推理。
+
+生产 APK 包含 ONNX 模型和运行时。测试图片与模拟 USB 库进入独立的测试包。正式签名由团队配置。Android 模块链接本目录的 `vision/core`、`vision/native` 和共用 libusb。

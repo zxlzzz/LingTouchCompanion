@@ -1,5 +1,9 @@
 # Preserve exact hashes of the delivered optional model resources.
 /models/segformer-b0-ade/* -text
+/models/yolov8s-seg/*.onnx -text
+/models/yolov8s-seg/LICENSE.upstream -text
+/models/yolov8s-seg/yolo_model.json text eol=lf
+/models/yolov8s-seg/checksums.sha256 text eol=lf
 # Keep the original protocol evidence byte-for-byte (it contains CRLF).
 /cs30/startup_sequence.json -text
 # Scripts and generated source checks must survive Windows/Linux checkouts.

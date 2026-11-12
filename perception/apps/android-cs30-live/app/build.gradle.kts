@@ -13,11 +13,11 @@ android {
     ndkVersion = "27.2.12479018"
     (providers.gradleProperty("cs30NdkPath").orNull ?: localSettings.getProperty("cs30.ndk.path"))?.let { ndkPath = it }
     defaultConfig {
-        applicationId = "com.lingtouch.cs30live"
+        applicationId = "com.lingtouch.cs30fusion"
         minSdk = 29
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 1
+        versionName = "2.0"
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
         testInstrumentationRunner = "com.lingtouch.cs30live.LiveCheck"
         externalNativeBuild { cmake {
@@ -32,10 +32,17 @@ android {
         localSettings.getProperty("cs30.cmake.version")?.let { version = it }
     } }
     sourceSets.getByName("main").assets.srcDir(repository.resolve("vision/native/third_party/libusb/license_assets"))
+    sourceSets.getByName("main").assets.srcDir(repository.resolve("models/yolov8s-seg"))
     sourceSets.getByName("androidTest").jniLibs.srcDir(generated.resolve("test-jni"))
     sourceSets.getByName("androidTest").assets.srcDir(generated.resolve("test-assets"))
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
     packaging { jniLibs.useLegacyPackaging = true }
-    androidResources { noCompress += listOf("raw", "bin") }
+    androidResources { noCompress += listOf("raw", "bin", "onnx") }
+}
+
+dependencies {
+    val localOrt = localSettings.getProperty("cs30.ort.aar")
+    if (localOrt == null) implementation("com.microsoft.onnxruntime:onnxruntime-android:1.20.0")
+    else implementation(files(localOrt))
 }

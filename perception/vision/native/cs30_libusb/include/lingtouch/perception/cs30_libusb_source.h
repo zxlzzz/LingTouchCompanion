@@ -26,11 +26,15 @@ class Cs30LibusbSource {
   ~Cs30LibusbSource();
   Cs30LibusbSource(const Cs30LibusbSource&) = delete;
   Cs30LibusbSource& operator=(const Cs30LibusbSource&) = delete;
-  Status start();
+  Status start(bool restore_stream_idle = false);
   // Failure preserves transfers, event pump, device handle and owned dup fd for a retry.
   Status stop();
   // After reset, close/reopen through Java and force-claim again before starting.
   Status reset_device();
+  // Android may recover once from a stream alt or initial ISO submission failure.
+  // A successful reset requires a fresh platform connection before another start.
+  enum class Recovery { Unavailable = 0, Reopen = 1, Rediscover = 2 };
+  Recovery reset_after_startup_error();
   bool streaming() const { return streaming_.load(); }
   uint64_t transfer_errors() const { return transfer_errors_.load(); }
   double last_transfer_age_ms() const;
@@ -41,6 +45,10 @@ class Cs30LibusbSource {
   void handle_transfer(libusb_transfer*);
   Status claim(int);
   Status queue_iso(uint8_t,uint32_t,uint32_t,uint32_t,uint32_t);
+  Status submit_iso_queue(uint8_t endpoint, uint32_t count, uint32_t packet_bytes,
+                         uint32_t packets, uint32_t timeout, int& error_code);
+  Status drain_iso_queue_locked();
+  void free_iso_queue_locked();
   void start_events();
   void stop_events();
   Status stop_locked();
@@ -61,6 +69,9 @@ class Cs30LibusbSource {
   std::vector<bool> in_flight_;
   std::vector<IsoPacketDesc> descs_;
   std::array<bool,2> claimed_{{false,false}};
+  enum class StartupFailure { None, IsoSubmitIo, StreamingAlt };
+  StartupFailure startup_failure_ = StartupFailure::None; // Guarded by lifecycle_mutex_.
+  bool control_alt_zero_only_ = false;
   std::atomic<bool> submitting_{false}, streaming_{false}, events_running_{false};
   int pending_ = 0; // Every reservation is made before submit; protected by transfers_mutex_.
   std::atomic<uint64_t> transfer_errors_{0};

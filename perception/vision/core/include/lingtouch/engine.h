@@ -7,6 +7,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <deque>
 #include <cstdint>
 #include <memory>
 #include <mutex>
@@ -36,7 +37,7 @@ struct EngineStats {
 
 class Engine {
  public:
-  explicit Engine(const Config& config, bool managed_acquisition = false);
+  explicit Engine(const Config& config, bool managed_acquisition = false, bool reflection_review = false);
   ~Engine();
   Engine(const Engine&) = delete;
   Engine& operator=(const Engine&) = delete;
@@ -82,6 +83,7 @@ class Engine {
   void worker_loop();
 
   const Config config_;
+  const bool reflection_review_;
   const int default_acquisition_mode_;
 
   mutable std::mutex startup_mutex_;
@@ -100,6 +102,8 @@ class Engine {
   bool pending_ready_ = false;
   bool stopping_ = false;
   DepthFrame pending_;
+  std::deque<DepthFrame> recent_samples_;
+  std::vector<DepthFrame> pending_history_;
   std::atomic<uint64_t> session_{0};
   uint64_t pending_session_ = 0;
   int acquisition_mode_ = 0;  // protected by pending_mutex_

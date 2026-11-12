@@ -76,6 +76,15 @@ def configure(args):
         ninja=cmake.parent/('ninja.exe' if os.name=='nt' else 'ninja')
     if cmake:env['PATH']=str(cmake.parent)+os.pathsep+env.get('PATH','')
     if ninja:env['PATH']=str(ninja.parent)+os.pathsep+env.get('PATH','')
+    if args.ort_aar:
+        aar=Path(args.ort_aar).expanduser().resolve()
+        if not aar.is_file():
+            raise RuntimeError(f'Missing ONNX Runtime AAR: {aar}')
+        with aar.open('rb') as stream:
+            digest=hashlib.file_digest(stream,'sha256').hexdigest()
+        if digest!='07a8f71ef890afed8c6087a56220e6d558a492804276ee2dd7cb7f6262242027':
+            raise RuntimeError('Use the verified ONNX Runtime Android 1.20.0 AAR')
+        props['cs30.ort.aar']=aar.as_posix()
     text='# Generated local machine settings; excluded from Git.\n'
     for k,v in props.items():text+=k+'='+v.replace('\\','/').replace(':','\\:')+'\n'
     (APP/'local.properties').write_text(text,encoding='utf-8')
@@ -96,7 +105,7 @@ def gradle(tasks,env,offline=False):
     else:wrapper=['cmd.exe','/d','/c','gradlew.bat'] if os.name=='nt' else ['sh','./gradlew']
     args=wrapper+['--no-daemon']+(['--offline'] if offline else [])+tasks
     print('Gradle:',', '.join(tasks),flush=True)
-    output=execute(args,BUILD/'logs/gradle.log',APP,env)
+    output=execute(args,BUILD/'logs/gradle.log',APP,env,timeout=900)
     print('\n'.join(output.splitlines()[-16:]))
 
 def fixtures():
@@ -132,7 +141,7 @@ def android_test(args,env,sdk):
     command=lambda *rest:execute([adb,'-s',args.serial,*rest],timeout=180)
     command('install','-r',str(APP/'app/build/outputs/apk/debug/app-debug.apk'))
     command('install','-r',str(APP/'app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'))
-    text=command('shell','am','instrument','-w','com.lingtouch.cs30live.test/com.lingtouch.cs30live.LiveCheck')
+    text=command('shell','am','instrument','-w','com.lingtouch.cs30fusion.test/com.lingtouch.cs30live.LiveCheck')
     folder=BUILD/'test-results';folder.mkdir(parents=True,exist_ok=True)
     (folder/'instrumentation.txt').write_text(text,encoding='utf-8')
     result=None
@@ -145,12 +154,13 @@ def android_test(args,env,sdk):
     (folder/'validation.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     print('Android regression passed:',len(result['checks']),'checks;',result['threshold_bits'],'K bits')
     for remote,local in [('cs30-live-stopped.png','stopped.png'),('usb-diagnostics.txt','usb-diagnostics.txt'),('ui-export.json','export.json')]:
-        command('pull','/sdcard/Android/data/com.lingtouch.cs30live/files/'+remote,str(folder/local))
+        command('pull','/sdcard/Android/data/com.lingtouch.cs30fusion/files/'+remote,str(folder/local))
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action',choices=['configure','build','test'])
     for flag in ['sdk','ndk','java-home','cmake','ninja','serial']:parser.add_argument('--'+flag)
+    parser.add_argument('--ort-aar',help='Use a local ONNX Runtime Android 1.20.0 AAR')
     parser.add_argument('--offline',action='store_true');parser.add_argument('--test-abi',action='append',choices=['x86_64','arm64-v8a'])
     parser.add_argument('--publish',action='store_true',help='Copy the newly built APK to deliverables after validation')
     args=parser.parse_args();BUILD.mkdir(parents=True,exist_ok=True)
@@ -166,9 +176,11 @@ def main():
     if args.publish:
         if args.action!='test':raise RuntimeError('--publish requires a successful test run')
         out=ROOT/'deliverables/vision/android';out.mkdir(parents=True,exist_ok=True)
-        shutil.copy2(apk,out/'cs30-live-1.2.apk')
+        version=re.search(r'versionName\s*=\s*"([0-9.]+)"',(APP/'app/build.gradle.kts').read_text(encoding='utf-8')).group(1)
+        filename=f'cs30-fusion-{version}.apk'
+        shutil.copy2(apk,out/filename)
         digest=hashlib.sha256(apk.read_bytes()).hexdigest()
-        (out/'cs30-live-1.2.apk.sha256').write_text(digest+'  cs30-live-1.2.apk\n',encoding='ascii')
+        (out/(filename+'.sha256')).write_text(digest+'  '+filename+'\n',encoding='ascii')
     print('APK:',apk)
 
 if __name__=='__main__':main()

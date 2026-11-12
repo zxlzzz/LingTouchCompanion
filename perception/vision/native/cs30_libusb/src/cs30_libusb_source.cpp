@@ -124,6 +124,22 @@ void Cs30LibusbSource::prepare_configuration() {
     log("USB configuration="+std::to_string(configuration));
     if(configuration==0)log("Device is unconfigured; check external PD power and reconnect. Configuration is not forced after Java claims.");
   }
+  control_alt_zero_only_ = false;
+  libusb_config_descriptor* descriptor = nullptr;
+  const int described = libusb_get_active_config_descriptor(libusb_get_device(handle_), &descriptor);
+  if (described != 0) {
+    log(usb_error("read active configuration descriptor", described));
+    return;
+  }
+  for (int i = 0; i < descriptor->bNumInterfaces; ++i) {
+    const auto& entry = descriptor->interface[i];
+    if (entry.num_altsetting == 1 && entry.altsetting[0].bInterfaceNumber == cs30::kControlInterface &&
+        entry.altsetting[0].bAlternateSetting == 0) {
+      control_alt_zero_only_ = true;
+      break;
+    }
+  }
+  libusb_free_config_descriptor(descriptor);
 }
 void Cs30LibusbSource::start_events() {
   if(events_running_.exchange(true))return;
@@ -137,23 +153,66 @@ void Cs30LibusbSource::stop_events() {
   libusb_interrupt_event_handler(ctx_);if(events_.joinable())events_.join();
 }
 Status Cs30LibusbSource::queue_iso(uint8_t endpoint,uint32_t count,uint32_t bytes,uint32_t packets,uint32_t timeout) {
-  if(!count||!packets||count>64||packets>1024||bytes>INT_MAX||bytes%packets)return Status::failure("Invalid isochronous transfer sizes");
+  if (!count || !packets || !bytes || count > 64 || packets > 1024 || bytes > INT_MAX ||
+      bytes % packets) return Status::failure("Invalid isochronous transfer sizes");
+  const uint32_t packet_bytes = bytes / packets;
+  // Android usbfs can reject the 96 KiB requests used by the desktop SDK.
+  // Keep the endpoint packet length, which is determined by the device.
+  if (wrapped_) packets = std::min<uint32_t>(packets, 8);
+  for (;;) {
+    int error_code = 0;
+    const auto status = submit_iso_queue(endpoint, count, packet_bytes, packets, timeout, error_code);
+    if (status || !wrapped_ || error_code != LIBUSB_ERROR_NO_MEM || packets <= 2) return status;
+
+    const uint32_t smaller = std::max<uint32_t>(packets / 2, 2);
+    log("USB ISO allocation failed with " + std::to_string(packets) +
+        " packets/transfer; draining queue and retrying with " + std::to_string(smaller) +
+        " in the same USB session");
+    // A later slot can fail after earlier slots were accepted. Keep the
+    // interface, calibration collector and alt setting while retiring that queue.
+    start_events();
+    const auto drained = drain_iso_queue_locked();
+    if (!drained) return Status::failure(status.message + "; " + drained.message);
+    free_iso_queue_locked();
+    packets = smaller;
+  }
+}
+Status Cs30LibusbSource::submit_iso_queue(uint8_t endpoint, uint32_t count, uint32_t packet_bytes,
+                                         uint32_t packets, uint32_t timeout, int& error_code) {
+  const uint32_t bytes = packet_bytes * packets;
   // Allocate stable storage before the event pump can enter a callback.
   transfers_.assign(count,nullptr);buffers_.assign(count,std::vector<uint8_t>(bytes));in_flight_.assign(count,false);
   for(uint32_t k=0;k<count;++k){
     auto* t=libusb_alloc_transfer(static_cast<int>(packets));
-    if(!t)return Status::failure("libusb_alloc_transfer failed");
+    if (!t) {
+      error_code = LIBUSB_ERROR_NO_MEM;
+      return Status::failure(usb_error("libusb_alloc_transfer", error_code));
+    }
     transfers_[k]=t;
     libusb_fill_iso_transfer(t,handle_,endpoint,buffers_[k].data(),static_cast<int>(bytes),static_cast<int>(packets),on_transfer,this,timeout);
-    libusb_set_iso_packet_lengths(t,bytes/packets);
+    libusb_set_iso_packet_lengths(t,packet_bytes);
   }
   std::lock_guard<std::mutex> lock(transfers_mutex_);submitting_=true;
   for(size_t k=0;k<transfers_.size();++k){
     in_flight_[k]=true;++pending_; // Reserve before submission; rollback on failure.
     const int r=libusb_submit_transfer(transfers_[k]);
-    if(r){in_flight_[k]=false;--pending_;submitting_=false;return Status::failure(usb_error("libusb_submit_transfer",r));}
+    if (r) {
+      error_code = r;
+      in_flight_[k] = false;
+      --pending_;
+      submitting_ = false;
+      if (r == LIBUSB_ERROR_IO) startup_failure_ = StartupFailure::IsoSubmitIo;
+      const auto error = usb_error("libusb_submit_transfer", r) +
+          "; slot " + std::to_string(k + 1) + "/" + std::to_string(count) +
+          ", endpoint=" + std::to_string(endpoint) + ", packets=" + std::to_string(packets) +
+          ", bytes/packet=" + std::to_string(packet_bytes);
+      log(error);
+      return Status::failure(error);
+    }
   }
-  log("queued "+std::to_string(count)+" isochronous transfers");return Status::success();
+  log("queued " + std::to_string(count) + " isochronous transfers, packets/transfer=" +
+      std::to_string(packets) + ", bytes/transfer=" + std::to_string(bytes));
+  return Status::success();
 }
 void Cs30LibusbSource::on_transfer(libusb_transfer* t){static_cast<Cs30LibusbSource*>(t->user_data)->handle_transfer(t);}
 void Cs30LibusbSource::handle_transfer(libusb_transfer* t) {
@@ -183,14 +242,28 @@ void Cs30LibusbSource::handle_transfer(libusb_transfer* t) {
   }
   drained_.notify_all();
 }
-Status Cs30LibusbSource::start() {
+Status Cs30LibusbSource::start(bool restore_stream_idle) {
   std::lock_guard<std::mutex> lifecycle(lifecycle_mutex_);
+  startup_failure_ = StartupFailure::None;
   if(streaming_)return Status::success();
   {std::lock_guard<std::mutex> lock(transfers_mutex_);if(pending_||!transfers_.empty()||
       std::any_of(claimed_.begin(),claimed_.end(),[](bool claimed){return claimed;}))
       return Status::failure("Previous USB cleanup is incomplete; retry disconnect before reopening");}
   last_transfer_ns_=0;last_transfer_status_=0;
   engine_->reset_stream();prepare_configuration();Status status=claim(cs30::kControlInterface);
+  if (status && wrapped_ && restore_stream_idle) {
+    // A powered hub may leave the camera running when only its host cable is
+    // unplugged. Restore the streaming interface before Probe and Commit.
+    status = claim(cs30::kStreamingInterface);
+    if (status) {
+      const int r = libusb_set_interface_alt_setting(handle_, cs30::kStreamingInterface, 0);
+      log("powered replug: restore stream interface 1 alt 0, result=" + std::to_string(r));
+      if (r) {
+        if (r == LIBUSB_ERROR_OTHER || r == LIBUSB_ERROR_IO) startup_failure_ = StartupFailure::StreamingAlt;
+        status = Status::failure(usb_error("restore stream interface 1 alt 0 before startup", r));
+      }
+    }
+  }
   for(size_t i=0;status&&i<Engine::startup_step_count();++i){
     const auto& step=Engine::startup_step(i);
     switch(step.kind){
@@ -205,7 +278,25 @@ Status Cs30LibusbSource::start() {
       }
       case cs30::StepKind::kSetAlt:
         status=claim(step.interface_number);
-        if(status){const int r=libusb_set_interface_alt_setting(handle_,step.interface_number,step.alt_setting);if(r)status=Status::failure(usb_error("set alt",r));}
+        if (status) {
+          if (step.interface_number == cs30::kControlInterface && step.alt_setting == 0 &&
+              control_alt_zero_only_) {
+            log("startup interface 0 has only alt 0; skipping redundant SET_INTERFACE");
+            break;
+          }
+          const int r = libusb_set_interface_alt_setting(handle_, step.interface_number, step.alt_setting);
+          log("startup set interface=" + std::to_string(step.interface_number) +
+              ", alt=" + std::to_string(step.alt_setting) + ", result=" + std::to_string(r));
+          if (r) {
+            if (step.interface_number == cs30::kStreamingInterface && step.alt_setting == 1 &&
+                (r == LIBUSB_ERROR_OTHER || r == LIBUSB_ERROR_IO)) {
+              startup_failure_ = StartupFailure::StreamingAlt;
+            }
+            status = Status::failure(usb_error("startup step " + std::to_string(i) +
+                ", set interface " + std::to_string(step.interface_number) +
+                " alt " + std::to_string(step.alt_setting), r));
+          }
+        }
         break;
       case cs30::StepKind::kQueueIso:
         status=queue_iso(cs30::kIsoEndpoint,step.iso_transfers,step.iso_transfer_bytes,step.iso_packets,step.iso_timeout_ms);
@@ -229,7 +320,7 @@ Status Cs30LibusbSource::release_all() {
   }
   return errors.empty()?Status::success():Status::failure(errors);
 }
-Status Cs30LibusbSource::stop_locked() {
+Status Cs30LibusbSource::drain_iso_queue_locked() {
   {
     std::unique_lock<std::mutex> lock(transfers_mutex_);submitting_=false;streaming_=false;
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(3);
@@ -244,21 +335,66 @@ Status Cs30LibusbSource::stop_locked() {
     }
   }
   stop_events(); // Also joins a callback which has just dropped the final reservation.
+  return Status::success();
+}
+void Cs30LibusbSource::free_iso_queue_locked() {
+  for (auto* transfer : transfers_) {
+    if (transfer) libusb_free_transfer(transfer);
+  }
+  transfers_.clear();
+  buffers_.clear();
+  in_flight_.clear();
+}
+Status Cs30LibusbSource::stop_locked() {
+  const auto drained = drain_iso_queue_locked();
+  if (!drained) return drained;
   std::string errors;
   for(int i=1;i>=0;--i)if(claimed_[i]){
+    if (i == cs30::kControlInterface && control_alt_zero_only_) continue;
+    // No ISO requests were queued if enabling the stream interface failed.
+    // Release the claim directly so a timed-out SET_INTERFACE does not trigger another one.
+    if (i == cs30::kStreamingInterface && startup_failure_ == StartupFailure::StreamingAlt) {
+      log("releasing stream interface after failed alt selection");
+      continue;
+    }
     const int r=libusb_set_interface_alt_setting(handle_,i,0);
+    log("stop set interface=" + std::to_string(i) + ", alt=0, result=" + std::to_string(r));
     if(r&&r!=LIBUSB_ERROR_NO_DEVICE)errors+=usb_error("stop set alt "+std::to_string(i),r)+"; ";
   }
   const auto released=release_all();
   if(!released)return released;
   if(!errors.empty())log(errors); // Successful release ends ownership even if alt 0 failed.
-  for(auto* t:transfers_)if(t)libusb_free_transfer(t);
-  transfers_.clear();buffers_.clear();in_flight_.clear();engine_->reset_stream();
+  free_iso_queue_locked();
+  engine_->reset_stream();
   return Status::success();
 }
 Status Cs30LibusbSource::stop(){std::lock_guard<std::mutex> lock(lifecycle_mutex_);return stop_locked();}
 Status Cs30LibusbSource::reset_device(){
-  std::lock_guard<std::mutex> lock(lifecycle_mutex_);const auto stopped=stop_locked();if(!stopped)return stopped;
+  std::lock_guard<std::mutex> lock(lifecycle_mutex_);
+  const auto stopped=stop_locked();if(!stopped)return stopped;
   const int r=libusb_reset_device(handle_);return r?Status::failure(usb_error("reset device",r)):Status::success();
+}
+Cs30LibusbSource::Recovery Cs30LibusbSource::reset_after_startup_error() {
+  std::lock_guard<std::mutex> lock(lifecycle_mutex_);
+  if (!wrapped_ || startup_failure_ == StartupFailure::None) return Recovery::Unavailable;
+  const char* reason = startup_failure_ == StartupFailure::StreamingAlt ?
+      "stream interface alt selection" : "initial submit I/O";
+  const auto stopped = stop_locked();
+  startup_failure_ = StartupFailure::None;
+  if (!stopped) {
+    log("Cannot reset before USB cleanup: " + stopped.message);
+    return Recovery::Unavailable;
+  }
+  const int reset = libusb_reset_device(handle_);
+  if (reset == LIBUSB_ERROR_NOT_FOUND || reset == LIBUSB_ERROR_NO_DEVICE) {
+    log(usb_error("USB reset invalidated the old device; rediscover", reset));
+    return Recovery::Rediscover;
+  }
+  if (reset != 0) {
+    log(usb_error(std::string("USB reset after ") + reason, reset));
+    return Recovery::Unavailable;
+  }
+  log(std::string("USB reset after ") + reason + " succeeded; reopen with a fresh platform fd");
+  return Recovery::Reopen;
 }
 }

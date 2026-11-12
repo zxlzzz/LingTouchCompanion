@@ -12,6 +12,8 @@ import android.hardware.usb.UsbManager
 import android.hardware.usb.UsbDevice
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
@@ -33,6 +35,7 @@ class MainActivity : Activity() {
         const val ID_EXPORT = 1010
         const val ID_GRID = 1011
         const val ID_STATUS = 1012
+        const val ID_RGBD_REPLAY = 1016
         private const val CAMERA_PERMISSION = 41
         private const val SAVE_JSON = 42
     }
@@ -55,6 +58,7 @@ class MainActivity : Activity() {
     private lateinit var diagnostics: TextView
     private lateinit var grid: DotGridView
     private var choices = emptyList<DeviceChoice>()
+    private var lastDiscoveryLog: String? = null
     private var selectedSnapshot: DeviceChoice? = null
     private var pendingPermission: Int? = null
     private var pendingJson: String? = null
@@ -63,6 +67,16 @@ class MainActivity : Activity() {
         private set
     private var permissionMessage: String? = null
     private val clockFormat = SimpleDateFormat("HH:mm:ss.SSS", Locale.CHINA)
+    private val discoveryHandler = Handler(Looper.getMainLooper())
+    private val scanForCamera = object : Runnable {
+        override fun run() {
+            val state = controller.state
+            if (!state.connected && !state.connecting && pendingPermission == null) {
+                refreshDevices()
+            }
+            discoveryHandler.postDelayed(this, 1000L)
+        }
+    }
 
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -77,6 +91,13 @@ class MainActivity : Activity() {
                 UsbManager.ACTION_USB_DEVICE_ATTACHED, UsbManager.ACTION_USB_DEVICE_DETACHED -> {
                     val changed = broadcastDevice(intent)
                     backend.noteUsbEvent("Android USB event=${intent.action}, eventDevice=${changed?.deviceId}, activeDevice=${controller.state.deviceId}")
+                    if (changed != null && changed.vendorId == 0x2207 && changed.productId == 0x0016) {
+                        if (intent.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
+                            handleCs30Detached(changed.deviceId)
+                            return
+                        }
+                        backend.usbAttached(changed.deviceId)
+                    }
                     refreshDevices()
                 }
             }
@@ -107,8 +128,22 @@ class MainActivity : Activity() {
         refreshDevices()
     }
 
-    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); refreshDevices() }
-    override fun onResume() { super.onResume(); if (::controller.isInitialized) refreshDevices() }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.action == UsbManager.ACTION_USB_DEVICE_ATTACHED) {
+            broadcastDevice(intent)?.let { backend.usbAttached(it.deviceId) }
+        }
+        refreshDevices()
+    }
+    override fun onResume() {
+        super.onResume()
+        refreshDevices()
+        discoveryHandler.postDelayed(scanForCamera, 1000L)
+    }
+    override fun onPause() {
+        discoveryHandler.removeCallbacks(scanForCamera)
+        super.onPause()
+    }
     override fun onStop() {
         controller.stop("已暂停（应用进入后台），保留最后结果")
         super.onStop()
@@ -120,10 +155,33 @@ class MainActivity : Activity() {
         super.onDestroy()
     }
 
+    internal fun handleCs30Detached(id: Int) {
+        backend.usbDetached(id)
+        choices = choices.filterNot { it.id == id }
+        if (selectedSnapshot?.id == id) selectedSnapshot = null
+        if (pendingPermission == id) {
+            pendingPermission = null
+            permissionMessage = "CS30 已拔出，重新插入后请选择设备"
+        }
+        val state = controller.state
+        if (state.deviceId == id && (state.connected || state.connecting)) {
+            controller.disconnect("CS30 已拔出，重新插入后请选择设备")
+        }
+        refreshDevices()
+    }
+
     fun refreshDevices() {
         val result = runCatching { backend.devices() }
-        if (result.isSuccess) choices = result.getOrThrow()
-        else backend.noteUsbEvent("USB device-list query failed: ${result.exceptionOrNull()?.message}; preserving connection")
+        val discovery = if (result.isSuccess) {
+            choices = result.getOrThrow()
+            "Android USB device list: " + choices.joinToString { it.label }.ifEmpty { "empty" }
+        } else {
+            "Android USB device-list query failed: ${result.exceptionOrNull()?.message}"
+        }
+        if (discovery != lastDiscoveryLog) {
+            backend.noteUsbEvent(discovery)
+            lastDiscoveryLog = discovery
+        }
         val state = controller.state
         val activeId = state.deviceId?.takeIf { state.connected || state.connecting } ?: pendingPermission
         if (activeId != null && choices.none { it.id == activeId })
@@ -137,7 +195,7 @@ class MainActivity : Activity() {
         val activeId = state.deviceId?.takeIf { state.connected || state.connecting } ?: pendingPermission
         val pinned = selectedSnapshot?.takeIf { it.id == activeId && choices.none { item -> item.id == activeId } }
         val available = choices + listOfNotNull(pinned)
-        val options = if (available.isEmpty()) listOf(DeviceChoice(-1, "未发现 USB 设备", false)) else available
+        val options = if (available.isEmpty()) listOf(DeviceChoice(-1, "未发现 USB 设备 · 正在查找", false)) else available
         val existing = (0 until devices.count).map { devices.getItemAtPosition(it) as? DeviceChoice }
         if (existing != options) devices.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
         val selected = options.indexOfFirst { it.id == (activeId ?: previous) }
@@ -192,7 +250,7 @@ class MainActivity : Activity() {
     private fun saveDiagnostics() {
         val state = controller.state
         controller.collectDiagnostics { fresh ->
-            pendingJson = "CS30 Live 1.2\n${Build.MANUFACTURER} ${Build.MODEL}; Android ${Build.VERSION.RELEASE}\n" +
+            pendingJson = "CS30 Fusion 2.0\n${Build.MANUFACTURER} ${Build.MODEL}; Android ${Build.VERSION.RELEASE}\n" +
                 "${state.message}\n$fresh\n${state.frame?.diagnostics ?: ""}"
             startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE); type="text/plain"
@@ -259,7 +317,10 @@ class MainActivity : Activity() {
             id = identifier; text = title; isAllCaps = false
             setOnClickListener { action() }; parent.addView(this, LinearLayout.LayoutParams(0,dip(48),1f))
         }
-        label("CS30 实时点阵", 25f)
+        label("CS30 实时深度点阵", 25f)
+        button(row(), "RGB-D 回放", ID_RGBD_REPLAY) {
+            startActivity(Intent(this, RgbdReplayActivity::class.java))
+        }
         label("USB 设备", 14f)
         devices = Spinner(this).apply { id = ID_DEVICES; column.addView(this, LinearLayout.LayoutParams(-1,dip(48))) }
         val connectionRow = row()

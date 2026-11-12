@@ -98,6 +98,11 @@ struct PipelineCounts {
   uint32_t after_wrap = 0;     // 去掉疑似相位绕回的孤立近点之后
   uint32_t after_flying = 0;   // 去掉边缘飞点之后
   uint32_t in_grid = 0;        // 落进 9×6 范围的点
+  uint32_t suspect = 0;
+  uint32_t confirmed = 0;
+  uint32_t conflicts = 0;
+  uint32_t aligned_views = 0;
+  uint32_t yolo_subcells = 0;
 };
 
 // K-independent subcell evidence. 0=unknown, 1=obstacle, 2=ground.

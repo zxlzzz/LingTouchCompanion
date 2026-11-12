@@ -5,19 +5,25 @@
 #include <cstdio>
 
 #include "lingtouch/perception/ground_fit.h"
+#include "lingtouch/perception/depth_review.h"
 
 namespace lingtouch {
 
-DepthPipeline::DepthPipeline(const Config& config) : config_(config), builder_(config.grid) {}
+DepthPipeline::DepthPipeline(const Config& config, bool review)
+    : config_(config), review_(review ? std::make_unique<DepthReview>(config) : nullptr), builder_(config.grid) {}
+DepthPipeline::~DepthPipeline() = default;
 
 Status DepthPipeline::set_intrinsics(const CameraIntrinsics& intrinsics) {
   Result<DepthCameraModel> m = DepthCameraModel::create(intrinsics, config_.depth.undistort);
   if (!m) return Status::failure(m.error());
   model_ = std::move(m.value());
+  if (review_) review_ = std::make_unique<DepthReview>(config_);
   return Status::success();
 }
 
-OccupancyGrid DepthPipeline::process(const DepthFrame& frame) {
+OccupancyGrid DepthPipeline::process(const DepthFrame& frame,
+                                     const std::vector<std::vector<uint8_t>>& masks,
+                                     const std::vector<DepthFrame>* recent) {
   OccupancyGrid g;
   g.source_frame_id = frame.frame_id;
   g.capture_time_ns = frame.capture_time_ns;
@@ -36,6 +42,7 @@ OccupancyGrid DepthPipeline::process(const DepthFrame& frame) {
     g.ground.failure = buf;
     return g;
   }
+  if (review_) return review_->process(frame, m, masks, recent);
   g.counts.pixels = static_cast<uint32_t>(n);
 
   compute_depth_mask(frame, m, config_.depth, &mask_);

@@ -3,6 +3,7 @@
 #pragma once
 
 #include <optional>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -14,19 +15,24 @@
 
 namespace lingtouch {
 
+class DepthReview;
+
 class DepthPipeline {
  public:
-  explicit DepthPipeline(const Config& config);
+  explicit DepthPipeline(const Config& config, bool review = false);
+  ~DepthPipeline();
 
   // 换内参（会重建去畸变查表）。
   Status set_intrinsics(const CameraIntrinsics& intrinsics);
   bool has_intrinsics() const { return model_.has_value(); }
   const Config& config() const { return config_; }
 
-  OccupancyGrid process(const DepthFrame& frame);
+  OccupancyGrid process(const DepthFrame& frame, const std::vector<std::vector<uint8_t>>& masks = {},
+                        const std::vector<DepthFrame>* recent = nullptr);
 
  private:
   Config config_;
+  std::unique_ptr<DepthReview> review_;
   std::optional<DepthCameraModel> model_;
   OccupancyGridBuilder builder_;
   DepthMask mask_;
