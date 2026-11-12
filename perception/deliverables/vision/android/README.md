@@ -1,9 +1,7 @@
 # 安装包
 
-`cs30-live-1.2.apk`：当前交付的 CS30 实时点阵，最低 API 29，ARM64/x86_64，开发签名。配套 `.sha256` 可核对文件完整性。
+[cs30-fusion-2.0.apk](cs30-fusion-2.0.apk) 为当前交付包。独立包名 `com.lingtouch.cs30fusion`，ARM64/x86_64，最低 API 29。随附 SHA-256，支持与已安装的 1.x 同时使用。APK 包含回放使用的 YOLO 模型和 ONNX Runtime。
 
-本包由整理后的 `apps/android-cs30-live` 和独立 `vision/core`、`vision/native` 重新构建，并完成主机与模拟器回归。功能保持手动单帧、自动 2 次/秒、停止冻结、K=3 默认值和 JSON 导出。早先手机接线成功反馈对应整理前 1.2；本次新构建未再次进行手机长时实测，不能把历史哈希等同本文件。
+实时接线使用支持数据的扩展坞和 PD 外供电。配对 RGB-D 文件通过回放页导入。见 [操作与接线](../../../docs/vision/android_usage.md) 和 [验证记录](../../../docs/vision/validation.md)。
 
-演示采用已验证的供电方式：手机接扩展坞数据上行，CS30 接下游数据口，充电宝接 PD。说明见 [安卓使用](../../../docs/vision/android_usage.md)。生产包不含模拟库、测试夹具或模型。
-
-若团队使用不同签名重编译，覆盖已有同包名安装可能需要先卸载旧开发包；正式发布请配置团队签名。个人密钥未交付。
+[cs30-live-1.2.apk](cs30-live-1.2.apk) 保留为上一版可安装基线。

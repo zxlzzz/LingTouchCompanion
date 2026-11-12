@@ -125,7 +125,12 @@ std::string grid_json(const OccupancyGrid& g, int64_t now_ns) {
        ",\"value_valid\":" + number(static_cast<uint64_t>(g.counts.value_valid)) +
        ",\"after_wrap\":" + number(static_cast<uint64_t>(g.counts.after_wrap)) +
        ",\"after_flying\":" + number(static_cast<uint64_t>(g.counts.after_flying)) +
-       ",\"in_grid\":" + number(static_cast<uint64_t>(g.counts.in_grid)) + "}";
+       ",\"in_grid\":" + number(static_cast<uint64_t>(g.counts.in_grid)) +
+       ",\"suspect\":" + number(static_cast<uint64_t>(g.counts.suspect)) +
+       ",\"confirmed\":" + number(static_cast<uint64_t>(g.counts.confirmed)) +
+       ",\"conflicts\":" + number(static_cast<uint64_t>(g.counts.conflicts)) +
+       ",\"aligned_views\":" + number(static_cast<uint64_t>(g.counts.aligned_views)) +
+       ",\"yolo_subcells\":" + number(static_cast<uint64_t>(g.counts.yolo_subcells)) + "}";
   // 每格诊断：[高度带点数, 地面点数, 看到地面的小块数]
   j += ",\"diag\":[";
   for (int i = 0; i < kGridCells; ++i) {

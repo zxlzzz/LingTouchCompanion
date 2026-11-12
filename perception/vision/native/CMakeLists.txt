@@ -7,7 +7,8 @@ add_library(lingtouch_perception STATIC
   src/depth_geometry.cpp
   src/ground_fit.cpp
   src/occupancy.cpp
-  src/pipeline.cpp)
+  src/pipeline.cpp
+  src/depth_review.cpp)
 target_include_directories(lingtouch_perception
   PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")

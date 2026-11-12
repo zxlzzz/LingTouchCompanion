@@ -2197,6 +2197,9 @@ static int submit_iso_transfer(struct usbi_transfer *itransfer)
 		} else if (errno == EMSGSIZE) {
 			usbi_warn(TRANSFER_CTX(transfer), "submiturb failed, iso packet length too large");
 			r = LIBUSB_ERROR_INVALID_PARAM;
+		} else if (errno == ENOMEM) {
+			usbi_err(TRANSFER_CTX(transfer), "submiturb failed, errno=%d (USB buffer allocation)", errno);
+			r = LIBUSB_ERROR_NO_MEM;
 		} else {
 			usbi_err(TRANSFER_CTX(transfer), "submiturb failed, errno=%d", errno);
 			r = LIBUSB_ERROR_IO;

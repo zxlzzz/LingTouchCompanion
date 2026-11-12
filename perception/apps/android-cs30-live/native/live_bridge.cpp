@@ -8,6 +8,10 @@
 #include "lingtouch/depth_evidence.h"
 #include "lingtouch/report_json.h"
 #include "lingtouch/perception/cs30_libusb_source.h"
+#ifdef CS30_SIMULATION
+#include <cmath>
+#include "lingtouch/perception/pipeline.h"
+#endif
 #include "lingtouch/transport_owner.h"
 #ifdef CS30_SIMULATION
 #include "fake_usb.h"
@@ -32,23 +36,32 @@ jstring str(JNIEnv* env,const std::string& s){return env->NewStringUTF(s.c_str()
 extern "C" {
 JNIEXPORT jlong JNICALL JNI_NAME(create)(JNIEnv*,jclass) {
   auto config=default_config();if(!config)return 0;
-  auto s=std::make_unique<State>();s->engine=std::make_unique<Engine>(config.value(), true);
+#ifdef CS30_SIMULATION
+  constexpr bool review=false; // Keep the established 1.7 fixture regression.
+#else
+  constexpr bool review=true;
+#endif
+  auto s=std::make_unique<State>();s->engine=std::make_unique<Engine>(config.value(), true, review);
   return reinterpret_cast<jlong>(s.release());
 }
-JNIEXPORT jstring JNICALL JNI_NAME(open)(JNIEnv* env,jclass,jlong h,jint fd) {
+JNIEXPORT jstring JNICALL JNI_NAME(open)(JNIEnv* env,jclass,jlong h,jint fd,jboolean restoreStreamIdle) {
   auto* s=state(h);if(!s)return str(env,"Native core is not initialized");
   if(pending_usb_cleanups().load())return str(env,"正在回收上一次 USB 传输，请稍后重试或拔插相机");
   const auto prior=close_usb_camera(s);if(!prior)return str(env,prior.message);
   auto camera=Cs30LibusbSource::open_fd(fd,s->engine.get(),[s](const std::string& text){s->log(text);});
   if(!camera)return str(env,camera.error());
   s->camera=std::move(camera.value());
-  const auto started=s->camera->start();
+  const auto started=s->camera->start(restoreStreamIdle == JNI_TRUE);
   if(!started)return str(env,started.message);
   return nullptr;
 }
 JNIEXPORT jstring JNICALL JNI_NAME(disconnect)(JNIEnv* env,jclass,jlong h) {
   if(auto* s=state(h)){const auto stopped=close_usb_camera(s);if(!stopped)return str(env,stopped.message);}
   return nullptr;
+}
+JNIEXPORT jint JNICALL JNI_NAME(resetAfterStartupError)(JNIEnv*, jclass, jlong h) {
+  auto* s = state(h);
+  return s && s->camera ? static_cast<jint>(s->camera->reset_after_startup_error()) : 0;
 }
 JNIEXPORT void JNICALL JNI_NAME(destroy)(JNIEnv*,jclass,jlong h) {
   auto* s=state(h);if(s)destroy_usb_state(s);
@@ -78,6 +91,50 @@ JNIEXPORT jstring JNICALL JNI_NAME(cleanupStatus)(JNIEnv* env,jclass) {
   return pending_usb_cleanups().load()?str(env,"USB 后台清理尚未完成，请稍后重试或拔插相机"):nullptr;
 }
 #ifdef CS30_SIMULATION
+JNIEXPORT jbyteArray JNICALL JNI_NAME(autoReflectionFixture)(JNIEnv* env,jclass,jlong h) {
+  const auto intrinsics = state(h)->engine->intrinsics();
+  const auto config = default_config();
+  if (!intrinsics || !config) return nullptr;
+  const auto camera = DepthCameraModel::create(*intrinsics, config.value().depth.undistort);
+  if (!camera) return nullptr;
+  const auto& model = camera.value();
+  DepthFrame frame;
+  frame.width = model.width();
+  frame.height = model.height();
+  frame.depth_mm.resize(static_cast<size_t>(frame.width) * frame.height);
+  for (size_t i = 0; i < frame.depth_mm.size(); ++i) {
+    if (!model.pixel_valid(i)) continue;
+    const double x = model.x(i), y = model.y(i);
+    double z = 0;
+    if (y >= .28 && y <= .80 && std::abs(x) < .68) z = 1.32 / y;
+    if (y >= -.50 && y <= -.30) {
+      const double near = 1.05 + 1.5 * (y + .50);
+      if (x * near >= .66 && x * near <= .98) z = near;
+    }
+    frame.depth_mm[i] = static_cast<uint16_t>(std::lround(z * 1000));
+  }
+  // The coherent patch must light the near-right dot when the review is bypassed.
+  DepthPipeline unreviewed(config.value());
+  if (!unreviewed.set_intrinsics(*intrinsics)) return nullptr;
+  const auto baseline = unreviewed.process(frame);
+  if (!baseline.ground.ok || baseline.evidence.obstacle[51] < 3) {
+    env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), "Auto reflection fixture does not light the unreviewed dot");
+    return nullptr;
+  }
+  std::vector<jbyte> raw(frame.depth_mm.size() * 2);
+  for (size_t i = 0; i < frame.depth_mm.size(); ++i) {
+    raw[2*i] = static_cast<jbyte>(frame.depth_mm[i] & 0xff);
+    raw[2*i+1] = static_cast<jbyte>(frame.depth_mm[i] >> 8);
+  }
+  auto array = env->NewByteArray(static_cast<jsize>(raw.size()));
+  if (array) env->SetByteArrayRegion(array, 0, static_cast<jsize>(raw.size()), raw.data());
+  return array;
+}
+JNIEXPORT jlong JNICALL JNI_NAME(createReviewed)(JNIEnv*,jclass) {
+  const auto config=default_config();if(!config)return 0;
+  auto s=std::make_unique<State>();s->engine=std::make_unique<Engine>(config.value(), true, true);
+  return reinterpret_cast<jlong>(s.release());
+}
 JNIEXPORT void JNICALL JNI_NAME(configure)(JNIEnv* env,jclass,jbyteArray blob) {
   std::vector<uint8_t> bytes(env->GetArrayLength(blob));
   env->GetByteArrayRegion(blob,0,static_cast<jsize>(bytes.size()),reinterpret_cast<jbyte*>(bytes.data()));

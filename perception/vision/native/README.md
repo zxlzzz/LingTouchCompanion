@@ -14,6 +14,6 @@
 
 从 perception 目录用 `python tools/host_test.py` 运行全套核心测试；详见 [构建与测试](../../docs/vision/build_and_test.md)。真实参考帧仍使用团队 `cs30/` 中的原始文件，测试兼容其历史路径字段，不改动证据。
 
-第三方 libusb 复用 perception 内原有 [native/third_party/libusb](../../native/third_party/libusb/README.lingtouch.md)，保持独立动态库；未修改其源码。
+第三方 libusb 保持独立动态库。Linux 等时提交的 `ENOMEM` 由本地修订保留为 `LIBUSB_ERROR_NO_MEM`。安卓 fd 路径每笔提交 8 个 3072 字节微帧，分配失败后排空队列并在同一接口上逐级降到 4 或 2 个。 [libusb 版本与修订说明](../../native/third_party/libusb/README.lingtouch.md)
 
 参数在 `vision/core/config/lingtouch_defaults.conf`。深度含义、去畸变和镜像仍是可配置项；无可信地面时输出未知，不能将空心点解读为已确认的自由空间。USB 回归使用模拟传输，不能代替手机供电、内核和真实相机验收。

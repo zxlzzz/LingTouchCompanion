@@ -1,4 +1,6 @@
-# 当前 pipeline 与数据契约
+# 1.x 深度 pipeline 与数据契约
+
+当前版本见 [2.0 深度复核与融合](fusion_2_0.md)。
 
 ```mermaid
 %%{init:{"theme":"base","themeVariables":{"primaryColor":"#fff","primaryTextColor":"#000","primaryBorderColor":"#000","lineColor":"#000"}}}%%

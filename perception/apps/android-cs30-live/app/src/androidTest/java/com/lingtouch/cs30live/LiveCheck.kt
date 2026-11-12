@@ -21,8 +21,10 @@ import java.util.concurrent.TimeUnit
 object NativeSimulator {
     init { System.loadLibrary("cs30_live_test") }
     @JvmStatic external fun create(): Long
+    @JvmStatic external fun createReviewed(): Long
+    @JvmStatic external fun autoReflectionFixture(handle: Long): ByteArray
     @JvmStatic external fun configure(blob: ByteArray)
-    @JvmStatic external fun open(handle: Long, fd: Int): String?
+    @JvmStatic external fun open(handle: Long, fd: Int, restoreStreamIdle: Boolean): String?
     @JvmStatic external fun acquire(handle: Long, mode: Int): String?
     @JvmStatic external fun poll(handle: Long): String
     @JvmStatic external fun disconnect(handle: Long): String?
@@ -46,12 +48,13 @@ class SimulatedBackend(private val tests: Instrumentation) : CameraBackend {
     @Volatile var permission = true
     @Volatile var enumerationMode = 0 // 1=temporary empty, 2=temporary query exception
     @Volatile var connectedId = -1
+    @Volatile var primaryDeviceId = 42
     @Volatile var handle = 0L
     private var producer: java.util.concurrent.ScheduledExecutorService? = null
     override val needsCameraPermission = false
     override fun devices(): List<DeviceChoice> {
         if(enumerationMode==2)error("Temporary USB device-list query failure")
-        return if (available && enumerationMode==0) listOf(DeviceChoice(42,"测试 CS30 A · 模拟 USB",true),
+        return if (available && enumerationMode==0) listOf(DeviceChoice(primaryDeviceId,"测试 CS30 A · 模拟 USB",true),
         DeviceChoice(43,"测试 CS30 B · 模拟 USB",true),DeviceChoice(44,"其他 USB 设备",false)) else emptyList()
     }
     override fun hasPermission(id: Int) = permission && available
@@ -62,7 +65,7 @@ class SimulatedBackend(private val tests: Instrumentation) : CameraBackend {
         UsbClaims.forceAll(listOf(0,1,1), { NativeSimulator.forceClaim(it,true) },
             { NativeSimulator.javaRelease(it) }, { "simulated interface=$it" }, {})
         if (handle == 0L) handle = NativeSimulator.create()
-        check(NativeSimulator.open(handle, id) == null)
+        check(NativeSimulator.open(handle, id, false) == null)
         connectedId = id
         var fid = 0
         producer = Executors.newSingleThreadScheduledExecutor().also { p ->
@@ -105,6 +108,7 @@ class LiveCheck : Instrumentation() {
         try {
             val transport = JSONObject(NativeSimulator.transportCheck(context.assets.open("calibration.bin").use { it.readBytes() }))
             verify(transport.getBoolean("passed"),"USB BUSY, rapid callbacks, delayed cancellation, failed release and partial submit regressions pass")
+            FusionCheck.run(this) { condition, message -> verify(condition, message) }
             val claimed=mutableListOf<Int>();val released=mutableListOf<Int>()
             UsbClaims.forceAll(listOf(0,1,1),{claimed.add(it);true},{released.add(it);true},{"interface=$it"},{})
             verify(claimed==listOf(0,1),"Java claims each interface once despite duplicate alternate settings")
@@ -112,9 +116,24 @@ class LiveCheck : Instrumentation() {
             val partial=runCatching { UsbClaims.forceAll(listOf(0,1),{claimed.add(it);it==0},{released.add(it);true},{"interface=$it"},{}) }
             verify(partial.isFailure&&released==listOf(0),"Failed Java interface claim rolls back previously claimed interfaces")
             source=SimulatedBackend(this)
+            source.enumerationMode=1
             AppDependencies.factory={source}
             activity=startActivitySync(Intent(targetContext,MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
             waitForIdleSync()
+            runOnMainSync {
+                val selected = activity.findViewById<Spinner>(MainActivity.ID_DEVICES).selectedItem as DeviceChoice
+                check(selected.id == -1)
+            }
+            // The system's list becomes ready without an attach broadcast or a manual refresh.
+            source.enumerationMode=0
+            waitFor("automatic discovery after delayed USB enumeration") {
+                var discovered = false
+                runOnMainSync {
+                    discovered = activity.findViewById<Spinner>(MainActivity.ID_DEVICES).count == 3
+                }
+                discovered
+            }
+            verify(source.connectedId == -1, "Delayed USB list populates automatically without opening a device")
             verify(activity.findViewById<Spinner>(MainActivity.ID_DEVICES).count==3,"Dropdown lists multiple devices")
             runOnMainSync { activity.findViewById<Spinner>(MainActivity.ID_DEVICES).setSelection(1) }
             click(MainActivity.ID_CONNECT)
@@ -242,40 +261,60 @@ class LiveCheck : Instrumentation() {
             waitFor("valid frame restored") { activity.controller.state.frame?.valid==true }
             val beforeUnplug=activity.controller.state.frame!!.json(6)
             source.available=false;NativeSimulator.unplug()
-            runOnMainSync { activity.refreshDevices() }
+            runOnMainSync { activity.handleCs30Detached(43) }
             waitFor("unplug") { !activity.controller.state.connected }
             verify(activity.controller.state.frame!!.json(6)==beforeUnplug,"Unplug preserves the last measurement and disables acquisition")
+            val newDeviceId = 45
+            source.primaryDeviceId = newDeviceId
             source.available=true;source.permission=false
-            runOnMainSync { activity.refreshDevices() }
+            waitFor("new USB address after replug") {
+                var selected = false
+                runOnMainSync {
+                    selected = (activity.findViewById<Spinner>(MainActivity.ID_DEVICES).selectedItem as DeviceChoice).id == newDeviceId
+                }
+                selected
+            }
+            verify(!activity.controller.state.connected, "Explicit detach closes old session and discovers the newly enumerated ID")
             click(MainActivity.ID_CONNECT)
             source.enumerationMode=1
             runOnMainSync { activity.refreshDevices() }
-            runOnMainSync { check((activity.findViewById<Spinner>(MainActivity.ID_DEVICES).selectedItem as DeviceChoice).id==42) }
+            runOnMainSync { check((activity.findViewById<Spinner>(MainActivity.ID_DEVICES).selectedItem as DeviceChoice).id==newDeviceId) }
             source.permission=true
             targetContext.sendBroadcast(Intent(UsbCameraBackend.ACTION_PERMISSION).setPackage(targetContext.packageName)
-                .putExtra(UsbCameraBackend.REQUESTED_DEVICE,42))
+                .putExtra(UsbCameraBackend.REQUESTED_DEVICE,newDeviceId))
             waitFor("permission survives enumeration omission") { activity.controller.state.connected }
-            verify(source.connectedId==42,"Pending USB permission survives a temporary empty discovery list")
+            verify(source.connectedId==newDeviceId,"Pending USB permission survives a temporary empty discovery list")
             source.enumerationMode=0
             click(MainActivity.ID_DISCONNECT)
             source.permission=false
             runOnMainSync { activity.refreshDevices() }
             click(MainActivity.ID_CONNECT)
             targetContext.sendBroadcast(Intent(UsbCameraBackend.ACTION_PERMISSION).setPackage(targetContext.packageName)
-                .putExtra(UsbCameraBackend.REQUESTED_DEVICE,42))
+                .putExtra(UsbCameraBackend.REQUESTED_DEVICE,newDeviceId))
             waitFor("permission rejection UI") { activity.findViewById<android.widget.TextView>(MainActivity.ID_STATUS).text.contains("未获得 USB") }
             verify(!activity.controller.state.connected,"Rejected USB permission cannot open the device")
             source.permission=true;click(MainActivity.ID_CONNECT)
             waitFor("reconnect") { activity.controller.state.connected }
             click(MainActivity.ID_SAMPLE)
             waitFor("fresh result after reconnect") { activity.controller.state.mode==0 && activity.controller.state.frame!!.json(6)==beforeUnplug }
-            verify(source.connectedId==42,"Reconnect opens the currently selected CS30 A")
+            verify(source.connectedId==newDeviceId,"Reconnect opens the newly enumerated CS30")
             screenshot("cs30-live-manual.png")
 
             // Production native library can initialize and close without any test USB backend.
             val real=NativeCamera.create();verify(real!=0L,"Production ARM-compatible JNI initializes")
             verify(!JSONObject(NativeCamera.poll(real)).getBoolean("connected"),"Production core reports no invented camera connection")
             NativeCamera.destroy(real)
+            val replayMonitor = addMonitor(RgbdReplayActivity::class.java.name, null, false)
+            click(MainActivity.ID_RGBD_REPLAY)
+            val replay = waitForMonitorWithTimeout(replayMonitor, 2500) as? RgbdReplayActivity
+            checkNotNull(replay) { "Replay page did not open" }
+            val treeMonitor = addMonitor(IntentFilter(Intent.ACTION_OPEN_DOCUMENT_TREE),
+                ActivityResult(Activity.RESULT_CANCELED, null), true)
+            runOnMainSync { replay.findViewById<Button>(RgbdReplayActivity.ID_PICK_FOLDER).performClick() }
+            waitForIdleSync()
+            verify(treeMonitor.hits == 1, "Replay entry opens Android's sample folder picker")
+            removeMonitor(treeMonitor)
+            runOnMainSync { replay.finish() }
             val json=JSONObject().put("passed",true).put("checks",JSONArray(checks)).put("threshold_bits",comparisons)
                 .put("auto_frames",acquired).put("auto_interval_ms",elapsed).put("physical_camera_tested",false)
                 .put("usb_transport",transport)

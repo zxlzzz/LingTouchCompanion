@@ -5,7 +5,7 @@ get_filename_component(REPOSITORY "${CMAKE_CURRENT_SOURCE_DIR}/../../.." ABSOLUT
 set(LINGTOUCH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(LINGTOUCH_WITH_LIBUSB ON CACHE BOOL "" FORCE)
 add_subdirectory("${REPOSITORY}/vision/core" repository-core)
-add_library(cs30_live SHARED live_bridge.cpp)
+add_library(cs30_live SHARED live_bridge.cpp rgbd_bridge.cpp)
 target_link_libraries(cs30_live PRIVATE lingtouch_engine lingtouch_cs30_libusb log)
 lingtouch_target_defaults(cs30_live)
 

@@ -25,10 +25,11 @@ void size_frame(DepthFrame* f) {
 
 }  // namespace
 
-Engine::Engine(const Config& config, bool managed_acquisition)
+Engine::Engine(const Config& config, bool managed_acquisition, bool reflection_review)
     : config_(config),
+      reflection_review_(reflection_review),
       default_acquisition_mode_(managed_acquisition ? 0 : 3),
-      pipeline_(std::make_unique<DepthPipeline>(config)),
+      pipeline_(std::make_unique<DepthPipeline>(config, reflection_review)),
       assembler_(cs30::kFrameBytes, [this](const uint8_t* data, size_t size) { on_frame(data, size); }) {
   acquisition_mode_ = default_acquisition_mode_;
   size_frame(&pending_);
@@ -130,11 +131,13 @@ void Engine::reset_stream() {
   std::lock_guard<std::mutex> result(result_mutex_);
   ++session_;
   pending_ready_ = false;
+  recent_samples_.clear();
+  pending_history_.clear();
   acquisition_mode_ = default_acquisition_mode_;
   ++acquisition_epoch_;
   collector_.reset();
   intrinsics_.reset();
-  pipeline_ = std::make_unique<DepthPipeline>(config_);
+  pipeline_ = std::make_unique<DepthPipeline>(config_, reflection_review_);
   latest_grid_ = OccupancyGrid{};
   latest_frame_ = DepthFrame{};
   has_frame_ = false;
@@ -156,24 +159,38 @@ Status Engine::set_acquisition(int mode) {
 // 在 assembler_mutex_ 内被调用。加锁顺序：assembler → pending → result。
 void Engine::on_frame(const uint8_t* data, size_t size) {
   std::lock_guard<std::mutex> lock(pending_mutex_);
-  if (acquisition_mode_ == 0) return;
   const int64_t acquired_at = now_ns();
+  bool selected = acquisition_mode_ != 0;
   if (acquisition_mode_ == 2) {
-    if (acquired_at < next_acquisition_ns_) return;
+    selected = acquired_at >= next_acquisition_ns_;
     constexpr int64_t period = 500000000;
-    next_acquisition_ns_ += ((acquired_at - next_acquisition_ns_) / period + 1) * period;
+    if (selected) next_acquisition_ns_ += ((acquired_at - next_acquisition_ns_) / period + 1) * period;
   } else if (acquisition_mode_ == 1) {
     acquisition_mode_ = 0;
   }
+  const bool sample = reflection_review_ && (recent_samples_.empty() ||
+      acquired_at - recent_samples_.back().capture_time_ns >= 160000000);
+  if (!selected && !sample) return;
+  auto decode = [&](DepthFrame& out) {
+    for (size_t i = 0; i < size / 2; ++i)
+      out.depth_mm[i] = static_cast<uint16_t>(data[2 * i] | (data[2 * i + 1] << 8));
+    out.capture_time_ns = acquired_at;
+  };
+  if (selected && reflection_review_) pending_history_.assign(recent_samples_.begin(), recent_samples_.end());
+  if (sample) {
+    if (recent_samples_.size() == 2) recent_samples_.pop_front();
+    DepthFrame raw;
+    size_frame(&raw);
+    decode(raw);
+    recent_samples_.push_back(std::move(raw));
+  }
+  if (!selected) return;
   if (pending_ready_) {
     std::lock_guard<std::mutex> result(result_mutex_);
     ++stats_.frames_dropped_busy;
   }
-  const size_t n = size / 2;
-  uint16_t* out = pending_.depth_mm.data();
-  for (size_t i = 0; i < n; ++i) out[i] = static_cast<uint16_t>(data[2 * i] | (data[2 * i + 1] << 8));  // 小端
+  decode(pending_);
   pending_.frame_id = next_frame_id_++;
-  pending_.capture_time_ns = now_ns();
   pending_session_ = session_.load();
   pending_acquisition_epoch_ = acquisition_epoch_.load();
   pending_ready_ = true;
@@ -182,6 +199,7 @@ void Engine::on_frame(const uint8_t* data, size_t size) {
 
 void Engine::worker_loop() {
   DepthFrame frame;
+  std::vector<DepthFrame> recent;
   size_frame(&frame);
   for (;;) {
     uint64_t frame_session = 0, frame_acquisition = 0;
@@ -190,6 +208,7 @@ void Engine::worker_loop() {
       pending_cv_.wait(lock, [this] { return pending_ready_ || stopping_; });
       if (stopping_) return;
       std::swap(frame, pending_);
+      recent = std::move(pending_history_);
       frame_session = pending_session_;
       frame_acquisition = pending_acquisition_epoch_;
       pending_ready_ = false;
@@ -199,7 +218,7 @@ void Engine::worker_loop() {
     {
       std::lock_guard<std::mutex> lock(pipeline_mutex_);
       frame.intrinsics_id = intrinsics_ ? intrinsics_->id : std::string();
-      grid = pipeline_->process(frame);
+      grid = pipeline_->process(frame, {}, reflection_review_ ? &recent : nullptr);
     }
     const double ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
     std::lock_guard<std::mutex> lock(result_mutex_);

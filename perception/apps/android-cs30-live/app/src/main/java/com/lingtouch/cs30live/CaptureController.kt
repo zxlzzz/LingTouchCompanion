@@ -44,9 +44,15 @@ class CaptureController(private val backend: CameraBackend, private val listener
         val token = epoch.incrementAndGet()
         update(state.copy(connecting = true, connected = false, mode = 0, deviceId = id, message = "正在连接并读取相机标定…"))
         worker.execute {
+            if (!alive || epoch.get() != token) return@execute
             workerEpoch = token; workerMode = 0; workerConnected = false
             try {
-                backend.connect(id); workerConnected = true; seenFrame = -1
+                backend.connect(id)
+                if (!alive || epoch.get() != token) {
+                    backend.disconnect()
+                    return@execute
+                }
+                workerConnected = true; seenFrame = -1
                 val log = backend.diagnostics()
                 post(token) { it.copy(connecting = false, connected = true, mode = 0, message = "已连接，等待采集", transportLog = log) }
             } catch (e: Throwable) { failed(token, e) }
