@@ -1,6 +1,4 @@
 // 各模块接口，按《视觉方案 v1.0》第 9 节的模块划分命名。
-// 本次实现了 SensorAdapter（CS30）、GroundPose、GeometryGrid、OutputAdapter/TactileEncoder（旧板）；
-// 其余只留接口，没有实现，也不提供假实现。
 #pragma once
 
 #include <array>
@@ -8,6 +6,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -28,20 +27,106 @@ struct GroundPoint {
 };
 
 // ---------------------------------------------------------------------------
-// SensorAdapter：传感器数据 → 带时间戳和内参的 FrameBundle
+// SensorAdapter：CS30 设备发现、开关流、取帧和读取当前流的标定。
 // ---------------------------------------------------------------------------
+enum class CameraStreamMode { kDepth, kDepthRgb };
+
+struct CameraResolution {
+  int width = 0;
+  int height = 0;
+};
+
+struct CameraStreamProfile {
+  CameraStreamMode mode = CameraStreamMode::kDepth;
+  CameraResolution depth;
+  std::optional<CameraResolution> color;  // 仅 kDepthRgb 有彩色分辨率。
+};
+
+struct CameraColorCalibration {
+  CameraIntrinsics intrinsics;  // 对应当前输出的彩色分辨率。
+  // 两相机坐标均为 x 右、y 下、z 前。p_rgb = R * p_depth + t，点和 t 均为毫米，R 按行存储。
+  std::array<double, 9> rgb_from_depth_rotation{};
+  std::array<double, 3> rgb_from_depth_translation_mm{};
+};
+
+struct CameraCalibration {
+  CameraIntrinsics depth;  // 对应当前输出的深度分辨率。
+  DepthMeaning depth_meaning = DepthMeaning::kOpticalAxisZ;
+  std::optional<CameraColorCalibration> color;  // 仅 kDepthRgb 有完整彩色标定。
+};
+
+struct CameraColorFrame {
+  CameraResolution resolution;
+  std::vector<uint8_t> jpeg;
+};
+
 struct FrameBundle {
+  // 深度为行优先 uint16 毫米，0 表示无效。capture_time_ns 是拼帧完成时的
+  // 主机单调时钟（与 ImuSample::time_ns 同源），不是硬件曝光时刻。
   DepthFrame depth;
-  CameraIntrinsics depth_intrinsics;
-  // RGB 与配准以后加；字段先空着，不填假值。
+  // 与深度同一采集组，共用 depth.frame_id。两路仍在各自的像素坐标系中。
+  std::optional<CameraColorFrame> color;
+  std::shared_ptr<const CameraCalibration> calibration;  // 成功取帧时必有值，可随帧保留。
+};
+
+struct CameraCaptureSettings {
+  // 设备报告的配置帧率；实收帧率由调用方按时间戳统计。
+  std::optional<double> configured_fps;
+  std::optional<int> depth_integration_us;
+  // 当前深度分辨率允许的积分时间范围，含上下限。查询不到的字段留空。
+  std::optional<std::array<int, 2>> depth_integration_range_us;
+};
+
+enum class CameraCode {
+  kOk,
+  kDeviceNotFound,
+  kPermissionDenied,
+  kOpenFailed,
+  kUnsupportedProfile,
+  kStartFailed,
+  kCalibrationUnavailable,
+  kNoNewFrame,
+  kDisconnected,
+  kStreamInterrupted,
+  kInvalidState,
+  kIoError,
+};
+
+struct CameraStatus {
+  CameraCode code = CameraCode::kOk;
+  std::string message;  // 出错时可带底层错误信息，调用方按 code 判断。
+
+  explicit operator bool() const { return code == CameraCode::kOk; }
 };
 
 class SensorAdapter {
  public:
   virtual ~SensorAdapter() = default;
-  using FrameCallback = std::function<void(const FrameBundle&)>;
-  virtual Status start(FrameCallback on_frame) = 0;
-  virtual void stop() = 0;
+  // 可选。打开设备后通过 kDisconnected 或 kStreamInterrupted 通知异常。
+  // 回调可能在后台线程执行，调用方应转发事件后再操作设备。
+  using EventCallback = std::function<void(const CameraStatus&)>;
+
+  // 调用方串行调用下列方法，并在平台侧取得 USB 权限。出参仅在成功时更新。
+  // 枚举成功但没有设备时返回空列表。ID 从本次枚举取得，重新插入后应重新枚举。
+  virtual CameraStatus find_devices(std::vector<std::string>& device_ids) = 0;
+  virtual CameraStatus open_device(const std::string& device_id, EventCallback on_event = {}) = 0;
+
+  // 打开后查询实际支持的流配置组合。开流时传入其中一项。
+  virtual CameraStatus get_stream_profiles(std::vector<CameraStreamProfile>& profiles) = 0;
+  // 成功表示已发起取流。帧和标定可能稍后才可用。
+  virtual CameraStatus start_streaming(const CameraStreamProfile& profile) = 0;
+  // 查询当前流。标定未就绪或缺少当前模式需要的字段时返回 kCalibrationUnavailable。
+  virtual CameraStatus get_calibration(std::shared_ptr<const CameraCalibration>& calibration) = 0;
+  virtual CameraStatus get_capture_settings(CameraCaptureSettings& settings) = 0;
+
+  // 取比 after_frame_id 新的最新一组数据，首次传 0。帧号从 1 起，同一对象内递增。
+  // 暂时没有新帧时返回 kNoNewFrame。有帧但标定不全时返回 kCalibrationUnavailable。
+  // 停流、重新开流和断开后均不得返回上一次会话的缓存帧。
+  virtual CameraStatus get_latest_frame(uint64_t after_frame_id, FrameBundle& frame) = 0;
+
+  // 停流后设备仍然打开，可以重新开流。关闭会停止取流并释放设备，返回后没有回调。
+  virtual CameraStatus stop_streaming() = 0;
+  virtual CameraStatus close_device() = 0;
 };
 
 // ---------------------------------------------------------------------------
