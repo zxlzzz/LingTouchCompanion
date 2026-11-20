@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothStatusCodes
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
@@ -148,7 +149,7 @@ class WitImuLink(
             }
             val enabled = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
             val queued = if (Build.VERSION.SDK_INT >= 33) {
-                g.writeDescriptor(descriptor, enabled) == BluetoothGatt.GATT_SUCCESS
+                g.writeDescriptor(descriptor, enabled) == BluetoothStatusCodes.SUCCESS
             } else {
                 @Suppress("DEPRECATION")
                 descriptor.value = enabled

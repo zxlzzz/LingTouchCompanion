@@ -144,7 +144,8 @@ void compute_depth_mask(const DepthFrame& frame, const DepthCameraModel& model, 
   // 疑似相位绕回：近点四周 (2r+1)² 窗口里无效像素占比过高 → 无效。基于上一步的掩膜计算。
   if (p.wrap_window_radius_px > 0) {
     const int r = p.wrap_window_radius_px;
-    std::vector<uint32_t> integral((static_cast<size_t>(w) + 1) * (static_cast<size_t>(h) + 1), 0);
+    auto& integral = mask->integral;
+    integral.assign((static_cast<size_t>(w) + 1) * (static_cast<size_t>(h) + 1), 0);
     const size_t stride = static_cast<size_t>(w) + 1;
     for (int y = 0; y < h; ++y) {
       uint32_t row = 0;
@@ -153,7 +154,8 @@ void compute_depth_mask(const DepthFrame& frame, const DepthCameraModel& model, 
         integral[(y + 1) * stride + (x + 1)] = integral[y * stride + (x + 1)] + row;
       }
     }
-    std::vector<uint8_t> drop(n, 0);
+    auto& drop = mask->drop;
+    drop.assign(n, 0);
     for (int y = 0; y < h; ++y) {
       for (int x = 0; x < w; ++x) {
         const size_t i = static_cast<size_t>(y) * w + x;
@@ -178,7 +180,8 @@ void compute_depth_mask(const DepthFrame& frame, const DepthCameraModel& model, 
 
   // 边缘飞点：3×3 邻域里深度一致的有效邻居太少 → 丢掉。基于绕回过滤后的掩膜计算。
   if (p.flying_min_consistent_neighbors > 0) {
-    std::vector<uint8_t> drop(n, 0);
+    auto& drop = mask->drop;
+    drop.assign(n, 0);
     for (int y = 0; y < h; ++y) {
       for (int x = 0; x < w; ++x) {
         const size_t i = static_cast<size_t>(y) * w + x;

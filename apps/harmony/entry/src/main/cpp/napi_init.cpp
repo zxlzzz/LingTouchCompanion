@@ -1,10 +1,9 @@
 // ArkTS（import core from 'libentry.so'）↔ 核心。只做转换，不放业务逻辑。
 //
-// 主路径：ArkTS 用 usbManager 执行启动表、用 usbSubmitTransfer 收等时包，每个传输回调
-// 调一次 pushIsoTransfer（按批：一次 32 个微帧），不是每包一次跨层调用。
-// 备选路径（真机清单里和主路径一起测）：usbManager.getFileDescriptor 拿 fd，交给 openFd，
-// 由 native 的 libusb_wrap_sys_device 走和安卓相同的流程。
+// 主应用使用 camera_napi 的异步 SensorAdapter 接口。以下旧协议接口保留供离线工具验证。
 #include "napi/native_api.h"
+#include "camera_napi.h"
+#include "napi_bytes.h"
 
 #include <cstdint>
 #include <cstring>
@@ -28,7 +27,7 @@ using namespace lingtouch;
 namespace {
 
 std::mutex g_mutex;
-std::unique_ptr<Engine> g_engine;
+std::shared_ptr<Engine> g_engine;
 ImuInput g_imu;
 std::string g_last_error;
 #ifdef LINGTOUCH_HARMONY_LIBUSB
@@ -77,29 +76,7 @@ bool get_double(napi_env env, napi_value v, double* out) { return napi_get_value
 
 // ArrayBuffer 或 TypedArray（Uint8Array 等）→ 指针和字节数，不拷贝
 bool get_bytes(napi_env env, napi_value v, const uint8_t** data, size_t* size) {
-  bool is_ab = false;
-  napi_is_arraybuffer(env, v, &is_ab);
-  if (is_ab) {
-    void* p = nullptr;
-    if (napi_get_arraybuffer_info(env, v, &p, size) != napi_ok) return false;
-    *data = static_cast<const uint8_t*>(p);
-    return true;
-  }
-  bool is_ta = false;
-  napi_is_typedarray(env, v, &is_ta);
-  if (!is_ta) return false;
-  napi_typedarray_type type;
-  size_t length = 0, offset = 0;
-  void* p = nullptr;
-  napi_value ab;
-  if (napi_get_typedarray_info(env, v, &type, &length, &p, &ab, &offset) != napi_ok) return false;
-  size_t element = 1;
-  if (type == napi_int16_array || type == napi_uint16_array) element = 2;
-  if (type == napi_int32_array || type == napi_uint32_array || type == napi_float32_array) element = 4;
-  if (type == napi_float64_array) element = 8;
-  *data = static_cast<const uint8_t*>(p);
-  *size = length * element;
-  return true;
+  return lingtouch_napi_bytes(env, v, data, size);
 }
 
 Engine* engine(napi_env env) {
@@ -113,7 +90,7 @@ napi_value Init(napi_env env, napi_callback_info) {
   if (g_engine) return str(env, "");
   Result<Config> config = default_config();
   if (!config) return str(env, "默认参数有误：" + config.error());
-  g_engine = std::make_unique<Engine>(config.value());
+  g_engine = std::make_shared<Engine>(config.value());
   return str(env, "");
 }
 
@@ -429,6 +406,7 @@ static napi_value RegisterExports(napi_env env, napi_value exports) {
       {"libusbLog", nullptr, LibusbLog, nullptr, nullptr, nullptr, napi_default, nullptr},
   };
   napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
+  register_camera_api(env,exports,[]{std::lock_guard<std::mutex> lock(g_mutex);return g_engine;});
   return exports;
 }
 EXTERN_C_END

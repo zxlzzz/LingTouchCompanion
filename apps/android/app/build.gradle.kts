@@ -6,6 +6,7 @@ plugins {
 android {
     namespace = "com.lingtouch.companion"
     compileSdk = 35
+    ndkVersion = "27.0.12077973"
 
     defaultConfig {
         applicationId = "com.lingtouch.companion"
@@ -13,6 +14,11 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+        externalNativeBuild {
+            cmake {
+                arguments += "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+            }
+        }
         ndk {
             abiFilters += listOf("arm64-v8a")
         }

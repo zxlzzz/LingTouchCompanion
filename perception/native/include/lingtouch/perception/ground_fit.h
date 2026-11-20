@@ -16,6 +16,9 @@ bool fit_plane_least_squares(const std::vector<Point3>& points, std::array<doubl
 
 // 拟合地面。candidates 是相机坐标系下的候选点（通常按 sample_stride_px 抽样）。
 GroundEstimate fit_ground_plane(const std::vector<Point3>& candidates, const GroundParams& params);
+// Same calculation with caller-owned scratch for a persistent pipeline.
+GroundEstimate fit_ground_plane(const std::vector<Point3>& candidates, const GroundParams& params,
+                               std::vector<Point3>& inliers);
 
 class PlaneFitGroundPose final : public GroundPose {
  public:

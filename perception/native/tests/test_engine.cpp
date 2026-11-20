@@ -153,4 +153,28 @@ LT_TEST(startup_packets_grid_and_tactile_frame) {
               static_cast<unsigned long long>(st.frames_processed), st.last_process_ms);
 }
 
+LT_TEST(external_frames_and_reset_do_not_republish_old_results) {
+  Engine engine(default_config().value());
+  FrameBundle f;
+  auto cal=std::make_shared<CameraCalibration>();
+  const auto calibration_blob=lt_files::read("perception/cs30/calibration_1.bin");
+  cal->depth=cs30::decode_calibration(calibration_blob.data(),calibration_blob.size()).value().depth;
+  f.calibration=cal;f.depth.width=320;f.depth.height=240;
+  f.depth.depth_mm.assign(320*240,1000);f.depth.frame_id=900;
+  LT_CHECK(engine.submit_frame(f));OccupancyGrid grid;
+  LT_CHECK(wait_for_frame(engine,900,&grid));
+  engine.reset_stream();
+  DepthFrame result;LT_CHECK(!engine.latest_frame(&result));
+  LT_CHECK(engine.latest_grid().status==GridStatus::kNoFrame);
+  f.depth.frame_id=901;LT_CHECK(engine.submit_frame(f));engine.reset_stream();
+  std::this_thread::sleep_for(std::chrono::milliseconds(150));
+  LT_CHECK(!engine.latest_frame(&result) && engine.latest_grid().status==GridStatus::kNoFrame);
+  f.depth.depth_mm.pop_back();LT_CHECK(!engine.submit_frame(f));
+  // Returning to the legacy 640x480 source after 320x240 cannot overrun pending storage.
+  auto blob=lt_files::read("perception/cs30/calibration_0.bin");LT_CHECK(engine.set_calibration_blob(blob.data(),blob.size()));
+  auto frame=lt_files::read_depth_frame("perception/cs30/reference_000.bin",1);
+  push_frame(engine,frame,0);LT_CHECK(wait_for_frame(engine,1,&grid));
+  LT_CHECK(engine.latest_frame(&result) && result.width==640 && result.depth_mm.size()==640*480);
+}
+
 LT_TEST_MAIN()

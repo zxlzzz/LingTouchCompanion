@@ -55,6 +55,9 @@ struct DepthMask {
   uint32_t value_valid = 0;
   uint32_t after_wrap = 0;
   uint32_t after_flying = 0;
+  // Per-pipeline scratch: retain capacity instead of allocating every frame.
+  std::vector<uint32_t> integral;
+  std::vector<uint8_t> drop;
 };
 
 // 依次做：无效值（0、恰为 1、量程外、超出畸变可逆范围）→ 疑似相位绕回的孤立近点 → 边缘飞点。

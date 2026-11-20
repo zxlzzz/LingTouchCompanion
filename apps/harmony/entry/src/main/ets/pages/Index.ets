@@ -3,11 +3,13 @@
  * 界面不放假数据：没连设备显示「未连接」，拿不到的值不显示。
  */
 import { abilityAccessCtrl, common, Permissions } from '@kit.AbilityKit';
+import { image } from '@kit.ImageKit';
 import core from 'libentry.so';
-import { Cs30Usb } from '../usb/Cs30Usb';
+import { cs30Usb } from '../usb/Cs30Usb';
 import { HandleCallbacks, HandleLink, HandleState } from '../device/HandleLink';
 import { WitImuLink } from '../device/WitImuLink';
 import { startKeepAlive, stopKeepAlive } from '../common/KeepAlive';
+import { CameraPreview, PreviewImages } from '../camera/CameraPreview';
 
 interface GroundJson {
   ok: boolean;
@@ -53,7 +55,7 @@ const POLICY_FLAT = 1;
 const POLICY_RAISED = 2;
 const POLL_MS = 200;
 
-const usb = new Cs30Usb();
+const usb = cs30Usb;
 const callbacks = new HandleCallbacks();
 const handle = new HandleLink(callbacks);
 const imu = new WitImuLink();
@@ -94,6 +96,22 @@ struct Index {
   @State keepAlive: boolean = false;
   @State planeText: string = '';
   @State detailText: string = '';
+  @State groundDetail: string = '';
+  @State previewText: string = '尚无相机画面';
+  @State previewProgress: string = '';
+  @State colorPreview: image.PixelMap | undefined = undefined;
+  @State depthPreview: image.PixelMap | undefined = undefined;
+  private preview: CameraPreview = new CameraPreview((images: PreviewImages | undefined, message: string) => {
+    this.colorPreview = images?.color;
+    this.depthPreview = images?.depth;
+    this.previewText = message;
+  });
+  private lastGroundAt: number = 0;
+  private lastGridStatus: string = '';
+  private lastCellsKey: string = '!initial';
+  private lastDetailAt: number = 0;
+  private lastRefreshAt: number = 0;
+  private maxRefreshLagMs: number = 0;
   private timer: number = -1;
   private framesSent: number = 0;
   private lastFrames: number = -1;
@@ -117,14 +135,34 @@ struct Index {
       this.sendText = '手柄：按键扫描请求（0x04）';
     };
     this.requestPermissions();
-    this.timer = setInterval(() => this.refresh(), POLL_MS);
+    this.startPolling();
   }
 
   aboutToDisappear(): void {
+    this.preview.stop();
     imu.disconnect();
-    if (this.timer >= 0) {
-      clearInterval(this.timer);
-    }
+    this.stopPolling();
+  }
+
+  onPageShow(): void {
+    this.preview.start();
+    this.startPolling();
+  }
+
+  onPageHide(): void {
+    this.preview.stop();
+    this.stopPolling();
+  }
+
+  private startPolling(): void {
+    if (this.timer >= 0) return;
+    this.lastRefreshAt = 0;
+    this.timer = setInterval(() => this.refresh(), POLL_MS);
+  }
+
+  private stopPolling(): void {
+    if (this.timer >= 0) clearInterval(this.timer);
+    this.timer = -1;
   }
 
   private context(): common.UIAbilityContext {
@@ -169,43 +207,72 @@ struct Index {
   }
 
   private refresh(): void {
+    const refreshAt = Date.now();
+    if (this.lastRefreshAt !== 0) {
+      this.maxRefreshLagMs = Math.max(this.maxRefreshLagMs, refreshAt - this.lastRefreshAt - POLL_MS);
+    }
+    this.lastRefreshAt = refreshAt;
     if (this.coreError) {
       this.gridStatus = `核心初始化失败：${this.coreError}`;
       return;
     }
     this.cameraText = `相机：${usb.status}`;
+    this.preview.update().catch((e: Error) => {
+      this.previewText = `预览失败：${e.message}`;
+    });
     const sample = core.latestImu();
     this.imuText = sample ? `IMU：${imu.state}\n${sample}` : `IMU：${imu.state}`;
     const g = JSON.parse(core.gridJson()) as GridJson;
     if (g.status === 'ok') {
-      this.gridStatus = `栅格：正常（离地 ${(g.ground.height_m ?? 0).toFixed(2)} m，俯仰 ${(g.ground.pitch_deg ?? 0).toFixed(0)}°）`;
+      this.gridStatus = '栅格：正常';
     } else if (g.status === 'ground_fit_failed') {
-      this.gridStatus = `栅格：降级，整张为未知（地面拟合失败：${g.failure}）`;
+      this.gridStatus = '栅格：地面拟合失败，整张为未知';
     } else if (g.status === 'no_calibration') {
-      this.gridStatus = `栅格：没有可用内参（${g.failure}）`;
+      this.gridStatus = '栅格：没有可用内参，整张为未知';
     } else {
       this.gridStatus = '栅格：未连接';
     }
-    const rows: GridRow[] = [];
-    for (let r = 0; r < 6; r++) {
-      const far = 3.4 - 0.4 * r;
-      const label = `第 ${r + 1} 行（${(far - 0.4).toFixed(1)} 到 ${far.toFixed(1)} 米）`;
-      if (g.cells === null) {
-        rows.push(new GridRow(`${r}:-`, '—', `${label}：无数据`));
-        continue;
-      }
-      const part = g.cells.substring(r * 9, r * 9 + 9);
-      const symbols: string[] = [];
-      const words: string[] = [];
-      for (let c = 0; c < 9; c++) {
-        symbols.push(symbol(part.charAt(c)));
-        words.push(word(part.charAt(c)));
-      }
-      rows.push(new GridRow(`${r}:${part}`, symbols.join(' '), `${label}：${words.join('，')}`));
+    // Keep the main status independent of per-frame numeric diagnostics.
+    // State changes remain immediate; only the detailed numbers are throttled.
+    const groundNow = Date.now();
+    if (g.status !== this.lastGridStatus || groundNow - this.lastGroundAt >= 1000) {
+      this.groundDetail = g.status === 'ok' ?
+        `地面估计：离地 ${(g.ground.height_m ?? 0).toFixed(2)} m，俯仰 ${(g.ground.pitch_deg ?? 0).toFixed(0)}°` :
+        (g.failure ? `地面诊断：${g.failure}` : '');
+      this.lastGridStatus = g.status;
+      this.lastGroundAt = groundNow;
     }
-    this.rows = rows;
+    const cellsKey = g.cells ?? 'no_frame';
+    if (cellsKey !== this.lastCellsKey) {
+      const rows: GridRow[] = [];
+      for (let r = 0; r < 6; r++) {
+        const far = 3.4 - 0.4 * r;
+        const label = `第 ${r + 1} 行（${(far - 0.4).toFixed(1)} 到 ${far.toFixed(1)} 米）`;
+        if (g.cells === null) {
+          rows.push(new GridRow(`${r}:-`, '—', `${label}：无数据`));
+          continue;
+        }
+        const part = g.cells.substring(r * 9, r * 9 + 9);
+        const symbols: string[] = [];
+        const words: string[] = [];
+        for (let c = 0; c < 9; c++) {
+          symbols.push(symbol(part.charAt(c)));
+          words.push(word(part.charAt(c)));
+        }
+        rows.push(new GridRow(`${r}:${part}`, symbols.join(' '), `${label}：${words.join('，')}`));
+      }
+      this.rows = rows;
+      this.lastCellsKey = cellsKey;
+    }
 
+    // Preview/USB need a responsive event loop; large diagnostic strings and
+    // unchanged row arrays do not need to be rebuilt at the preview rate.
+    if (refreshAt - this.lastDetailAt < 1000) return;
+    this.lastDetailAt = refreshAt;
     const st = JSON.parse(core.statsJson()) as StatsJson;
+    const capture = core.cameraStatus();
+    this.previewProgress = `已收 ${capture.receivedFrames} 组；${this.preview.progress()}；` +
+      `距新数据 ${capture.lastFrameAgeMs >= 0 ? capture.lastFrameAgeMs.toFixed(0) + ' ms' : '无数据'}`;
     const now = Date.now();
     if (this.lastFrames < 0) {
       this.lastFrames = st.frames_processed;
@@ -219,11 +286,14 @@ struct Index {
     if (usb.path !== '' && this.fps >= 0) {
       lines.push(`处理帧率 ${this.fps.toFixed(1)} 帧/秒（实测，最近 2 秒）`);
     }
-    lines.push(`传输 ${st.transfers}（回调 ${usb.callbacks}，回调错误 ${usb.callbackErrors}），拼帧 ${st.frames}，` +
-      `丢弃不完整 ${st.incomplete}，包错误 ${st.packet_errors}，UVC 错误位 ${st.uvc_errors}，` +
+    lines.push(`回调 ${usb.callbacks}，回调错误 ${usb.callbackErrors}，已处理 ${st.frames_processed} 帧，` +
       `计算忙时替换 ${st.frames_dropped_busy}，上一帧计算 ${st.last_process_ms} ms`);
+    lines.push(`采集进度：已收 ${capture.receivedFrames} 组，最新帧 ${capture.captureFrameId}，` +
+      `距上一组 ${capture.lastFrameAgeMs >= 0 ? capture.lastFrameAgeMs.toFixed(0) + ' ms' : '无数据'}；` +
+      `预览复制 ${capture.previewCopies} 次，界面刷新最大延迟 ${this.maxRefreshLagMs} ms`);
+    lines.push(this.preview.diagnostics());
     lines.push(`已发帧 ${this.framesSent}，手柄确认刷新 ${handle.framesShown}`);
-    lines.push(core.deviceSummary());
+    lines.push(usb.diagnostics);
     this.detailText = lines.join('\n');
   }
 
@@ -232,17 +302,46 @@ struct Index {
       Column({ space: 8 }) {
         Text('灵触 · 端侧骨架').fontSize(24)
         Text(this.cameraText).fontSize(16)
-        Button('连接相机（usbSubmitTransfer）').onClick(async () => {
+        Button('连接相机（深度和彩色）').onClick(async () => {
           const err = await usb.startSubmitTransfer();
           this.cameraText = err ? `相机：开流失败：${err}` : `相机：${usb.status}`;
         })
-        Button('连接相机（备选：fd + libusb）').onClick(async () => {
-          const err = await usb.startViaFd();
+        Button('重新启动取流').onClick(async () => {
+          const err = await usb.restart();
           this.cameraText = err ? `相机：开流失败：${err}` : `相机：${usb.status}`;
         })
         Button('断开相机').onClick(async () => {
           await usb.stop();
         })
+
+        Row({ space: 8 }) {
+          Column({ space: 4 }) {
+            Text('彩色画面').fontSize(13)
+            if (this.colorPreview !== undefined) {
+              Image(this.colorPreview)
+                .width('100%').height(160).objectFit(ImageFit.Contain).backgroundColor('#111111')
+                .accessibilityText('CS30 彩色实时画面')
+                .onComplete(() => this.preview.colorDisplayed())
+                .onError(() => this.preview.colorDisplayed())
+            } else {
+              Text('等待彩色画面').fontSize(13).width('100%').height(160)
+            }
+          }.layoutWeight(1)
+          Column({ space: 4 }) {
+            Text('深度画面').fontSize(13)
+            if (this.depthPreview !== undefined) {
+              Image(this.depthPreview)
+                .width('100%').height(160).objectFit(ImageFit.Contain).backgroundColor('#111111')
+                .accessibilityText('CS30 深度实时画面，近亮远暗，黑色表示没有有效距离')
+                .onComplete(() => this.preview.depthDisplayed())
+                .onError(() => this.preview.depthDisplayed())
+            } else {
+              Text('等待深度画面').fontSize(13).width('100%').height(160)
+            }
+          }.layoutWeight(1)
+        }.width('100%')
+        Text(`${this.previewText}；深度 0.1～5 m，近亮远暗，黑色为无效`).fontSize(12)
+        Text(this.previewProgress).fontSize(12)
 
         Text(this.gridStatus).fontSize(16)
         Text('从远到近 6 行、从左到右 9 列；· 空  ■ 障碍  ? 未知（相机视角，未做穿戴镜像）').fontSize(13)
@@ -252,6 +351,7 @@ struct Index {
             .fontFamily('monospace')
             .accessibilityText(row.label)
         }, (row: GridRow) => row.key)
+        Text(this.groundDetail).fontSize(13)
 
         Text(this.handleText).fontSize(16)
         Button('扫描并连接手柄').onClick(() => {

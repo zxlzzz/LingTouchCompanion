@@ -43,29 +43,33 @@ OccupancyGrid DepthPipeline::process(const DepthFrame& frame) {
   g.counts.after_wrap = mask_.after_wrap;
   g.counts.after_flying = mask_.after_flying;
 
-  points_.clear();
   candidates_.clear();
   const int stride = config_.ground.sample_stride_px;
   const DepthMeaning meaning = config_.depth.meaning;
-  for (int v = 0; v < m.height(); ++v) {
-    for (int u = 0; u < m.width(); ++u) {
+  candidates_.reserve(static_cast<size_t>((m.width() + stride - 1) / stride) *
+                      static_cast<size_t>((m.height() + stride - 1) / stride));
+  // Preserve the exact candidate order, but postpone the full cloud until a
+  // usable ground plane exists. Failed fits do not need the other pixels.
+  for (int v = 0; v < m.height(); v += stride) {
+    for (int u = 0; u < m.width(); u += stride) {
       const size_t i = static_cast<size_t>(v) * static_cast<size_t>(m.width()) + static_cast<size_t>(u);
       if (!mask_.valid[i]) continue;
       const Point3 p = backproject(m, i, frame.depth_mm[i], meaning);
-      points_.push_back(p);
-      if (u % stride == 0 && v % stride == 0) candidates_.push_back(p);
+      candidates_.push_back(p);
     }
   }
 
-  g.ground = fit_ground_plane(candidates_, config_.ground);
+  g.ground = fit_ground_plane(candidates_, config_.ground, inliers_);
   if (!g.ground.ok) {
     g.status = GridStatus::kGroundFitFailed;  // 降级：整张图为 2（cells 默认就是 kUnknown）
     return g;
   }
   const GroundFrame gf = make_ground_frame(g.ground, config_.depth.image_mirrored);
   ground_points_.clear();
-  ground_points_.reserve(points_.size());
-  for (const Point3& p : points_) ground_points_.push_back(gf.to_ground(p));
+  ground_points_.reserve(mask_.after_flying);
+  for (size_t i = 0; i < n; ++i) {
+    if (mask_.valid[i]) ground_points_.push_back(gf.to_ground(backproject(m, i, frame.depth_mm[i], meaning)));
+  }
   builder_.build(ground_points_, &g);
   g.status = GridStatus::kOk;
   return g;

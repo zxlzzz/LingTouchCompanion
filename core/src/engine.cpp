@@ -1,6 +1,7 @@
 #include "lingtouch/engine.h"
 
 #include <chrono>
+#include <cmath>
 #include <cstdio>
 #include <fstream>
 #include <iterator>
@@ -17,6 +18,12 @@ void size_frame(DepthFrame* f) {
   f->width = cs30::kWidth;
   f->height = cs30::kHeight;
   f->depth_mm.assign(static_cast<size_t>(cs30::kWidth) * cs30::kHeight, 0);
+}
+
+bool same_intrinsics(const CameraIntrinsics& a,const CameraIntrinsics& b) {
+  return a.id==b.id && a.width==b.width && a.height==b.height &&
+      a.fx==b.fx && a.fy==b.fy && a.cx==b.cx && a.cy==b.cy &&
+      a.k1==b.k1 && a.k2==b.k2 && a.k3==b.k3 && a.p1==b.p1 && a.p2==b.p2;
 }
 
 }  // namespace
@@ -118,6 +125,43 @@ void Engine::push_iso_transfer(const uint8_t* buffer, size_t size, const IsoPack
 void Engine::reset_stream() {
   std::lock_guard<std::mutex> lock(assembler_mutex_);
   assembler_.reset();
+  {
+    std::lock_guard<std::mutex> startup(startup_mutex_);
+    collector_.reset();
+  }
+  std::lock_guard<std::mutex> pending(pending_mutex_);
+  ++capture_session_;
+  pending_ready_ = false;
+  pending_intrinsics_.reset();
+  std::lock_guard<std::mutex> result(result_mutex_);
+  latest_frame_ = DepthFrame{};
+  latest_grid_ = OccupancyGrid{};
+  has_frame_ = false;
+}
+
+Status Engine::submit_frame(const FrameBundle& bundle) {
+  const DepthFrame& frame = bundle.depth;
+  if (!bundle.calibration) return Status::failure("采集帧缺少标定");
+  const auto& in = bundle.calibration->depth;
+  const double params[]={in.fx,in.fy,in.cx,in.cy,in.k1,in.k2,in.k3,in.p1,in.p2};
+  for(double p:params)if(!std::isfinite(p))return Status::failure("采集帧标定包含非有限数值");
+  if(in.fx<=0 || in.fy<=0 || in.cx<0 || in.cy<0 || in.cx>=in.width || in.cy>=in.height)
+    return Status::failure("采集帧标定参数无效");
+  if (frame.width <= 0 || frame.height <= 0 || frame.width != in.width || frame.height != in.height ||
+      frame.depth_mm.size() != static_cast<size_t>(frame.width) * static_cast<size_t>(frame.height))
+    return Status::failure("采集帧尺寸与标定不一致");
+  std::lock_guard<std::mutex> pending(pending_mutex_);
+  if (stopping_) return Status::failure("核心正在关闭");
+  if (pending_ready_) {
+    std::lock_guard<std::mutex> result(result_mutex_);
+    ++stats_.frames_dropped_busy;
+  }
+  pending_ = frame;
+  pending_intrinsics_ = in;
+  pending_session_ = capture_session_;
+  pending_ready_ = true;
+  pending_cv_.notify_one();
+  return Status::success();
 }
 
 // 在 assembler_mutex_ 内被调用。加锁顺序：assembler → pending → result。
@@ -128,10 +172,15 @@ void Engine::on_frame(const uint8_t* data, size_t size) {
     ++stats_.frames_dropped_busy;
   }
   const size_t n = size / 2;
+  if (size != cs30::kFrameBytes) return;
+  if (pending_.width != cs30::kWidth || pending_.height != cs30::kHeight || pending_.depth_mm.size()!=n)
+    size_frame(&pending_);
   uint16_t* out = pending_.depth_mm.data();
   for (size_t i = 0; i < n; ++i) out[i] = static_cast<uint16_t>(data[2 * i] | (data[2 * i + 1] << 8));  // 小端
   pending_.frame_id = next_frame_id_++;
   pending_.capture_time_ns = monotonic_time_ns();
+  pending_intrinsics_.reset();
+  pending_session_ = capture_session_;
   pending_ready_ = true;
   pending_cv_.notify_one();
 }
@@ -140,21 +189,38 @@ void Engine::worker_loop() {
   DepthFrame frame;
   size_frame(&frame);
   for (;;) {
+    uint64_t session = 0;
+    std::optional<CameraIntrinsics> captured_intrinsics;
     {
       std::unique_lock<std::mutex> lock(pending_mutex_);
       pending_cv_.wait(lock, [this] { return pending_ready_ || stopping_; });
       if (stopping_) return;
       std::swap(frame, pending_);
+      session = pending_session_;
+      captured_intrinsics = pending_intrinsics_;
       pending_ready_ = false;
     }
     const auto t0 = std::chrono::steady_clock::now();
     OccupancyGrid grid;
     {
       std::lock_guard<std::mutex> lock(pipeline_mutex_);
+      {
+        std::lock_guard<std::mutex> pending(pending_mutex_);
+        // A discarded frame must not restore its calibration after a new
+        // session (or a caller's explicit calibration update) has begun.
+        if(session!=capture_session_)continue;
+      }
+      if (captured_intrinsics && (!intrinsics_ || !same_intrinsics(*intrinsics_,*captured_intrinsics))) {
+        const Status configured = pipeline_->set_intrinsics(*captured_intrinsics);
+        if (!configured) continue;
+        intrinsics_ = captured_intrinsics;
+      }
       frame.intrinsics_id = intrinsics_ ? intrinsics_->id : std::string();
       grid = pipeline_->process(frame);
     }
     const double ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
+    std::lock_guard<std::mutex> pending(pending_mutex_);
+    if (session != capture_session_) continue;
     std::lock_guard<std::mutex> lock(result_mutex_);
     latest_grid_ = grid;
     latest_frame_ = frame;

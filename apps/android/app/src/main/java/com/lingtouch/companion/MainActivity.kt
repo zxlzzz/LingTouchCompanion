@@ -1,6 +1,7 @@
 package com.lingtouch.companion
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -13,6 +14,7 @@ import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Typeface
+import android.graphics.Color
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Build
@@ -25,6 +27,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.LinearLayout
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.ScrollView
@@ -47,9 +50,12 @@ class MainActivity : Activity() {
 
     private val main = Handler(Looper.getMainLooper())
     private var service: StreamService? = null
+    private var pendingUsbDevice: String? = null
 
     private lateinit var cameraText: TextView
     private lateinit var gridStatusText: TextView
+    private lateinit var groundDetailText: TextView
+    private lateinit var preview: CameraPreview
     private lateinit var gridRows: List<TextView>
     private lateinit var handleText: TextView
     private lateinit var imuText: TextView
@@ -63,6 +69,8 @@ class MainActivity : Activity() {
     private var lastFrames = -1L
     private var lastFramesAt = 0L
     private var fps = -1.0
+    private var lastGridStatus = ""
+    private var lastGroundAt = 0L
 
     private val connectionToService = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, binder: IBinder) {
@@ -78,15 +86,20 @@ class MainActivity : Activity() {
 
         override fun onServiceDisconnected(name: ComponentName) {
             service = null
+            preview.clear()
         }
     }
 
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action != ACTION_USB_PERMISSION) return
+            @Suppress("DEPRECATION")
+            val device = intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE) ?: return
+            if (pendingUsbDevice != device.deviceName || device.vendorId != CS30_VENDOR_ID || device.productId != CS30_PRODUCT_ID) return
+            pendingUsbDevice = null
             val granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
-            val device = findCs30()
-            if (!granted || device == null) {
+            val usb = getSystemService(Context.USB_SERVICE) as UsbManager
+            if (!granted || !usb.hasPermission(device)) {
                 cameraText.text = "相机：没有得到 USB 权限"
                 return
             }
@@ -97,27 +110,42 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(buildUi())
-        val filter = IntentFilter(ACTION_USB_PERMISSION)
-        if (Build.VERSION.SDK_INT >= 33) registerReceiver(usbReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        else registerReceiver(usbReceiver, filter)
+        registerUsbReceiver()
         bindService(Intent(this, StreamService::class.java), connectionToService, Context.BIND_AUTO_CREATE)
         requestRuntimePermissions()
     }
 
     override fun onResume() {
         super.onResume()
+        preview.start()
         main.post(poller)
     }
 
     override fun onPause() {
+        preview.stop()
         super.onPause()
         main.removeCallbacks(poller)
     }
 
     override fun onDestroy() {
+        pendingUsbDevice = null
+        preview.destroy()
         unregisterReceiver(usbReceiver)
         unbindService(connectionToService)
         super.onDestroy()
+    }
+
+    private fun registerUsbReceiver() {
+        val filter = IntentFilter(ACTION_USB_PERMISSION)
+        if (Build.VERSION.SDK_INT >= 33) {
+            registerReceiver(usbReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            // Android 10-12 have no RECEIVER_NOT_EXPORTED API. The callback
+            // also requires an outstanding request, matching device and a real
+            // UsbManager grant, including after cancellation.
+            @SuppressLint("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(usbReceiver, filter)
+        }
     }
 
     // ---- 权限 -------------------------------------------------------------------------------
@@ -129,6 +157,7 @@ class MainActivity : Activity() {
             list += Manifest.permission.BLUETOOTH_CONNECT
         } else {
             list += Manifest.permission.ACCESS_FINE_LOCATION
+            list += Manifest.permission.ACCESS_COARSE_LOCATION
         }
         if (Build.VERSION.SDK_INT >= 33) list += Manifest.permission.POST_NOTIFICATIONS
         return list.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
@@ -166,22 +195,32 @@ class MainActivity : Activity() {
         val device = findCs30() ?: run { cameraText.text = "相机：未连接（没找到 2207:0016）"; return }
         val usb = getSystemService(Context.USB_SERVICE) as UsbManager
         if (usb.hasPermission(device)) {
+            pendingUsbDevice = null
             openCamera(device)
             return
         }
         val intent = Intent(ACTION_USB_PERMISSION).setPackage(packageName)
         val flags = if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
+        pendingUsbDevice = device.deviceName
         usb.requestPermission(device, PendingIntent.getBroadcast(this, 0, intent, flags))
         cameraText.text = "相机：等待 USB 授权"
     }
 
     private fun openCamera(device: UsbDevice) {
         val s = service ?: run { cameraText.text = "相机：服务还没启动"; return }
+        // USB authorization itself satisfies connectedDevice's prerequisite.
+        // Notification/BLE permission denial must not leave camera capture in
+        // a bound-only service that disappears when the page goes away.
+        try {
+            startStreamService()
+        } catch (e: RuntimeException) {
+            cameraText.text = "相机：无法启动后台采集服务，请回到前台重新连接（${e.message}）"
+            return
+        }
         cameraText.text = "相机：启动中（Commit 约需 2–3 秒）"
-        Thread {
-            val error = s.openCamera(device)
-            main.post { cameraText.text = if (error == null) "相机：已开流" else "相机：开流失败：$error" }
-        }.start()
+        s.openCamera(device) { error ->
+            cameraText.text = if (error == null) "相机：${s.cameraStatus}" else "相机：开流失败：$error"
+        }
     }
 
     // ---- 定时刷新 ----------------------------------------------------------------------------
@@ -200,6 +239,7 @@ class MainActivity : Activity() {
             return
         }
         cameraText.text = "相机：" + s.cameraStatus
+        preview.update(s)
         usbLogText.text = NativeCore.nativeUsbLog()
         handleText.text = "手柄：" + s.handleLink.state
         val imuSample = NativeCore.nativeLatestImu(s.handle)
@@ -219,9 +259,8 @@ class MainActivity : Activity() {
         val streaming = NativeCore.nativeCameraStreaming(s.handle)
         val lines = mutableListOf<String>()
         if (streaming && fps >= 0) lines += "处理帧率 %.1f 帧/秒（实测，最近 2 秒）".format(fps)
-        lines += "拼帧 ${stats.getLong("frames")}，丢弃不完整 ${stats.getLong("incomplete")}，" +
-            "包错误 ${stats.getLong("packet_errors")}，UVC 错误位 ${stats.getLong("uvc_errors")}，" +
-            "计算忙时替换 ${stats.getLong("frames_dropped_busy")}，上一帧计算 ${stats.getDouble("last_process_ms")} ms"
+        lines += "已处理 ${stats.getLong("frames_processed")} 帧，计算忙时替换 ${stats.getLong("frames_dropped_busy")}，" +
+            "上一帧计算 ${stats.getDouble("last_process_ms")} ms"
         lines += "已发帧 ${s.framesSent}，手柄确认刷新 ${s.framesShown}" +
             (if (s.lastFrameHex.isNotEmpty()) "，最后一帧 ${s.lastFrameHex}" else "")
         if (s.lastLog.isNotEmpty()) lines += s.lastLog
@@ -232,13 +271,19 @@ class MainActivity : Activity() {
     private fun renderGrid(g: JSONObject) {
         val status = g.getString("status")
         gridStatusText.text = when (status) {
-            "ok" -> {
-                val ground = g.getJSONObject("ground")
-                "栅格：正常（离地 %.2f m，俯仰 %.0f°）".format(ground.getDouble("height_m"), ground.getDouble("pitch_deg"))
-            }
-            "ground_fit_failed" -> "栅格：降级，整张为未知（地面拟合失败：${g.getString("failure")}）"
-            "no_calibration" -> "栅格：没有可用内参（${g.getString("failure")}）"
+            "ok" -> "栅格：正常"
+            "ground_fit_failed" -> "栅格：地面拟合失败，整张为未知"
+            "no_calibration" -> "栅格：没有可用内参，整张为未知"
             else -> "栅格：未连接"
+        }
+        val now = SystemClock.elapsedRealtime()
+        if (status != lastGridStatus || now - lastGroundAt >= 1000) {
+            groundDetailText.text = if (status == "ok") {
+                val ground = g.getJSONObject("ground")
+                "地面估计：离地 %.2f m，俯仰 %.0f°".format(ground.getDouble("height_m"), ground.getDouble("pitch_deg"))
+            } else g.optString("failure").let { if (it.isEmpty()) "" else "地面诊断：$it" }
+            lastGridStatus = status
+            lastGroundAt = now
         }
         val cells = if (g.isNull("cells")) null else g.getString("cells")
         for (row in 0 until 6) {
@@ -284,12 +329,32 @@ class MainActivity : Activity() {
         cameraText = text()
         cameraText.text = "相机：未连接"
         button("连接相机（CS30）") { connectCamera() }
-        button("断开相机") { service?.closeCamera() }
+        button("断开相机") { pendingUsbDevice = null; service?.closeCamera(); preview.clear() }
+
+        val previewRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        fun previewPanel(label: String): ImageView {
+            val panel = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+            panel.addView(TextView(this).apply { text = label; textSize = 13f })
+            val image = ImageView(this).apply {
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setBackgroundColor(Color.BLACK)
+                contentDescription = label
+                layoutParams = LinearLayout.LayoutParams(-1, (160 * resources.displayMetrics.density).toInt())
+            }
+            panel.addView(image)
+            previewRow.addView(panel, LinearLayout.LayoutParams(0, -2, 1f))
+            return image
+        }
+        val colorPreview = previewPanel("彩色画面")
+        val depthPreview = previewPanel("深度画面（近亮远暗，黑色为无效）")
+        column.addView(previewRow)
+        preview = CameraPreview(colorPreview, depthPreview, text(12f).apply { text = "尚无相机画面" })
 
         gridStatusText = text()
         gridStatusText.text = "栅格：未连接"
         text(13f).text = "从远到近 6 行、从左到右 9 列；· 空  ■ 障碍  ? 未知（相机视角，未做穿戴镜像）"
         gridRows = (0 until 6).map { text(24f, mono = true).apply { text = "—" } }
+        groundDetailText = text(13f)
 
         handleText = text()
         handleText.text = "手柄：未连接"
@@ -329,10 +394,7 @@ class MainActivity : Activity() {
         button("平面检查（对着平整的墙或斜看地面）") {
             val s = service ?: return@button
             planeText.text = "计算中…"
-            Thread {
-                val report = NativeCore.nativePlaneCheck(s.handle)
-                main.post { planeText.text = report }
-            }.start()
+            s.requestPlaneCheck { report -> if (!isDestroyed) planeText.text = report }
         }
         planeText = text(13f, mono = true)
         // 真机验收第 1、3 条：帧文件放在 /sdcard/Android/data/com.lingtouch.companion/files/
@@ -350,10 +412,10 @@ class MainActivity : Activity() {
             else "${file.name}：${g.getString("status")}，摘要 ${g.getString("digest")}\n" +
                 (0 until 6).joinToString("\n") { g.getString("cells").substring(it * 9, it * 9 + 9) }
         }
-        button("复位相机（release 后重开仍失败时）") {
+        button("重新启动取流") {
             val s = service
             val error = if (s == null) "服务还没启动" else s.resetCamera()
-            cameraText.text = if (error == null) "相机：已复位，请重新连接" else "相机：复位失败：$error"
+            cameraText.text = if (error == null) "相机：正在重新启动取流" else "相机：重启失败：$error"
         }
         detailText = text(13f)
         button("复制诊断信息") {
@@ -370,6 +432,16 @@ class MainActivity : Activity() {
         usbLogText = text(12f, mono = true)
         button("显示当前参数") { planeText.text = service?.let { NativeCore.nativeConfigText(it.handle) } ?: "" }
 
-        return ScrollView(this).apply { addView(column) }
+        return ScrollView(this).apply {
+            addView(column)
+            // targetSdk 35 enables edge-to-edge on Android 15. Keep controls
+            // clear of the status/navigation bars on a real phone.
+            setOnApplyWindowInsetsListener { view, insets ->
+                @Suppress("DEPRECATION")
+                view.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop,
+                    insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+                insets
+            }
+        }
     }
 }

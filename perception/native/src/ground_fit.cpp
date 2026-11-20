@@ -144,6 +144,13 @@ bool fit_plane_least_squares(const std::vector<Point3>& points, std::array<doubl
 }
 
 GroundEstimate fit_ground_plane(const std::vector<Point3>& candidates, const GroundParams& p) {
+  std::vector<Point3> inliers;
+  return fit_ground_plane(candidates, p, inliers);
+}
+
+GroundEstimate fit_ground_plane(const std::vector<Point3>& candidates, const GroundParams& p,
+                               std::vector<Point3>& inliers) {
+  inliers.clear();
   GroundEstimate g;
   const size_t n = candidates.size();
   g.candidates = static_cast<uint32_t>(n);
@@ -172,13 +179,14 @@ GroundEstimate fit_ground_plane(const std::vector<Point3>& candidates, const Gro
       best = pl;
       best_count = count;
     }
+    // No later hypothesis can improve this score; ties keep the first plane.
+    if (best_count == n) break;
   }
   if (best_count < 3) {
     g.failure = "没有找到满足相机高度和倾角条件的平面";
     return g;
   }
 
-  std::vector<Point3> inliers;
   inliers.reserve(best_count);
   for (const Point3& q : candidates)
     if (std::fabs(best.distance(q)) <= p.inlier_distance_m) inliers.push_back(q);

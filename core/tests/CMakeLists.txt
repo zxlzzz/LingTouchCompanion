@@ -11,6 +11,14 @@ endfunction()
 lingtouch_add_test(test_tactile_legacy test_tactile_legacy.cpp)
 lingtouch_add_test(test_config test_config.cpp)
 lingtouch_add_test(test_wit_ble_imu test_wit_ble_imu.cpp)
+lingtouch_add_test(test_cs30_sensor_adapter test_cs30_sensor_adapter.cpp
+  "${LINGTOUCH_ROOT}/apps/android/app/src/main/cpp/cs30_sensor_adapter.cpp"
+  "${LINGTOUCH_ROOT}/apps/harmony/entry/src/main/cpp/cs30_sensor_adapter.cpp"
+  "${LINGTOUCH_ROOT}/apps/harmony/entry/src/main/cpp/harmony_usb_transport.cpp")
+lingtouch_add_test(test_android_usb_transport test_android_usb_transport.cpp
+  "${LINGTOUCH_ROOT}/apps/android/app/src/main/cpp/android_usb_transport.cpp")
+target_include_directories(test_android_usb_transport PRIVATE
+  "${LINGTOUCH_ROOT}/perception/native/third_party/libusb/libusb")
 
 # 已提交的测试向量必须仍与 frame_converter.py 一致（需要 Python 和 numpy；缺 numpy 时跳过）
 find_package(Python3 COMPONENTS Interpreter)

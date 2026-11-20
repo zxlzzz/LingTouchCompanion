@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "lingtouch/config.h"
+#include "lingtouch/modules.h"
 #include "lingtouch/perception/cs30_protocol.h"
 #include "lingtouch/perception/uvc_frame_assembler.h"
 #include "lingtouch/result.h"
@@ -59,6 +60,9 @@ class Engine {
   void push_iso_transfer(const uint8_t* buffer, size_t size, const IsoPacketDesc* descs, size_t count);
   // 重新开流前调用：清掉拆了一半的帧
   void reset_stream();
+  // New capture path: accept an already assembled frame without doing inference
+  // on the USB thread. reset_stream() invalidates queued/in-flight old results.
+  Status submit_frame(const FrameBundle& frame);
 
   // ---- 结果
   OccupancyGrid latest_grid() const;
@@ -95,6 +99,9 @@ class Engine {
   bool pending_ready_ = false;
   bool stopping_ = false;
   DepthFrame pending_;
+  std::optional<CameraIntrinsics> pending_intrinsics_;
+  uint64_t capture_session_ = 0;
+  uint64_t pending_session_ = 0;
 
   mutable std::mutex result_mutex_;
   OccupancyGrid latest_grid_;

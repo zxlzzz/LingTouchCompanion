@@ -30,8 +30,8 @@ class DepthPipeline {
   std::optional<DepthCameraModel> model_;
   OccupancyGridBuilder builder_;
   DepthMask mask_;
-  std::vector<Point3> points_;
   std::vector<Point3> candidates_;
+  std::vector<Point3> inliers_;
   std::vector<GroundPoint> ground_points_;
 };
 

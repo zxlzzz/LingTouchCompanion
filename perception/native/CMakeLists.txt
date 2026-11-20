@@ -3,6 +3,7 @@
 add_library(lingtouch_perception STATIC
   src/cs30_protocol.cpp
   src/cs30_calibration.cpp
+  src/cs30_capture.cpp
   src/uvc_frame_assembler.cpp
   src/depth_geometry.cpp
   src/ground_fit.cpp

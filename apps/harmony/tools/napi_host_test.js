@@ -4,7 +4,7 @@
 // 先编译核心（cmake -S core -B build/core && cmake --build build/core），再在仓库根目录：
 //   mkdir -p build/napi_shim/napi && printf '#pragma once\n#include <node_api.h>\n' > build/napi_shim/napi/native_api.h
 //   g++ -std=c++17 -shared -fPIC -Ibuild/napi_shim -I<node>/include/node -Icore/include -Iperception/native/include \
-//     apps/harmony/entry/src/main/cpp/napi_init.cpp -o build/entry.node \
+//     apps/harmony/entry/src/main/cpp/{napi_init,camera_napi,cs30_sensor_adapter,harmony_usb_transport}.cpp -o build/entry.node \
 //     -Wl,--whole-archive build/core/liblingtouch_engine.a -Wl,--no-whole-archive \
 //     build/core/perception/liblingtouch_perception.a build/core/liblingtouch_base.a -lpthread
 //   node apps/harmony/tools/napi_host_test.js build/entry.node .

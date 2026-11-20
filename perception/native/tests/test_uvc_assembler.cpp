@@ -155,4 +155,17 @@ LT_TEST(transfer_batches_use_slot_offsets_and_statuses) {
   LT_CHECK(transfers > 1);
 }
 
+LT_TEST(damaged_packet_cannot_be_repaired_by_filling_expected_size) {
+  for (bool variable : {false,true}) {
+    Collected c;UvcFrameAssembler a(4,c.sink(),variable);
+    const uint8_t bytes[]={1,2,3,4};
+    IsoPacketDesc failed{2,0,1};uint8_t bad[2]={2,0};
+    a.push_transfer(bad,sizeof(bad),&failed,1);
+    auto p=packet(kEof,bytes,sizeof(bytes));a.push_packet(p.data(),p.size());
+    LT_CHECK(c.frames.empty() && a.stats().incomplete==1);
+    p=packet(1|kEof,bytes,variable?2:4);a.push_packet(p.data(),p.size());
+    LT_CHECK(c.frames.size()==1 && c.frames[0].size()==(variable?2:4));
+  }
+}
+
 LT_TEST_MAIN()

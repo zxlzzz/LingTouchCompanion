@@ -34,7 +34,7 @@ class UvcFrameAssembler {
  public:
   using FrameSink = std::function<void(const uint8_t* data, size_t size)>;
 
-  UvcFrameAssembler(size_t frame_bytes, FrameSink sink);
+  UvcFrameAssembler(size_t frame_bytes, FrameSink sink, bool variable_length = false);
 
   // 一个 UVC 负载包（含头）
   void push_packet(const uint8_t* data, size_t size);
@@ -52,6 +52,8 @@ class UvcFrameAssembler {
   std::vector<uint8_t> buffer_;
   size_t size_ = 0;
   bool overflow_ = false;
+  bool damaged_ = false;
+  bool variable_length_ = false;
   int fid_ = -1;  // 还没见过包时为 -1
   AssemblerStats stats_;
 };
