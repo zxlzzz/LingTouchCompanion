@@ -7,13 +7,14 @@
 | 文件夹 | 归属 | 内容 |
 |---|---|---|
 | [core/](core/README.md) | 大家共用 | C++17 端侧核心：类型、模块接口、点阵编码、全部参数、给外壳的门面、顶层 CMake |
-| [perception/](perception/README.md) | 视觉同学 | `native/` CS30 取流与拆帧、几何、0/1/2；`cs30/` 协议材料；`lab/` Python 实验位 |
+| [perception/](perception/README.md) | 视觉同学 | `native/` CS30 协议与拆帧、几何、0/1/2；`cs30/` 协议材料；`lab/` Python 实验位 |
+| 相机驱动（跨文件夹） | 相机同学 | 唯一一套：`perception/native/` 的 `cs30_capture`，加 `apps/android`、`apps/harmony` 的适配器和 USB 传输，接口 `core/include/lingtouch/modules.h` 的 `SensorAdapter`；说明 [docs/cs30_mobile_capture.md](docs/cs30_mobile_capture.md)（随驱动改） |
 | [agent/](agent/README.md) | 对话 agent 同学 | `native/` agent 与语音接口；`backend/` Node.js 导航与命令解析服务 |
 | [apps/](apps/README.md) | 交互同学 | `android/`（Kotlin）、`harmony/`（ArkTS，平板优先） |
 | [hardware/](hardware/README.md) | Hsinlung | 固件、3D 模型、PCB、头戴方案、BLE 调试页 |
 | [experiments/chi2027/](experiments/chi2027/README.md) | Hsinlung | 论文实验通路（手机拍摄 + 电脑深度推理） |
 | [docs/](docs/) | — | [方案文档](docs/plans/)、[本次交接](docs/plans/HANDOFF_2026-10-28.md)、[真机验收清单](docs/device_tests.md)、[报告](docs/REPORT_2026-10-28.md)、[本机迁移脚本](docs/migrate_local_2026-10-28.ps1) |
-| [archive/](archive/) | — | 不再使用但保留：uni-app 前端、旧 `vision/`、9/29 比赛版 `LingTouch.zip`、10/09 的旧 CLAUDE.md |
+| [archive/](archive/) | — | 不再使用但保留：uni-app 前端、旧 `vision/`、视觉同学 11/06 的独立实时 App（`perception_cs30_live/`）、9/29 比赛版 `LingTouch.zip`、10/09 的旧 CLAUDE.md |
 
 ## 入口
 

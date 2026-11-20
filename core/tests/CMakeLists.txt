@@ -11,6 +11,7 @@ endfunction()
 lingtouch_add_test(test_tactile_legacy test_tactile_legacy.cpp)
 lingtouch_add_test(test_config test_config.cpp)
 lingtouch_add_test(test_wit_ble_imu test_wit_ble_imu.cpp)
+# 相机驱动的平台部分（apps/ 下的适配器与 USB 传输）在主机上用模拟 USB 测
 lingtouch_add_test(test_cs30_sensor_adapter test_cs30_sensor_adapter.cpp
   "${LINGTOUCH_ROOT}/apps/android/app/src/main/cpp/cs30_sensor_adapter.cpp"
   "${LINGTOUCH_ROOT}/apps/harmony/entry/src/main/cpp/cs30_sensor_adapter.cpp"

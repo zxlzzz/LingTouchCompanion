@@ -15,6 +15,7 @@ C++17，无平台依赖，由 [`core/CMakeLists.txt`](../../core/CMakeLists.txt)
 | 文件 | 内容 |
 |---|---|
 | `cs30_protocol.h/.cpp` | 常量、启动序列表、IN 响应收集（设备信息、两份标定分片拼接） |
+| `cs30_capture.h/.cpp` | 相机驱动的共用部分（相机同学）：取流会话、流格式、双流载荷解析；平台部分在 `apps/*/` 的 `cs30_sensor_adapter`、`*_usb_transport`，说明见 [docs/cs30_mobile_capture.md](../../docs/cs30_mobile_capture.md) |
 | `src/cs30_startup_sequence.inc` | 由 `tools/gen_startup_sequence.py` 从 `perception/cs30/startup_sequence.json` 生成，不手改 |
 | `uvc_frame_assembler.h/.cpp` | 拆帧：UVC 头、FID 翻转、EOF、ERR、空包；与 `independent_proof.py` 逻辑一致 |
 | `cs30_calibration.h/.cpp` | 标定 blob 无 schema 解码（字段含义为推断，见头文件注释） |
@@ -23,7 +24,8 @@ C++17，无平台依赖，由 [`core/CMakeLists.txt`](../../core/CMakeLists.txt)
 | `occupancy.h/.cpp` | 0/1/2 规则 |
 | `pipeline.h/.cpp` | 串起来；另有平面检查（判断深度是光轴 Z 还是径向、要不要去畸变） |
 | `tools/lt_frame_tool.cpp` | 主机小工具：对一帧原始深度打印栅格或平面检查 |
-| `cs30_libusb/`、`third_party/libusb/` | 安卓用的 libusb 等时传输（`LINGTOUCH_WITH_LIBUSB=ON` 时编译） |
+| `cs30_libusb/` | 旧的 libusb 取流，主驱动不用；只剩鸿蒙默认关闭的诊断选项 `LINGTOUCH_HARMONY_LIBUSB` 链接它 |
+| `third_party/libusb/` | libusb 源码；安卓传输层直接用（`LINGTOUCH_WITH_LIBUSB=ON` 时编译） |
 
 ## 未确认、做成参数的
 

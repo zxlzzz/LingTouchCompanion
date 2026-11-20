@@ -20,4 +20,4 @@ python cs30_web.py --model-dir ../../models/segformer-b0-ade --open
 python -m unittest test_geometry test_spatial_grid test_rgbd_floor
 ```
 
-以上是几何/未知状态回归，不需要模型文件，但模块导入需要安装依赖。与 C++ 主线的去噪和 RANSAC 抽样策略有差别，不能把两者的结果差异只归因于是否使用 RGB。当前原生深度主线说明见 [pipeline.md](../../docs/vision/pipeline.md)。
+以上是几何/未知状态回归，不需要模型文件，但模块导入需要安装依赖。与 C++ 主线的去噪和 RANSAC 抽样策略有差别，不能把两者的结果差异只归因于是否使用 RGB。当前原生深度主线说明见 [native](../../native/README.md)。

@@ -60,8 +60,8 @@ class Engine {
   void push_iso_transfer(const uint8_t* buffer, size_t size, const IsoPacketDesc* descs, size_t count);
   // 重新开流前调用：清掉拆了一半的帧
   void reset_stream();
-  // New capture path: accept an already assembled frame without doing inference
-  // on the USB thread. reset_stream() invalidates queued/in-flight old results.
+  // 相机驱动（SensorAdapter）拼好整帧后交进来，后台线程计算，不占 USB 线程。
+  // reset_stream() 之后，排队中和计算中的旧会话结果都作废。
   Status submit_frame(const FrameBundle& frame);
 
   // ---- 结果

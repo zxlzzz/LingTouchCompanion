@@ -77,8 +77,7 @@ def generate():
                     cells = "".join(str(int(v)) for v in states.reshape(-1))
                     lines.append(f"chain {rot180} {mirror} {policy} {cells} {fc.grid_to_bytes(board).hex()}")
 
-    # Git may check out CRLF on Windows. Hash canonical LF source, matching the
-    # committed reference, while continuing to detect every source edit.
+    # Windows 上 Git 可能检出成 CRLF：统一成 LF 再算摘要，和提交的参考一致，源文件真有改动仍能发现。
     digest = hashlib.sha256(FRAME_CONVERTER.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     header = [
         "# 由 core/tools/gen_legacy_vectors.py 用 experiments/chi2027/visionss/frame_converter.py 生成，不要手改。",
