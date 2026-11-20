@@ -1,0 +1,17 @@
+{
+  "signingConfigs": [
+    {
+      "name": "default",
+      "type": "HarmonyOS",
+      "material": {
+        "certpath": "C:\\Users\\yl231\\.ohos\\config\\default_harmony_szoD3Q9TXefdy1j2P7IORxNJExgXylEMMcQO1l9xB9k=.cer",
+        "keyAlias": "debugKey",
+        "keyPassword": "0000001AC73BD5CA218193F47234E07B1439A488FC2680D914907E4A7162A65F24B26DBFC0DF4B9265E8",
+        "profile": "C:\\Users\\yl231\\.ohos\\config\\default_harmony_szoD3Q9TXefdy1j2P7IORxNJExgXylEMMcQO1l9xB9k=.p7b",
+        "signAlg": "SHA256withECDSA",
+        "storeFile": "C:\\Users\\yl231\\.ohos\\config\\default_harmony_szoD3Q9TXefdy1j2P7IORxNJExgXylEMMcQO1l9xB9k=.p12",
+        "storePassword": "0000001A8C09C4E1CC533817744E09EBCA629DC3C797009F73DB69C346D73479772F44C5369DE467E2FC"
+      }
+    }
+  ]
+}
